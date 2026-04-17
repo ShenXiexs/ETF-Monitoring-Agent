@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ bootstrap.app_name }}</title>
+    <style>
+        :root {
+            --bg: #f4efe6;
+            --paper: rgba(255, 252, 246, 0.92);
+            --ink: #15202b;
+            --muted: #5f6b73;
+            --line: rgba(21, 32, 43, 0.1);
+            --accent: #0f766e;
+            --accent-strong: #115e59;
+            --warn: #9a3412;
+            --shadow: 0 24px 60px rgba(21, 32, 43, 0.12);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 38%),
+                radial-gradient(circle at top right, rgba(180, 83, 9, 0.14), transparent 30%),
+                linear-gradient(180deg, #faf6ef 0%, var(--bg) 100%);
+            min-height: 100vh;
+        }
+
+        .shell {
+            width: min(1440px, calc(100% - 32px));
+            margin: 24px auto;
+            padding: 28px;
+            border: 1px solid rgba(255, 255, 255, 0.45);
+            border-radius: 28px;
+            background: rgba(255, 255, 255, 0.62);
+            backdrop-filter: blur(20px);
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .hero-card,
+        .panel,
+        .modal-card {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+        }
+
+        .hero-card {
+            padding: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-card::after {
+            content: "";
+            position: absolute;
+            inset: auto -10% -45% auto;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(15, 118, 110, 0.18), transparent 68%);
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border-radius: 999px;
+            background: rgba(21, 32, 43, 0.05);
+            color: var(--muted);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        h1, h2, h3 {
+            margin: 0;
+            font-family: "Iowan Old Style", "Palatino Linotype", "Noto Serif SC", serif;
+            font-weight: 700;
+        }
+
+        h1 {
+            margin-top: 14px;
+            font-size: clamp(32px, 4vw, 52px);
+            line-height: 1.05;
+        }
+
+        .hero-copy {
+            margin-top: 12px;
+            max-width: 720px;
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.7;
+        }
+
+        .hero-meta {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.08);
+            color: var(--accent-strong);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .summary-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            padding: 22px;
+        }
+
+        .summary-card {
+            padding: 18px;
+            border-radius: 20px;
+            background: linear-gradient(135deg, rgba(15, 118, 110, 0.1), rgba(255, 255, 255, 0.9));
+            border: 1px solid rgba(15, 118, 110, 0.08);
+        }
+
+        .summary-card .label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .summary-card .value {
+            margin-top: 8px;
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .warning-list {
+            display: grid;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .warning-item {
+            padding: 14px 16px;
+            border-radius: 18px;
+            background: rgba(154, 52, 18, 0.08);
+            border: 1px solid rgba(154, 52, 18, 0.12);
+            color: var(--warn);
+            font-size: 14px;
+        }
+
+        .toolbar {
+            margin-top: 18px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        button {
+            appearance: none;
+            border: 0;
+            border-radius: 999px;
+            padding: 12px 16px;
+            font: inherit;
+            cursor: pointer;
+            transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+        }
+
+        button:hover:not(:disabled) { transform: translateY(-1px); }
+        button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: rgba(21, 32, 43, 0.06);
+            color: var(--ink);
+        }
+
+        .layout {
+            margin-top: 22px;
+            display: grid;
+            gap: 16px;
+            grid-template-columns: 1.05fr 1.05fr 1.2fr;
+        }
+
+        .panel {
+            padding: 20px;
+            min-height: 220px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .panel-header small {
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .scroll-list {
+            display: grid;
+            gap: 10px;
+            max-height: 520px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .card-row {
+            padding: 14px 16px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+
+        .card-row strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .card-row .subtle {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .signal-tag {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: rgba(15, 118, 110, 0.1);
+            color: var(--accent-strong);
+            margin-bottom: 8px;
+        }
+
+        .module-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .module-btn {
+            padding: 14px;
+            border-radius: 18px;
+            background: rgba(21, 32, 43, 0.05);
+            border: 1px solid transparent;
+            text-align: left;
+        }
+
+        .module-btn.active {
+            background: rgba(15, 118, 110, 0.12);
+            border-color: rgba(15, 118, 110, 0.22);
+        }
+
+        .module-btn .title {
+            font-weight: 700;
+        }
+
+        .module-btn .desc {
+            margin-top: 6px;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .skill-tags {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .skill-chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 9px;
+            border-radius: 999px;
+            background: rgba(21, 32, 43, 0.08);
+            color: var(--muted);
+            font-size: 11px;
+            line-height: 1;
+        }
+
+        .chat-feed {
+            margin-top: 16px;
+            display: grid;
+            gap: 12px;
+            max-height: 360px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .message {
+            max-width: 90%;
+            padding: 14px 16px;
+            border-radius: 18px;
+            line-height: 1.7;
+            font-size: 14px;
+        }
+
+        .message.user {
+            margin-left: auto;
+            background: rgba(15, 118, 110, 0.12);
+        }
+
+        .message.assistant {
+            background: rgba(21, 32, 43, 0.05);
+        }
+
+        .message .metrics {
+            margin-top: 10px;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        .composer {
+            margin-top: 16px;
+            display: grid;
+            gap: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 110px;
+            resize: vertical;
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            padding: 16px;
+            font: inherit;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        input[type="file"] {
+            width: 100%;
+            font: inherit;
+        }
+
+        .empty-state {
+            padding: 22px;
+            border-radius: 18px;
+            border: 1px dashed rgba(21, 32, 43, 0.18);
+            color: var(--muted);
+            text-align: center;
+        }
+
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(21, 32, 43, 0.25);
+            padding: 24px;
+        }
+
+        .modal-card {
+            width: min(960px, 100%);
+            padding: 24px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .report-grid {
+            display: grid;
+            gap: 16px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .report-block {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(21, 32, 43, 0.04);
+            border: 1px solid var(--line);
+        }
+
+        .report-block ul {
+            margin: 10px 0 0;
+            padding-left: 18px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+        }
+
+        th, td {
+            border: 1px solid var(--line);
+            padding: 8px 10px;
+            text-align: left;
+        }
+
+        @media (max-width: 1180px) {
+            .hero,
+            .layout,
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="shell">
+        <section class="hero">
+            <div class="hero-card">
+                <div class="eyebrow">Asset Intel Workbench</div>
+                <h1 id="hero-title">{{ bootstrap.app_name }}</h1>
+                <div class="hero-copy" id="hero-copy"></div>
+                <div class="hero-meta" id="hero-meta"></div>
+                <div class="warning-list" id="warning-list"></div>
+                <div class="toolbar">
+                    <button class="btn-primary" id="refresh-btn" type="button">刷新视图</button>
+                    <button class="btn-secondary" id="toggle-btn" type="button">暂停模拟</button>
+                    <button class="btn-secondary" id="report-btn" type="button">打开日报</button>
+                    <button class="btn-secondary" id="export-btn" type="button" disabled>导出报告</button>
+                </div>
+            </div>
+            <div class="hero-card">
+                <div class="summary-grid" id="summary-grid"></div>
+            </div>
+        </section>
+
+        <section class="layout">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>产品谱系</h2>
+                    <small id="product-count"></small>
+                </div>
+                <div class="scroll-list" id="product-list"></div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>当日信号</h2>
+                    <small id="signal-date"></small>
+                </div>
+                <div class="scroll-list" id="signal-list"></div>
+                <div class="panel-header" style="margin-top: 20px;">
+                    <h2>历史回放</h2>
+                    <small>最近 10 个日期</small>
+                </div>
+                <div class="scroll-list" id="history-list" style="max-height: 220px;"></div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>协作工作台</h2>
+                    <small id="active-module-label"></small>
+                </div>
+                <div class="module-grid" id="module-grid"></div>
+                <div class="chat-feed" id="chat-feed"></div>
+                <div class="composer">
+                    <textarea id="chat-input" placeholder="输入问题，或上传待解析的政策文件。"></textarea>
+                    <input id="pdf-input" type="file" accept=".pdf">
+                    <button class="btn-primary" id="send-btn" type="button">发送到当前模块</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div class="modal" id="daily-report-modal">
+        <div class="modal-card">
+            <div class="modal-actions">
+                <div>
+                    <div class="eyebrow">Daily Brief</div>
+                    <h2 id="modal-title">当日工作摘要</h2>
+                </div>
+                <button class="btn-secondary" id="close-modal-btn" type="button">关闭</button>
+            </div>
+            <div class="report-grid">
+                <div class="report-block">
+                    <h3>亮点产品</h3>
+                    <div id="modal-highlights"></div>
+                </div>
+                <div class="report-block">
+                    <h3>重点信号</h3>
+                    <div id="modal-news"></div>
+                </div>
+                <div class="report-block">
+                    <h3>内容建议</h3>
+                    <div id="modal-suggestions"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const BOOTSTRAP = {{ bootstrap|tojson }};
+        let appState = BOOTSTRAP;
+        let activeModule = (appState.modules[0] || {}).key || "product_research";
+        let latestSessionId = null;
+
+        const heroCopy = document.getElementById("hero-copy");
+        const heroMeta = document.getElementById("hero-meta");
+        const warningList = document.getElementById("warning-list");
+        const summaryGrid = document.getElementById("summary-grid");
+        const productCount = document.getElementById("product-count");
+        const productList = document.getElementById("product-list");
+        const signalDate = document.getElementById("signal-date");
+        const signalList = document.getElementById("signal-list");
+        const historyList = document.getElementById("history-list");
+        const moduleGrid = document.getElementById("module-grid");
+        const activeModuleLabel = document.getElementById("active-module-label");
+        const chatFeed = document.getElementById("chat-feed");
+        const chatInput = document.getElementById("chat-input");
+        const pdfInput = document.getElementById("pdf-input");
+        const dailyReportModal = document.getElementById("daily-report-modal");
+        const exportBtn = document.getElementById("export-btn");
+
+        function escapeHtml(text) {
+            return String(text || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;");
+        }
+
+        function formatMarkdown(text) {
+            let output = escapeHtml(text);
+            output = output.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+            output = output.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+            output = output.replace(/\n\n/g, "<br><br>");
+            output = output.replace(/\n/g, "<br>");
+            if (output.includes("|")) {
+                output = output.replace(
+                    /\|(.+)\|<br>\|[-:\s|]+\|<br>((?:\|.+\|<br>?)+)/g,
+                    (_, header, body) => {
+                        const headers = header.split("|").filter(Boolean).map((item) => `<th>${item.trim()}</th>`).join("");
+                        const rows = body.trim().split("<br>").filter(Boolean).map((row) => {
+                            const cols = row.split("|").filter(Boolean).map((cell) => `<td>${cell.trim()}</td>`).join("");
+                            return `<tr>${cols}</tr>`;
+                        }).join("");
+                        return `<table><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+                    }
+                );
+            }
+            return output;
+        }
+
+        function infoPill(label) {
+            return `<div class="pill">${label}</div>`;
+        }
+
+        function renderWarnings() {
+            warningList.innerHTML = "";
+            (appState.warnings || []).forEach((item) => {
+                const row = document.createElement("div");
+                row.className = "warning-item";
+                row.textContent = item;
+                warningList.appendChild(row);
+            });
+        }
+
+        function renderHero() {
+            const currentDate = appState.simulation.current_date || "未加载数据";
+            heroCopy.textContent = appState.has_data
+                ? "工作台已加载外部市场快照。你可以在四个岗位化模块之间切换，以相同数据底座完成事实查询、市场监测、内容整理与政策解析。"
+                : "当前为无数据空态。页面仍可用于政策文件解析与界面检查；接入外部目录后，产品、信号和日报区域会自动恢复。";
+            heroMeta.innerHTML = [
+                infoPill(appState.has_data ? `当前日期 ${currentDate}` : "空态模式"),
+                infoPill(appState.simulation.is_running ? "模拟运行中" : "模拟已暂停"),
+                infoPill(`模块数 ${appState.modules.length}`),
+            ].join("");
+        }
+
+        function renderSummary() {
+            const summaryItems = [
+                ["产品数", appState.summary.product_count],
+                ["政策条目", appState.summary.policy_count],
+                ["当日信号", appState.summary.signal_count],
+                ["状态", appState.has_data ? "已接入" : "空态"],
+            ];
+            summaryGrid.innerHTML = summaryItems.map(([label, value]) => `
+                <div class="summary-card">
+                    <div class="label">${label}</div>
+                    <div class="value">${value}</div>
+                </div>
+            `).join("");
+        }
+
+        function renderProducts() {
+            const products = appState.products || [];
+            productCount.textContent = appState.has_data ? `${products.length} 个产品` : "等待外部数据";
+            if (!products.length) {
+                productList.innerHTML = '<div class="empty-state">未加载产品快照。</div>';
+                return;
+            }
+
+            productList.innerHTML = "";
+            products.forEach((item) => {
+                const row = document.createElement("div");
+                row.className = "card-row";
+                row.innerHTML = `<strong>${escapeHtml(item.name)}</strong><div class="subtle">${escapeHtml(item.code)}</div>`;
+                row.onclick = () => {
+                    chatInput.value = `请提供产品快照：${item.name} ${item.code}`;
+                    activeModule = "product_research";
+                    renderModules();
+                };
+                productList.appendChild(row);
+            });
+        }
+
+        function renderSignals() {
+            signalDate.textContent = appState.simulation.current_date || "未加载数据";
+            const signals = appState.signals || [];
+            if (!signals.length) {
+                signalList.innerHTML = '<div class="empty-state">当前没有可展示的监测信号。</div>';
+                return;
+            }
+
+            signalList.innerHTML = "";
+            signals.forEach((item) => {
+                const row = document.createElement("div");
+                row.className = "card-row";
+                row.innerHTML = `
+                    <div class="signal-tag">${escapeHtml(item.category)}</div>
+                    <strong>${escapeHtml(item.content)}</strong>
+                    <div class="subtle">${escapeHtml(item.date || "")}</div>
+                `;
+                row.onclick = () => {
+                    chatInput.value = `请从${item.category}角度解读：${item.content}`;
+                    activeModule = item.category === "监管政策" ? "policy_analysis" : "market_monitoring";
+                    renderModules();
+                };
+                signalList.appendChild(row);
+            });
+        }
+
+        function renderHistory() {
+            const entries = Object.entries(appState.history || {});
+            if (!entries.length) {
+                historyList.innerHTML = '<div class="empty-state">暂无历史记录。</div>';
+                return;
+            }
+
+            historyList.innerHTML = "";
+            entries.forEach(([date, signals]) => {
+                const row = document.createElement("div");
+                row.className = "card-row";
+                row.innerHTML = `
+                    <strong>${escapeHtml(date)}</strong>
+                    <div class="subtle">${signals.length} 条信号</div>
+                `;
+                row.onclick = () => {
+                    chatInput.value = `请总结 ${date} 的重点变化`;
+                    activeModule = "market_monitoring";
+                    renderModules();
+                };
+                historyList.appendChild(row);
+            });
+        }
+
+        function renderModules() {
+            const activeCard = appState.modules.find((item) => item.key === activeModule) || {};
+            const activeSkills = (activeCard.skills || []).map((item) => item.label).join(" · ");
+            activeModuleLabel.textContent = activeSkills ? `${activeCard.label} · ${activeSkills}` : (activeCard.label || "");
+            moduleGrid.innerHTML = "";
+            appState.modules.forEach((item) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = `module-btn ${item.key === activeModule ? "active" : ""}`;
+                const skillTags = (item.skills || []).map((skill) => `<span class="skill-chip">${escapeHtml(skill.label)}</span>`).join("");
+                btn.innerHTML = `
+                    <div class="title">${item.label}</div>
+                    <div class="desc">${item.summary}</div>
+                    <div class="skill-tags">${skillTags}</div>
+                `;
+                btn.onclick = () => {
+                    activeModule = item.key;
+                    renderModules();
+                };
+                moduleGrid.appendChild(btn);
+            });
+        }
+
+        function ensureChatSeed() {
+            if (chatFeed.children.length > 0) {
+                return;
+            }
+            addMessage("assistant", "工作台已就绪。选择一个模块后发送问题，或上传 PDF 进入政策解析流程。");
+        }
+
+        function addMessage(role, content) {
+            const bubble = document.createElement("div");
+            bubble.className = `message ${role}`;
+            bubble.innerHTML = formatMarkdown(content);
+            chatFeed.appendChild(bubble);
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+            return bubble;
+        }
+
+        function setReportButtonState() {
+            exportBtn.disabled = !latestSessionId;
+        }
+
+        async function postJson(action, extra = {}) {
+            const response = await fetch("/workspace", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action, ...extra }),
+            });
+            return response.json();
+        }
+
+        async function refreshWorkspace() {
+            appState = await postJson("refresh");
+            renderAll();
+        }
+
+        async function toggleSimulation() {
+            appState = await postJson("toggle_simulation");
+            renderAll();
+        }
+
+        function renderReportModal(report) {
+            const highlights = document.getElementById("modal-highlights");
+            const news = document.getElementById("modal-news");
+            const suggestions = document.getElementById("modal-suggestions");
+            const modalTitle = document.getElementById("modal-title");
+
+            modalTitle.textContent = report.available ? `${report.date} 当日工作摘要` : "当日工作摘要";
+            if (!report.available) {
+                highlights.innerHTML = '<div class="empty-state">当前没有可展示的日报。</div>';
+                news.innerHTML = "";
+                suggestions.innerHTML = `<ul><li>${escapeHtml((report.suggestions || [])[0] || "暂无建议。")}</li></ul>`;
+                dailyReportModal.style.display = "flex";
+                return;
+            }
+
+            highlights.innerHTML = (report.highlights || []).map((item) => `
+                <div class="card-row" style="cursor: default; margin-bottom: 10px;">
+                    <strong>${escapeHtml(item.category)}</strong>
+                    <div class="subtle">${escapeHtml(item.product_name)} (${escapeHtml(item.product_code)})</div>
+                    <div class="subtle">${item.value.toFixed(2)} ${escapeHtml(item.unit)}</div>
+                </div>
+            `).join("");
+
+            news.innerHTML = `<ul>${(report.news || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+            suggestions.innerHTML = `<ul>${(report.suggestions || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
+            dailyReportModal.style.display = "flex";
+        }
+
+        async function openDailyReport() {
+            const report = await postJson("daily_report");
+            appState.daily_report = report;
+            renderReportModal(report);
+        }
+
+        async function exportReport() {
+            if (!latestSessionId) {
+                return;
+            }
+            const formData = new FormData();
+            formData.append("action", "generate_report");
+            formData.append("session_id", latestSessionId);
+            const response = await fetch("/workspace", { method: "POST", body: formData });
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = "policy-report.docx";
+            anchor.click();
+            URL.revokeObjectURL(url);
+        }
+
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            const hasFile = pdfInput.files.length > 0;
+            if (!message && !hasFile) {
+                return;
+            }
+
+            if (message) {
+                addMessage("user", message);
+            } else if (hasFile) {
+                addMessage("user", `上传文件：${pdfInput.files[0].name}`);
+            }
+
+            const replyBubble = addMessage("assistant", "<thought>处理中...</thought>");
+            const formData = new FormData();
+            formData.append("action", "chat");
+            formData.append("message", message);
+            formData.append("active_module", activeModule);
+            if (hasFile) {
+                formData.append("pdf_file", pdfInput.files[0]);
+            }
+
+            chatInput.value = "";
+            pdfInput.value = "";
+
+            const response = await fetch("/workspace", { method: "POST", body: formData });
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = "";
+            let fullText = "";
+            let latestMetrics = null;
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) {
+                    break;
+                }
+
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split("\n");
+                buffer = lines.pop();
+
+                for (const rawLine of lines) {
+                    const line = rawLine.trim();
+                    if (!line.startsWith("data: ")) {
+                        continue;
+                    }
+                    const payload = JSON.parse(line.slice(6));
+                    if (payload.session_id) {
+                        latestSessionId = payload.session_id;
+                        setReportButtonState();
+                    }
+                    if (payload.metrics) {
+                        latestMetrics = payload.metrics;
+                    }
+                    fullText += payload.content || "";
+                    const clean = fullText.replace(/<thought>[\s\S]*?<\/thought>/g, "").trim();
+                    const metricsHtml = latestMetrics
+                        ? `<div class="metrics">思考 ${latestMetrics.think_time}s · 生成 ${latestMetrics.gen_time}s</div>`
+                        : "";
+                    replyBubble.innerHTML = formatMarkdown(clean || "处理中...") + metricsHtml;
+                }
+            }
+        }
+
+        function renderAll() {
+            renderHero();
+            renderWarnings();
+            renderSummary();
+            renderProducts();
+            renderSignals();
+            renderHistory();
+            renderModules();
+            ensureChatSeed();
+            setReportButtonState();
+        }
+
+        document.getElementById("refresh-btn").onclick = refreshWorkspace;
+        document.getElementById("toggle-btn").onclick = toggleSimulation;
+        document.getElementById("report-btn").onclick = openDailyReport;
+        document.getElementById("export-btn").onclick = exportReport;
+        document.getElementById("send-btn").onclick = sendMessage;
+        document.getElementById("close-modal-btn").onclick = () => {
+            dailyReportModal.style.display = "none";
+        };
+        dailyReportModal.onclick = (event) => {
+            if (event.target === dailyReportModal) {
+                dailyReportModal.style.display = "none";
+            }
+        };
+        chatInput.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+                sendMessage();
+            }
+        });
+
+        renderAll();
+    </script>
+</body>
+</html>

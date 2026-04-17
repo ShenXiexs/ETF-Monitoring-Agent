@@ -1,0 +1,7 @@
+flask
+pypdf
+openpyxl
+python-dotenv
+numpy
+gunicorn
+pytest

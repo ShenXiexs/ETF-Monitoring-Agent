@@ -97,6 +97,14 @@
             line-height: 1.05;
         }
 
+        .hero-tagline {
+            margin-top: 10px;
+            color: var(--accent-strong);
+            font-size: 15px;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
         .hero-copy {
             margin-top: 12px;
             max-width: 720px;
@@ -439,16 +447,17 @@
     <div class="shell">
         <section class="hero">
             <div class="hero-card">
-                <div class="eyebrow">Asset Intel Workbench</div>
+                <div class="eyebrow" id="hero-eyebrow">{{ bootstrap.workspace.eyebrow or "Asset Intel Workbench" }}</div>
                 <h1 id="hero-title">{{ bootstrap.app_name }}</h1>
+                <div class="hero-tagline" id="hero-tagline">{{ bootstrap.workspace.tagline or "" }}</div>
                 <div class="hero-copy" id="hero-copy"></div>
                 <div class="hero-meta" id="hero-meta"></div>
                 <div class="warning-list" id="warning-list"></div>
                 <div class="toolbar">
-                    <button class="btn-primary" id="refresh-btn" type="button">刷新视图</button>
-                    <button class="btn-secondary" id="toggle-btn" type="button">暂停模拟</button>
-                    <button class="btn-secondary" id="report-btn" type="button">打开日报</button>
-                    <button class="btn-secondary" id="export-btn" type="button" disabled>导出报告</button>
+                    <button class="btn-primary" id="refresh-btn" type="button">{{ bootstrap.workspace.actions.refresh or "刷新视图" }}</button>
+                    <button class="btn-secondary" id="toggle-btn" type="button">{{ bootstrap.workspace.actions.toggle_pause or "暂停模拟" }}</button>
+                    <button class="btn-secondary" id="report-btn" type="button">{{ bootstrap.workspace.actions.open_report or "打开日报" }}</button>
+                    <button class="btn-secondary" id="export-btn" type="button" disabled>{{ bootstrap.workspace.actions.export_report or "导出报告" }}</button>
                 </div>
             </div>
             <div class="hero-card">
@@ -459,7 +468,7 @@
         <section class="layout">
             <div class="panel">
                 <div class="panel-header">
-                    <h2>产品谱系</h2>
+                    <h2 id="catalog-title">{{ bootstrap.workspace.panel_titles.catalog or "记录目录" }}</h2>
                     <small id="product-count"></small>
                 </div>
                 <div class="scroll-list" id="product-list"></div>
@@ -467,28 +476,28 @@
 
             <div class="panel">
                 <div class="panel-header">
-                    <h2>当日信号</h2>
+                    <h2 id="signals-title">{{ bootstrap.workspace.panel_titles.signals or "当日信号" }}</h2>
                     <small id="signal-date"></small>
                 </div>
                 <div class="scroll-list" id="signal-list"></div>
                 <div class="panel-header" style="margin-top: 20px;">
-                    <h2>历史回放</h2>
-                    <small>最近 10 个日期</small>
+                    <h2 id="history-title">{{ bootstrap.workspace.panel_titles.history or "历史回放" }}</h2>
+                    <small id="history-window-label">{{ bootstrap.workspace.labels.history_window or "最近 10 个日期" }}</small>
                 </div>
                 <div class="scroll-list" id="history-list" style="max-height: 220px;"></div>
             </div>
 
             <div class="panel">
                 <div class="panel-header">
-                    <h2>协作工作台</h2>
+                    <h2 id="workspace-title">{{ bootstrap.workspace.panel_titles.workspace or "协作工作台" }}</h2>
                     <small id="active-module-label"></small>
                 </div>
                 <div class="module-grid" id="module-grid"></div>
                 <div class="chat-feed" id="chat-feed"></div>
                 <div class="composer">
-                    <textarea id="chat-input" placeholder="输入问题，或上传待解析的政策文件。"></textarea>
+                    <textarea id="chat-input" placeholder="{{ bootstrap.workspace.placeholders.chat_input or '输入问题，或上传待解析的 PDF 文件。' }}"></textarea>
                     <input id="pdf-input" type="file" accept=".pdf">
-                    <button class="btn-primary" id="send-btn" type="button">发送到当前模块</button>
+                    <button class="btn-primary" id="send-btn" type="button">{{ bootstrap.workspace.actions.send or "发送到当前模块" }}</button>
                 </div>
             </div>
         </section>
@@ -498,22 +507,22 @@
         <div class="modal-card">
             <div class="modal-actions">
                 <div>
-                    <div class="eyebrow">Daily Brief</div>
-                    <h2 id="modal-title">当日工作摘要</h2>
+                    <div class="eyebrow" id="daily-report-eyebrow">{{ bootstrap.workspace.panel_titles.daily_report_eyebrow or "Daily Brief" }}</div>
+                    <h2 id="modal-title">{{ bootstrap.workspace.panel_titles.daily_report or "当日工作摘要" }}</h2>
                 </div>
-                <button class="btn-secondary" id="close-modal-btn" type="button">关闭</button>
+                <button class="btn-secondary" id="close-modal-btn" type="button">{{ bootstrap.workspace.actions.close or "关闭" }}</button>
             </div>
             <div class="report-grid">
                 <div class="report-block">
-                    <h3>亮点产品</h3>
+                    <h3 id="highlights-title">{{ bootstrap.workspace.panel_titles.highlights or "亮点记录" }}</h3>
                     <div id="modal-highlights"></div>
                 </div>
                 <div class="report-block">
-                    <h3>重点信号</h3>
+                    <h3 id="news-title">{{ bootstrap.workspace.panel_titles.news or "重点信号" }}</h3>
                     <div id="modal-news"></div>
                 </div>
                 <div class="report-block">
-                    <h3>内容建议</h3>
+                    <h3 id="suggestions-title">{{ bootstrap.workspace.panel_titles.suggestions or "行动建议" }}</h3>
                     <div id="modal-suggestions"></div>
                 </div>
             </div>
@@ -526,6 +535,9 @@
         let activeModule = (appState.modules[0] || {}).key || "product_research";
         let latestSessionId = null;
 
+        const heroEyebrow = document.getElementById("hero-eyebrow");
+        const heroTitle = document.getElementById("hero-title");
+        const heroTagline = document.getElementById("hero-tagline");
         const heroCopy = document.getElementById("hero-copy");
         const heroMeta = document.getElementById("hero-meta");
         const warningList = document.getElementById("warning-list");
@@ -542,6 +554,39 @@
         const pdfInput = document.getElementById("pdf-input");
         const dailyReportModal = document.getElementById("daily-report-modal");
         const exportBtn = document.getElementById("export-btn");
+        const refreshBtn = document.getElementById("refresh-btn");
+        const toggleBtn = document.getElementById("toggle-btn");
+        const reportBtn = document.getElementById("report-btn");
+        const sendBtn = document.getElementById("send-btn");
+        const closeModalBtn = document.getElementById("close-modal-btn");
+
+        function workspaceConfig() {
+            return appState.workspace || {};
+        }
+
+        function workspaceSection(key) {
+            return workspaceConfig()[key] || {};
+        }
+
+        function panelTitle(key, fallback) {
+            return workspaceSection("panel_titles")[key] || fallback;
+        }
+
+        function emptyText(key, fallback) {
+            return workspaceSection("empty_states")[key] || fallback;
+        }
+
+        function actionText(key, fallback) {
+            return workspaceSection("actions")[key] || fallback;
+        }
+
+        function placeholderText(key, fallback) {
+            return workspaceSection("placeholders")[key] || fallback;
+        }
+
+        function labelText(key, fallback) {
+            return workspaceSection("labels")[key] || fallback;
+        }
 
         function escapeHtml(text) {
             return String(text || "")
@@ -576,6 +621,26 @@
             return `<div class="pill">${label}</div>`;
         }
 
+        function addMessage(role, content) {
+            const bubble = document.createElement("div");
+            bubble.className = `message ${role}`;
+            bubble.innerHTML = formatMarkdown(content);
+            chatFeed.appendChild(bubble);
+            chatFeed.scrollTop = chatFeed.scrollHeight;
+            return bubble;
+        }
+
+        function ensureChatSeed() {
+            if (chatFeed.children.length > 0) {
+                return;
+            }
+            addMessage("assistant", placeholderText("chat_seed", "工作台已就绪。请选择模块并开始分析。"));
+        }
+
+        function setReportButtonState() {
+            exportBtn.disabled = !latestSessionId;
+        }
+
         function renderWarnings() {
             warningList.innerHTML = "";
             (appState.warnings || []).forEach((item) => {
@@ -586,38 +651,65 @@
             });
         }
 
+        function renderChrome() {
+            const workspace = workspaceConfig();
+            heroEyebrow.textContent = workspace.eyebrow || "Asset Intel Workbench";
+            heroTitle.textContent = appState.app_name || "资管产品洞察协作台";
+            heroTagline.textContent = workspace.tagline || "";
+            document.getElementById("catalog-title").textContent = panelTitle("catalog", "记录目录");
+            document.getElementById("signals-title").textContent = panelTitle("signals", "当日信号");
+            document.getElementById("history-title").textContent = panelTitle("history", "历史回放");
+            document.getElementById("workspace-title").textContent = panelTitle("workspace", "协作工作台");
+            document.getElementById("daily-report-eyebrow").textContent = panelTitle("daily_report_eyebrow", "Daily Brief");
+            document.getElementById("highlights-title").textContent = panelTitle("highlights", "亮点记录");
+            document.getElementById("news-title").textContent = panelTitle("news", "重点信号");
+            document.getElementById("suggestions-title").textContent = panelTitle("suggestions", "行动建议");
+            document.getElementById("history-window-label").textContent = labelText("history_window", "最近 10 个日期");
+            chatInput.placeholder = placeholderText("chat_input", "输入问题，或上传待解析的 PDF 文件。");
+            refreshBtn.textContent = actionText("refresh", "刷新视图");
+            toggleBtn.textContent = appState.simulation.is_running
+                ? actionText("toggle_pause", "暂停模拟")
+                : actionText("toggle_resume", "恢复模拟");
+            reportBtn.textContent = actionText("open_report", "打开日报");
+            exportBtn.textContent = actionText("export_report", "导出报告");
+            sendBtn.textContent = actionText("send", "发送到当前模块");
+            closeModalBtn.textContent = actionText("close", "关闭");
+        }
+
         function renderHero() {
-            const currentDate = appState.simulation.current_date || "未加载数据";
+            const currentDate = appState.simulation.current_date || labelText("fallback_date", "未加载数据");
             heroCopy.textContent = appState.has_data
-                ? "工作台已加载外部市场快照。你可以在四个岗位化模块之间切换，以相同数据底座完成事实查询、市场监测、内容整理与政策解析。"
-                : "当前为无数据空态。页面仍可用于政策文件解析与界面检查；接入外部目录后，产品、信号和日报区域会自动恢复。";
+                ? (workspaceConfig().description_loaded || "工作台已加载外部数据配置。")
+                : (workspaceConfig().description_empty || "当前处于空态模式。");
             heroMeta.innerHTML = [
-                infoPill(appState.has_data ? `当前日期 ${currentDate}` : "空态模式"),
+                infoPill(appState.has_data ? `当前日期 ${currentDate}` : labelText("fallback_date", "未加载数据")),
                 infoPill(appState.simulation.is_running ? "模拟运行中" : "模拟已暂停"),
                 infoPill(`模块数 ${appState.modules.length}`),
             ].join("");
         }
 
         function renderSummary() {
-            const summaryItems = [
-                ["产品数", appState.summary.product_count],
-                ["政策条目", appState.summary.policy_count],
-                ["当日信号", appState.summary.signal_count],
-                ["状态", appState.has_data ? "已接入" : "空态"],
+            const summaryCards = workspaceConfig().summary_cards || [
+                ["记录数", "product_count"],
+                ["文档条目", "policy_count"],
+                ["当日信号", "signal_count"],
+                ["状态", "status"],
             ];
-            summaryGrid.innerHTML = summaryItems.map(([label, value]) => `
+            summaryGrid.innerHTML = summaryCards.map(([label, key]) => `
                 <div class="summary-card">
-                    <div class="label">${label}</div>
-                    <div class="value">${value}</div>
+                    <div class="label">${escapeHtml(label)}</div>
+                    <div class="value">${escapeHtml(appState.summary?.[key] ?? "-")}</div>
                 </div>
             `).join("");
         }
 
         function renderProducts() {
             const products = appState.products || [];
-            productCount.textContent = appState.has_data ? `${products.length} 个产品` : "等待外部数据";
+            productCount.textContent = appState.has_data
+                ? `${products.length} ${labelText("catalog_count_loaded", "条记录")}`
+                : labelText("catalog_count_empty", "等待外部数据");
             if (!products.length) {
-                productList.innerHTML = '<div class="empty-state">未加载产品快照。</div>';
+                productList.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("catalog", "未加载记录目录。"))}</div>`;
                 return;
             }
 
@@ -627,7 +719,7 @@
                 row.className = "card-row";
                 row.innerHTML = `<strong>${escapeHtml(item.name)}</strong><div class="subtle">${escapeHtml(item.code)}</div>`;
                 row.onclick = () => {
-                    chatInput.value = `请提供产品快照：${item.name} ${item.code}`;
+                    chatInput.value = `请提供记录快照：${item.name} ${item.code}`;
                     activeModule = "product_research";
                     renderModules();
                 };
@@ -636,10 +728,10 @@
         }
 
         function renderSignals() {
-            signalDate.textContent = appState.simulation.current_date || "未加载数据";
+            signalDate.textContent = appState.simulation.current_date || labelText("fallback_date", "未加载数据");
             const signals = appState.signals || [];
             if (!signals.length) {
-                signalList.innerHTML = '<div class="empty-state">当前没有可展示的监测信号。</div>';
+                signalList.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("signals", "当前没有可展示的监测信号。"))}</div>`;
                 return;
             }
 
@@ -664,7 +756,7 @@
         function renderHistory() {
             const entries = Object.entries(appState.history || {});
             if (!entries.length) {
-                historyList.innerHTML = '<div class="empty-state">暂无历史记录。</div>';
+                historyList.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("history", "暂无历史记录。"))}</div>`;
                 return;
             }
 
@@ -674,7 +766,7 @@
                 row.className = "card-row";
                 row.innerHTML = `
                     <strong>${escapeHtml(date)}</strong>
-                    <div class="subtle">${signals.length} 条信号</div>
+                    <div class="subtle">${signals.length} ${escapeHtml(labelText("history_item", "条信号"))}</div>
                 `;
                 row.onclick = () => {
                     chatInput.value = `请总结 ${date} 的重点变化`;
@@ -696,8 +788,8 @@
                 btn.className = `module-btn ${item.key === activeModule ? "active" : ""}`;
                 const skillTags = (item.skills || []).map((skill) => `<span class="skill-chip">${escapeHtml(skill.label)}</span>`).join("");
                 btn.innerHTML = `
-                    <div class="title">${item.label}</div>
-                    <div class="desc">${item.summary}</div>
+                    <div class="title">${escapeHtml(item.label)}</div>
+                    <div class="desc">${escapeHtml(item.summary)}</div>
                     <div class="skill-tags">${skillTags}</div>
                 `;
                 btn.onclick = () => {
@@ -708,24 +800,13 @@
             });
         }
 
-        function ensureChatSeed() {
-            if (chatFeed.children.length > 0) {
-                return;
+        async function readJsonError(response) {
+            const contentType = response.headers.get("content-type") || "";
+            if (contentType.includes("application/json")) {
+                const payload = await response.json();
+                throw new Error(payload.error || `请求失败 (${response.status})`);
             }
-            addMessage("assistant", "工作台已就绪。选择一个模块后发送问题，或上传 PDF 进入政策解析流程。");
-        }
-
-        function addMessage(role, content) {
-            const bubble = document.createElement("div");
-            bubble.className = `message ${role}`;
-            bubble.innerHTML = formatMarkdown(content);
-            chatFeed.appendChild(bubble);
-            chatFeed.scrollTop = chatFeed.scrollHeight;
-            return bubble;
-        }
-
-        function setReportButtonState() {
-            exportBtn.disabled = !latestSessionId;
+            throw new Error(`请求失败 (${response.status})`);
         }
 
         async function postJson(action, extra = {}) {
@@ -734,17 +815,28 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action, ...extra }),
             });
+            if (!response.ok) {
+                await readJsonError(response);
+            }
             return response.json();
         }
 
         async function refreshWorkspace() {
-            appState = await postJson("refresh");
-            renderAll();
+            try {
+                appState = await postJson("refresh");
+                renderAll();
+            } catch (error) {
+                addMessage("assistant", `刷新失败：${error.message}`);
+            }
         }
 
         async function toggleSimulation() {
-            appState = await postJson("toggle_simulation");
-            renderAll();
+            try {
+                appState = await postJson("toggle_simulation");
+                renderAll();
+            } catch (error) {
+                addMessage("assistant", `切换状态失败：${error.message}`);
+            }
         }
 
         function renderReportModal(report) {
@@ -753,9 +845,12 @@
             const suggestions = document.getElementById("modal-suggestions");
             const modalTitle = document.getElementById("modal-title");
 
-            modalTitle.textContent = report.available ? `${report.date} 当日工作摘要` : "当日工作摘要";
+            modalTitle.textContent = report.available
+                ? `${report.date} ${panelTitle("daily_report", "当日工作摘要")}`
+                : panelTitle("daily_report", "当日工作摘要");
+
             if (!report.available) {
-                highlights.innerHTML = '<div class="empty-state">当前没有可展示的日报。</div>';
+                highlights.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("daily_report", "当前没有可展示的日报。"))}</div>`;
                 news.innerHTML = "";
                 suggestions.innerHTML = `<ul><li>${escapeHtml((report.suggestions || [])[0] || "暂无建议。")}</li></ul>`;
                 dailyReportModal.style.display = "flex";
@@ -776,9 +871,13 @@
         }
 
         async function openDailyReport() {
-            const report = await postJson("daily_report");
-            appState.daily_report = report;
-            renderReportModal(report);
+            try {
+                const report = await postJson("daily_report");
+                appState.daily_report = report;
+                renderReportModal(report);
+            } catch (error) {
+                addMessage("assistant", `日报加载失败：${error.message}`);
+            }
         }
 
         async function exportReport() {
@@ -789,6 +888,14 @@
             formData.append("action", "generate_report");
             formData.append("session_id", latestSessionId);
             const response = await fetch("/workspace", { method: "POST", body: formData });
+            if (!response.ok) {
+                try {
+                    await readJsonError(response);
+                } catch (error) {
+                    addMessage("assistant", `导出失败：${error.message}`);
+                    return;
+                }
+            }
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             const anchor = document.createElement("a");
@@ -824,6 +931,20 @@
             pdfInput.value = "";
 
             const response = await fetch("/workspace", { method: "POST", body: formData });
+            if (!response.ok) {
+                try {
+                    await readJsonError(response);
+                } catch (error) {
+                    replyBubble.innerHTML = formatMarkdown(`请求失败：${error.message}`);
+                    return;
+                }
+            }
+
+            if (!response.body) {
+                replyBubble.innerHTML = formatMarkdown("当前浏览器未返回可读取的流式响应。");
+                return;
+            }
+
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let buffer = "";
@@ -859,37 +980,39 @@
                         ? `<div class="metrics">思考 ${latestMetrics.think_time}s · 生成 ${latestMetrics.gen_time}s</div>`
                         : "";
                     replyBubble.innerHTML = formatMarkdown(clean || "处理中...") + metricsHtml;
+                    chatFeed.scrollTop = chatFeed.scrollHeight;
                 }
             }
         }
 
         function renderAll() {
-            renderHero();
+            renderChrome();
             renderWarnings();
+            renderHero();
             renderSummary();
             renderProducts();
             renderSignals();
             renderHistory();
             renderModules();
-            ensureChatSeed();
             setReportButtonState();
+            ensureChatSeed();
         }
 
-        document.getElementById("refresh-btn").onclick = refreshWorkspace;
-        document.getElementById("toggle-btn").onclick = toggleSimulation;
-        document.getElementById("report-btn").onclick = openDailyReport;
-        document.getElementById("export-btn").onclick = exportReport;
-        document.getElementById("send-btn").onclick = sendMessage;
-        document.getElementById("close-modal-btn").onclick = () => {
+        refreshBtn.addEventListener("click", refreshWorkspace);
+        toggleBtn.addEventListener("click", toggleSimulation);
+        reportBtn.addEventListener("click", openDailyReport);
+        exportBtn.addEventListener("click", exportReport);
+        sendBtn.addEventListener("click", sendMessage);
+        closeModalBtn.addEventListener("click", () => {
             dailyReportModal.style.display = "none";
-        };
-        dailyReportModal.onclick = (event) => {
+        });
+        dailyReportModal.addEventListener("click", (event) => {
             if (event.target === dailyReportModal) {
                 dailyReportModal.style.display = "none";
             }
-        };
+        });
         chatInput.addEventListener("keydown", (event) => {
-            if (event.key === "Enter" && (event.metaKey || event.ctrlKey)) {
+            if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
                 sendMessage();
             }
         });

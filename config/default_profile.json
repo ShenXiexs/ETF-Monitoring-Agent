@@ -1,0 +1,111 @@
+{
+  "workspace": {
+    "app_name": "资管产品洞察协作台",
+    "eyebrow": "Asset Intel Workbench",
+    "tagline": "面向数据驱动研究、政策解析和结构化报告输出的本地工作台。",
+    "description_loaded": "工作台已加载外部数据配置。你可以在统一界面中完成记录查询、信号监测、内容整理和政策解析。",
+    "description_empty": "当前处于空态模式。仍可进行文档解析与界面检查；接入数据目录和 profile 后，目录、信号与日报区域会自动切换到对应任务。",
+    "module_overrides": {
+      "product_research": {
+        "label": "产品研究",
+        "summary": "回答产品属性、规模、代码、成立信息与结构化基础事实。",
+        "prompt": "你是资管产品工作台中的产品研究模块，负责提供准确、克制、结构化的产品事实说明。"
+      },
+      "market_monitoring": {
+        "label": "市场监测",
+        "summary": "跟踪成交活跃度、资金流向、重点指数波动和日内异动。",
+        "prompt": "你是资管产品工作台中的市场监测模块，负责解释行情信号、成交变化与资金流向。"
+      },
+      "content_strategy": {
+        "label": "内容策略",
+        "summary": "将市场事实整理成传播卖点、节奏建议与内容框架。",
+        "prompt": "你是资管产品工作台中的内容策略模块，负责将事实整理为可执行的沟通框架与节奏建议。"
+      },
+      "policy_analysis": {
+        "label": "政策解析",
+        "summary": "处理监管动态、制度文件摘要与政策研判报告。",
+        "prompt": "你是资管产品工作台中的政策解析模块，负责解读政策文件、识别影响并给出中性判断。"
+      }
+    },
+    "summary_cards": [
+      ["记录数", "product_count"],
+      ["文档条目", "policy_count"],
+      ["当日信号", "signal_count"],
+      ["状态", "status"]
+    ],
+    "panel_titles": {
+      "catalog": "记录目录",
+      "signals": "当日信号",
+      "history": "历史回放",
+      "workspace": "协作工作台",
+      "daily_report": "当日工作摘要",
+      "daily_report_eyebrow": "Daily Brief",
+      "highlights": "亮点记录",
+      "news": "重点信号",
+      "suggestions": "行动建议"
+    },
+    "empty_states": {
+      "catalog": "未加载记录目录。",
+      "signals": "当前没有可展示的监测信号。",
+      "history": "暂无历史记录。",
+      "daily_report": "当前没有可展示的日报。"
+    },
+    "actions": {
+      "refresh": "刷新视图",
+      "toggle_pause": "暂停模拟",
+      "toggle_resume": "恢复模拟",
+      "open_report": "打开日报",
+      "export_report": "导出报告",
+      "send": "发送到当前模块",
+      "close": "关闭"
+    },
+    "placeholders": {
+      "chat_input": "输入问题，或上传待解析的 PDF 文件。",
+      "chat_seed": "工作台已就绪。选择一个模块后发送问题，或上传 PDF 进入解析流程。"
+    },
+    "labels": {
+      "catalog_count_loaded": "条记录",
+      "catalog_count_empty": "等待外部数据",
+      "history_window": "最近 10 个日期",
+      "history_item": "条信号",
+      "fallback_date": "未加载数据"
+    }
+  },
+  "files": {
+    "market_snapshot": "market_snapshot.json",
+    "policy_catalog": "policy_catalog.xlsx"
+  },
+  "snapshot": {
+    "date_field": "date",
+    "products_field": "products",
+    "indices_field": "indices",
+    "product_fields": {
+      "code": "code",
+      "name": "name",
+      "setup_date": "setup_date",
+      "list_date": "list_date",
+      "scale": "scale",
+      "volume": "volume",
+      "inflow": "inflow",
+      "index_code": "index_code"
+    },
+    "index_fields": {
+      "code": "code",
+      "name": "name",
+      "prev_close": "prev_close",
+      "open": "open",
+      "change": "change",
+      "volume": "volume"
+    }
+  },
+  "policy": {
+    "sheet_name": null,
+    "columns": {
+      "date": ["公告日期", "日期", "date"],
+      "title": ["标题", "title"],
+      "rank": ["法律位阶", "位阶", "分类", "category"],
+      "source": ["来源", "链接", "source", "url"]
+    },
+    "default_rank": "行业规定"
+  }
+}

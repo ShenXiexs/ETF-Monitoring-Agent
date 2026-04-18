@@ -35,37 +35,40 @@ MODULES = [
         "key": "product_research",
         "label": "产品研究",
         "summary": "回答产品属性、规模、代码、成立信息与结构化基础事实。",
+        "prompt": "你是资管产品工作台中的产品研究模块，负责提供准确、克制、结构化的产品事实说明。",
     },
     {
         "key": "market_monitoring",
         "label": "市场监测",
         "summary": "跟踪成交活跃度、资金流向、重点指数波动和日内异动。",
+        "prompt": "你是资管产品工作台中的市场监测模块，负责解释行情信号、成交变化与资金流向。",
     },
     {
         "key": "content_strategy",
         "label": "内容策略",
         "summary": "将市场事实整理成传播卖点、节奏建议与内容框架。",
+        "prompt": "你是资管产品工作台中的内容策略模块，负责将事实整理为可执行的沟通框架与节奏建议。",
     },
     {
         "key": "policy_analysis",
         "label": "政策解析",
         "summary": "处理监管动态、制度文件摘要与政策研判报告。",
+        "prompt": "你是资管产品工作台中的政策解析模块，负责解读政策文件、识别影响并给出中性判断。",
     },
 ]
 
-MODULE_MAP = {item["key"]: item for item in MODULES}
-
-
 class AssetWorkbenchManager:
-    def __init__(self, data_source_dir: Optional[str] = None) -> None:
+    def __init__(self, data_source_dir: Optional[str] = None, profile_path: Optional[str] = None) -> None:
         self.base_dir = BASE_DIR
         self.data_source_dir = Path(data_source_dir).expanduser() if data_source_dir else self._resolve_data_source_dir()
+        self.profile_path = Path(profile_path).expanduser() if profile_path else None
         self.data: Dict[str, dict] = {}
         self.dates: List[str] = []
         self.current_index = 0
         self.policies: List[dict] = []
         self.all_signals: Dict[str, List[dict]] = {}
         self.warnings: List[str] = []
+        self.profile = self._load_profile()
         self.cache_path = Path(tempfile.gettempdir()) / "asset_intel_workbench_llm_cache.db"
         self._init_cache()
         self._load_external_data()
@@ -77,6 +80,37 @@ class AssetWorkbenchManager:
     def _resolve_data_source_dir(self) -> Optional[Path]:
         raw = os.getenv("DATA_SOURCE_DIR", "").strip()
         return Path(raw).expanduser() if raw else None
+
+    def _profile_default(self) -> dict:
+        default_path = self.base_dir / "config" / "default_profile.json"
+        return json.loads(default_path.read_text(encoding="utf-8"))
+
+    def _profile_path(self) -> Optional[Path]:
+        if self.profile_path:
+            return self.profile_path
+        raw = os.getenv("DATA_PROFILE_PATH", "").strip()
+        return Path(raw).expanduser() if raw else None
+
+    def _merge_dicts(self, base: dict, override: dict) -> dict:
+        merged = dict(base)
+        for key, value in override.items():
+            if isinstance(value, dict) and isinstance(merged.get(key), dict):
+                merged[key] = self._merge_dicts(merged[key], value)
+            else:
+                merged[key] = value
+        return merged
+
+    def _load_profile(self) -> dict:
+        profile = self._profile_default()
+        custom_path = self._profile_path()
+        if custom_path:
+            if custom_path.exists():
+                custom = json.loads(custom_path.read_text(encoding="utf-8"))
+                profile = self._merge_dicts(profile, custom)
+            else:
+                self.warnings = getattr(self, "warnings", [])
+                self.warnings.append(f"未找到 DATA_PROFILE_PATH 指定的配置文件：{custom_path}")
+        return profile
 
     def _init_cache(self) -> None:
         conn = sqlite3.connect(self.cache_path)
@@ -131,9 +165,10 @@ class AssetWorkbenchManager:
             return
 
     def _load_external_data(self) -> None:
+        existing_warnings = list(self.warnings)
         self.data = {}
         self.policies = []
-        self.warnings = []
+        self.warnings = existing_warnings
 
         if not self.data_source_dir:
             self.warnings.append("未配置 DATA_SOURCE_DIR，工作台以空态模式启动。")
@@ -143,8 +178,9 @@ class AssetWorkbenchManager:
             self.warnings.append(f"未找到外部数据目录：{self.data_source_dir}")
             return
 
-        snapshot_path = self.data_source_dir / "market_snapshot.json"
-        policy_path = self.data_source_dir / "policy_catalog.xlsx"
+        files = self.profile.get("files", {})
+        snapshot_path = self.data_source_dir / files.get("market_snapshot", "market_snapshot.json")
+        policy_path = self.data_source_dir / files.get("policy_catalog", "policy_catalog.xlsx")
 
         if snapshot_path.exists():
             self.data = self._load_market_snapshot(snapshot_path)
@@ -163,12 +199,16 @@ class AssetWorkbenchManager:
     def _load_market_snapshot(self, snapshot_path: Path) -> Dict[str, dict]:
         raw = json.loads(snapshot_path.read_text(encoding="utf-8"))
         normalized: Dict[str, dict] = {}
+        snapshot_profile = self.profile.get("snapshot", {})
+        date_field = snapshot_profile.get("date_field", "date")
+        products_field = snapshot_profile.get("products_field", "products")
+        indices_field = snapshot_profile.get("indices_field", "indices")
 
         if isinstance(raw, list):
             iterable = []
             for item in raw:
-                if isinstance(item, dict) and item.get("date"):
-                    iterable.append((item["date"], item))
+                if isinstance(item, dict) and item.get(date_field):
+                    iterable.append((item[date_field], item))
         elif isinstance(raw, dict):
             iterable = raw.items()
         else:
@@ -179,38 +219,64 @@ class AssetWorkbenchManager:
             if not date_str or not isinstance(payload, dict):
                 continue
 
-            products = [item for item in (self._normalize_product(entry) for entry in payload.get("products", [])) if item]
-            indices = self._normalize_indices(payload.get("indices", {}))
+            products = [
+                item
+                for item in (self._normalize_product(entry) for entry in payload.get(products_field, []))
+                if item
+            ]
+            indices = self._normalize_indices(payload.get(indices_field, {}))
             normalized[date_str] = {"products": products, "indices": indices}
 
         return normalized
 
     def _load_policies(self, policy_path: Path) -> List[dict]:
+        policy_profile = self.profile.get("policy", {})
         workbook = load_workbook(policy_path, data_only=True, read_only=True)
-        sheet = workbook.active
+        sheet_name = policy_profile.get("sheet_name")
+        sheet = workbook[sheet_name] if sheet_name and sheet_name in workbook.sheetnames else workbook.active
         headers = [cell.value for cell in sheet[1]]
+        header_lookup = {str(header).strip(): idx for idx, header in enumerate(headers) if header is not None}
+        date_idx = self._match_header(header_lookup, policy_profile.get("columns", {}).get("date", ["公告日期"]))
+        title_idx = self._match_header(header_lookup, policy_profile.get("columns", {}).get("title", ["标题"]))
+        rank_idx = self._match_header(header_lookup, policy_profile.get("columns", {}).get("rank", ["法律位阶"]))
+        source_idx = self._match_header(header_lookup, policy_profile.get("columns", {}).get("source", ["来源"]))
         policies: List[dict] = []
         for row in sheet.iter_rows(min_row=2, values_only=True):
             if not any(row):
                 continue
-            record = dict(zip(headers, row))
+            record = list(row)
             policies.append(
                 {
-                    "公告日期": self._normalize_date(record.get("公告日期")),
-                    "标题": str(record.get("标题", "")).strip(),
-                    "法律位阶": str(record.get("法律位阶", "") or "行业规定").strip(),
-                    "来源": str(record.get("来源", "")).strip(),
+                    "公告日期": self._normalize_date(record[date_idx]) if date_idx is not None and date_idx < len(record) else None,
+                    "标题": str(record[title_idx] if title_idx is not None and title_idx < len(record) else "").strip(),
+                    "法律位阶": str(
+                        (record[rank_idx] if rank_idx is not None and rank_idx < len(record) else "")
+                        or policy_profile.get("default_rank", "行业规定")
+                    ).strip(),
+                    "来源": str(record[source_idx] if source_idx is not None and source_idx < len(record) else "").strip(),
                 }
             )
         return policies
 
+    def _match_header(self, header_lookup: Dict[str, int], aliases: List[str]) -> Optional[int]:
+        for alias in aliases:
+            if alias in header_lookup:
+                return header_lookup[alias]
+        lowered_lookup = {key.lower(): value for key, value in header_lookup.items()}
+        for alias in aliases:
+            if alias.lower() in lowered_lookup:
+                return lowered_lookup[alias.lower()]
+        return None
+
     def _normalize_indices(self, raw_indices: object) -> Dict[str, dict]:
         normalized: Dict[str, dict] = {}
+        index_fields = self.profile.get("snapshot", {}).get("index_fields", {})
+        code_field = index_fields.get("code", "code")
         if isinstance(raw_indices, list):
             iterator = []
             for item in raw_indices:
-                if isinstance(item, dict) and item.get("code"):
-                    iterator.append((item["code"], item))
+                if isinstance(item, dict) and item.get(code_field):
+                    iterator.append((item[code_field], item))
         elif isinstance(raw_indices, dict):
             iterator = raw_indices.items()
         else:
@@ -220,30 +286,31 @@ class AssetWorkbenchManager:
             if not isinstance(payload, dict):
                 continue
             normalized[str(code)] = {
-                "name": str(payload.get("name", "")).strip(),
-                "prev_close": self._safe_float(payload.get("prev_close")),
-                "open": self._safe_float(payload.get("open")),
-                "change": self._safe_float(payload.get("change")),
-                "volume": self._safe_float(payload.get("volume")),
+                "name": str(payload.get(index_fields.get("name", "name"), "")).strip(),
+                "prev_close": self._safe_float(payload.get(index_fields.get("prev_close", "prev_close"))),
+                "open": self._safe_float(payload.get(index_fields.get("open", "open"))),
+                "change": self._safe_float(payload.get(index_fields.get("change", "change"))),
+                "volume": self._safe_float(payload.get(index_fields.get("volume", "volume"))),
             }
         return normalized
 
     def _normalize_product(self, payload: object) -> Optional[dict]:
         if not isinstance(payload, dict):
             return None
-        code = str(payload.get("code", "")).strip()
-        name = str(payload.get("name", "")).strip()
+        product_fields = self.profile.get("snapshot", {}).get("product_fields", {})
+        code = str(payload.get(product_fields.get("code", "code"), "")).strip()
+        name = str(payload.get(product_fields.get("name", "name"), "")).strip()
         if not code or not name:
             return None
         return {
             "code": code,
             "name": name,
-            "setup_date": self._normalize_date(payload.get("setup_date")),
-            "list_date": self._normalize_date(payload.get("list_date")),
-            "scale": self._safe_float(payload.get("scale")),
-            "volume": self._safe_float(payload.get("volume")),
-            "inflow": self._safe_float(payload.get("inflow")),
-            "index_code": str(payload.get("index_code", "")).strip(),
+            "setup_date": self._normalize_date(payload.get(product_fields.get("setup_date", "setup_date"))),
+            "list_date": self._normalize_date(payload.get(product_fields.get("list_date", "list_date"))),
+            "scale": self._safe_float(payload.get(product_fields.get("scale", "scale"))),
+            "volume": self._safe_float(payload.get(product_fields.get("volume", "volume"))),
+            "inflow": self._safe_float(payload.get(product_fields.get("inflow", "inflow"))),
+            "index_code": str(payload.get(product_fields.get("index_code", "index_code"), "")).strip(),
         }
 
     def _normalize_date(self, value: object) -> Optional[str]:
@@ -504,9 +571,12 @@ class AssetWorkbenchManager:
     def get_bootstrap_state(self, simulation_state: dict) -> dict:
         state = self.get_current_state()
         current_date = state["date"] if state else None
+        workspace = self.profile.get("workspace", {})
+        modules = self._module_definitions()
         return {
-            "app_name": "资管产品洞察协作台",
-            "modules": [{**item, "skills": self.module_skill_cards(item["key"])} for item in MODULES],
+            "app_name": workspace.get("app_name", "资管产品洞察协作台"),
+            "workspace": workspace,
+            "modules": [{**item, "skills": self.module_skill_cards(item["key"])} for item in modules],
             "has_data": self.has_data(),
             "warnings": self.warnings,
             "simulation": {
@@ -518,6 +588,7 @@ class AssetWorkbenchManager:
                 "product_count": len(self.get_all_products()),
                 "policy_count": len(self.policies),
                 "signal_count": len(self.all_signals.get(current_date, [])) if current_date else 0,
+                "status": "已接入" if self.has_data() else "空态",
             },
             "current_state": state
             or {
@@ -531,6 +602,20 @@ class AssetWorkbenchManager:
             "history": {date: self.all_signals.get(date, []) for date in reversed(self.dates[-10:])},
             "daily_report": self.get_daily_report(current_date),
         }
+
+    def _module_definitions(self) -> List[dict]:
+        overrides = self.profile.get("workspace", {}).get("module_overrides", {})
+        definitions = []
+        for item in MODULES:
+            override = overrides.get(item["key"], {}) if isinstance(overrides, dict) else {}
+            merged = dict(item)
+            if isinstance(override, dict):
+                merged.update({key: value for key, value in override.items() if value})
+            definitions.append(merged)
+        return definitions
+
+    def _module_map(self) -> Dict[str, dict]:
+        return {item["key"]: item for item in self._module_definitions()}
 
     def find_product(self, query: str, date_str: Optional[str] = None) -> Optional[dict]:
         target_date = date_str or self.get_current_date()
@@ -615,7 +700,7 @@ class AssetWorkbenchManager:
         return None
 
     def module_label(self, module_key: str) -> str:
-        return MODULE_MAP.get(module_key, MODULES[0])["label"]
+        return self._module_map().get(module_key, MODULES[0])["label"]
 
     def module_skill_cards(self, module_key: str) -> List[dict]:
         return get_module_skill_cards(module_key)
@@ -624,16 +709,11 @@ class AssetWorkbenchManager:
         return DOCUMENT_WORKFLOWS.get(workflow_key, [])
 
     def build_system_prompt(self, module_key: str) -> str:
-        module_prompts = {
-            "product_research": "你是资管产品工作台中的产品研究模块，负责提供准确、克制、结构化的产品事实说明。",
-            "market_monitoring": "你是资管产品工作台中的市场监测模块，负责解释行情信号、成交变化与资金流向。",
-            "content_strategy": "你是资管产品工作台中的内容策略模块，负责将事实整理为可执行的沟通框架与节奏建议。",
-            "policy_analysis": "你是资管产品工作台中的政策解析模块，负责解读政策文件、识别影响并给出中性判断。",
-        }
+        module_info = self._module_map().get(module_key, MODULES[0])
         context = self.get_daily_summary()
         skillbook = build_skillbook(MODULE_SKILLS.get(module_key, []))
         return (
-            f"{module_prompts.get(module_key, module_prompts['product_research'])}\n\n"
+            f"{module_info.get('prompt', MODULES[0]['prompt'])}\n\n"
             f"当前启用的专家 skills：\n{skillbook}\n\n"
             f"回答要求：综合这些技能视角作答，但不要机械罗列技能名；明确区分事实、判断、建议和风险边界。\n\n"
             f"当前上下文：\n{context}"
@@ -854,10 +934,11 @@ class AssetWorkbenchManager:
         return unique
 
     def build_docx_report(self, content: str) -> bytes:
+        app_name = self.profile.get("workspace", {}).get("app_name", "资管产品洞察协作台")
         paragraphs = [
             self._docx_paragraph("政策研判报告", bold=True, size=34),
             self._docx_paragraph(f"生成时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"),
-            self._docx_paragraph("分析引擎：资管产品洞察协作台"),
+            self._docx_paragraph(f"分析引擎：{app_name}"),
             self._docx_paragraph("=" * 48),
         ]
 

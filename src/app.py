@@ -6,7 +6,7 @@ import os
 import threading
 import time
 import uuid
-from typing import Dict, Iterable, Tuple
+from typing import Dict, Iterable
 
 from flask import Flask, Response, jsonify, render_template, request, send_file
 from pypdf import PdfReader
@@ -18,22 +18,33 @@ except ImportError:
 
 
 def create_app(test_config: Dict | None = None) -> Flask:
+    module_keys = {item["key"] for item in MODULES}
+    allowed_actions = {"chat", "refresh", "toggle_simulation", "daily_report", "generate_report"}
     app = Flask(__name__, template_folder="../templates", static_folder=None)
     app.config.from_mapping(
         DATA_SOURCE_DIR=os.getenv("DATA_SOURCE_DIR"),
+        DATA_PROFILE_PATH=os.getenv("DATA_PROFILE_PATH"),
         SIMULATION_INTERVAL=float(os.getenv("SIMULATION_INTERVAL_SECONDS", "5")),
+        HOST=os.getenv("HOST", "127.0.0.1"),
+        PORT=int(os.getenv("PORT", "5000")),
+        MAX_CONTENT_LENGTH=int(float(os.getenv("MAX_UPLOAD_MB", "8")) * 1024 * 1024),
+        DOCUMENT_SESSION_TTL_SECONDS=int(os.getenv("DOCUMENT_SESSION_TTL_SECONDS", "3600")),
+        MAX_CHAT_HISTORY=int(os.getenv("MAX_CHAT_HISTORY", "24")),
         JSON_AS_ASCII=False,
     )
     if test_config:
         app.config.update(test_config)
 
-    manager = AssetWorkbenchManager(data_source_dir=app.config.get("DATA_SOURCE_DIR"))
+    manager = AssetWorkbenchManager(
+        data_source_dir=app.config.get("DATA_SOURCE_DIR"),
+        profile_path=app.config.get("DATA_PROFILE_PATH"),
+    )
     simulation_state = {
         "is_running": True,
         "interval": float(app.config["SIMULATION_INTERVAL"]),
     }
     chat_history = []
-    document_sessions: Dict[str, str] = {}
+    document_sessions: Dict[str, dict] = {}
     app.config["MANAGER"] = manager
     app.config["DOCUMENT_SESSIONS"] = document_sessions
 
@@ -45,7 +56,32 @@ def create_app(test_config: Dict | None = None) -> Flask:
             return request.get_json(silent=True) or {}
         return request.form.to_dict()
 
+    def cleanup_document_sessions() -> None:
+        now = time.time()
+        ttl = int(app.config["DOCUMENT_SESSION_TTL_SECONDS"])
+        expired = [
+            session_id
+            for session_id, entry in document_sessions.items()
+            if now - float(entry.get("created_at", now)) > ttl
+        ]
+        for session_id in expired:
+            document_sessions.pop(session_id, None)
+
+    def trim_history() -> None:
+        max_items = int(app.config["MAX_CHAT_HISTORY"])
+        if len(chat_history) > max_items:
+            del chat_history[:-max_items]
+
+    def validate_upload(file_storage) -> None:
+        filename = (file_storage.filename or "").lower()
+        if not filename.endswith(".pdf"):
+            raise ValueError("仅支持 PDF 文件。")
+        content_type = (file_storage.mimetype or file_storage.content_type or "").lower()
+        if content_type and content_type not in {"application/pdf", "application/octet-stream"}:
+            raise ValueError("上传文件的类型无效，请使用 PDF。")
+
     def parse_pdf(file_storage) -> str:
+        validate_upload(file_storage)
         reader = PdfReader(io.BytesIO(file_storage.read()))
         parts = []
         for page in reader.pages:
@@ -67,14 +103,29 @@ def create_app(test_config: Dict | None = None) -> Flask:
     if not app.config.get("TESTING"):
         threading.Thread(target=simulation_loop, daemon=True).start()
 
+    @app.after_request
+    def add_security_headers(response):
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        response.headers["X-Frame-Options"] = "DENY"
+        response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers.setdefault("Cache-Control", "no-store")
+        return response
+
+    @app.errorhandler(413)
+    def payload_too_large(_error):
+        return jsonify({"error": "上传文件超过大小限制。"}), 413
+
     @app.get("/")
     def index() -> str:
         return render_template("dashboard.html", bootstrap=current_bootstrap())
 
     @app.post("/workspace")
     def workspace():
+        cleanup_document_sessions()
         data = payload()
         action = data.get("action", "").strip()
+        if action not in allowed_actions:
+            return jsonify({"error": "Unsupported action"}), 400
 
         if action == "refresh":
             return jsonify(current_bootstrap())
@@ -89,10 +140,13 @@ def create_app(test_config: Dict | None = None) -> Flask:
 
         if action == "generate_report":
             session_id = data.get("session_id", "").strip()
-            source_text = document_sessions.get(session_id, "")
+            source_text = document_sessions.get(session_id, {}).get("text", "")
             pdf_file = request.files.get("pdf_file")
             if pdf_file:
-                source_text = parse_pdf(pdf_file)
+                try:
+                    source_text = parse_pdf(pdf_file)
+                except ValueError as exc:
+                    return jsonify({"error": str(exc)}), 400
             if not source_text:
                 return jsonify({"error": "未找到可导出的文件内容。"}), 400
 
@@ -109,6 +163,8 @@ def create_app(test_config: Dict | None = None) -> Flask:
         if action == "chat":
             message = data.get("message", "").strip()
             active_module = data.get("active_module", MODULES[0]["key"]).strip() or MODULES[0]["key"]
+            if active_module not in module_keys:
+                active_module = MODULES[0]["key"]
             pdf_file = request.files.get("pdf_file")
 
             def generate() -> Iterable[str]:
@@ -123,7 +179,7 @@ def create_app(test_config: Dict | None = None) -> Flask:
                         return
 
                     session_id = uuid.uuid4().hex
-                    document_sessions[session_id] = text
+                    document_sessions[session_id] = {"text": text, "created_at": time.time()}
                     summary = manager.summarize_document(text)
                     final_message = (
                         "### 政策解析摘要\n\n"
@@ -132,6 +188,7 @@ def create_app(test_config: Dict | None = None) -> Flask:
                     )
                     chat_history.append({"role": "user", "content": "[上传文件]"})
                     chat_history.append({"role": "assistant", "content": final_message})
+                    trim_history()
                     event = {
                         "content": final_message,
                         "session_id": session_id,
@@ -186,6 +243,7 @@ def create_app(test_config: Dict | None = None) -> Flask:
 
                 chat_history.append({"role": "user", "content": message})
                 chat_history.append({"role": "assistant", "content": response_text})
+                trim_history()
                 metrics = {
                     "content": "",
                     "metrics": {
@@ -195,9 +253,11 @@ def create_app(test_config: Dict | None = None) -> Flask:
                 }
                 yield f"data: {json.dumps(metrics, ensure_ascii=False)}\n\n"
 
-            return Response(generate(), mimetype="text/event-stream")
-
-        return jsonify({"error": "Unsupported action"}), 400
+            return Response(
+                generate(),
+                mimetype="text/event-stream",
+                headers={"Cache-Control": "no-store", "X-Accel-Buffering": "no"},
+            )
 
     @app.get("/_internal/health")
     def health():
@@ -210,4 +270,4 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "5000")))
+    app.run(host=app.config["HOST"], port=app.config["PORT"])

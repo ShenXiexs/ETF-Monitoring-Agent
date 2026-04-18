@@ -1,48 +1,43 @@
 # 数据接入约定
 
+项目的数据接入由两部分组成：
+
+- `DATA_SOURCE_DIR`：外部数据目录
+- `DATA_PROFILE_PATH`：字段映射与界面文案配置
+
+默认 profile 见 [config/default_profile.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/config/default_profile.json)，自定义模板见 [config/profile_template.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/config/profile_template.json)。
+
 ## 目录结构
 
-外部数据目录固定使用以下文件名：
+默认情况下，外部目录使用以下文件名：
 
 - `market_snapshot.json`
 - `policy_catalog.xlsx`
 
-## `market_snapshot.json`
+如果你的任务使用不同文件名，可以在 profile 的 `files` 段覆盖。
 
-顶层为日期字典，键使用 `YYYY-MM-DD`。
+## 快照文件
 
-每个日期对象支持两个字段：
+默认快照是按日期组织的 JSON，支持字典或列表两种形式。系统会把原始字段映射到一组标准字段：
 
-- `products`: 产品列表
-- `indices`: 指数字典或列表
+- 记录字段：`code`、`name`、`setup_date`、`list_date`、`scale`、`volume`、`inflow`、`index_code`
+- 参考指标字段：`name`、`prev_close`、`open`、`change`、`volume`
 
-### 产品字段
+这些名字只是系统内部使用的标准键，不要求你的原始数据真的叫这个名字。只要在 profile 的 `snapshot.product_fields` 和 `snapshot.index_fields` 里做映射即可。
 
-- `code`: 产品代码
-- `name`: 产品名称
-- `setup_date`: 成立日，可为空
-- `list_date`: 上市日，可为空
-- `scale`: 规模，数值型
-- `volume`: 成交额，数值型
-- `inflow`: 净流入，数值型
-- `index_code`: 跟踪指数代码，可为空
+## 文档目录文件
 
-### 指数字段
+默认文档目录是 Excel 文件，系统按表头别名定位列。默认识别以下标准列：
 
-- `name`: 指数名称
-- `prev_close`: 前收
-- `open`: 开盘
-- `change`: 涨跌幅
-- `volume`: 成交额
+- 日期列：`公告日期`
+- 标题列：`标题`
+- 分类列：`法律位阶`
+- 来源列：`来源`
 
-## `policy_catalog.xlsx`
+你也可以在 profile 的 `policy.columns` 中配置别名，例如把 `文档标题` 映射到标题列，把 `发布日期` 映射到日期列。
 
-系统默认读取第一个工作表，按表头定位字段。建议至少包含：
+## 适配建议
 
-- `公告日期`
-- `标题`
-- `法律位阶`
-- `来源`
-
-`公告日期` 支持 Excel 日期或 `YYYY-MM-DD` 字符串。
-
+- 若只是换字段名或文件名，优先修改 profile，不要改 Python 代码。
+- 若是新的记录类任务，尽量把核心数值映射到 `scale / volume / inflow` 这三个标准指标，便于继续使用现有的排行、信号和日报逻辑。
+- 若数据完全不适合现有三指标范式，再考虑扩展规则引擎，而不是直接改前端页面。

@@ -96,7 +96,7 @@ def write_fixture_data(directory: Path) -> None:
 
 @pytest.fixture
 def empty_app():
-    app = create_app({"TESTING": True, "DATA_SOURCE_DIR": None})
+    app = create_app({"TESTING": True, "DATA_SOURCE_DIR": None, "ENABLE_DEMO_MODE": False})
     yield app
 
 
@@ -104,6 +104,12 @@ def empty_app():
 def app_with_data(tmp_path):
     write_fixture_data(tmp_path)
     app = create_app({"TESTING": True, "DATA_SOURCE_DIR": str(tmp_path)})
+    yield app
+
+
+@pytest.fixture
+def demo_app():
+    app = create_app({"TESTING": True, "DATA_SOURCE_DIR": None, "ENABLE_DEMO_MODE": True})
     yield app
 
 
@@ -116,3 +122,7 @@ def empty_client(empty_app):
 def client_with_data(app_with_data):
     return app_with_data.test_client()
 
+
+@pytest.fixture
+def demo_client(demo_app):
+    return demo_app.test_client()

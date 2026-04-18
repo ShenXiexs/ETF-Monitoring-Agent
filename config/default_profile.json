@@ -38,11 +38,21 @@
       "signals": "当日信号",
       "history": "历史回放",
       "workspace": "协作工作台",
+      "demo_cases": "预置 Demo Case",
+      "pipeline": "研究流水线",
+      "research_overview": "研究对象概览",
+      "impact_path": "影响路径",
+      "quality": "报告质量卡",
+      "trace": "报告 Trace",
+      "comparison": "结果对比",
+      "why_matters": "Why it matters",
+      "diagnostics": "系统诊断",
       "daily_report": "当日工作摘要",
       "daily_report_eyebrow": "Daily Brief",
       "highlights": "亮点记录",
       "news": "重点信号",
-      "suggestions": "行动建议"
+      "suggestions": "行动建议",
+      "outline": "答辩大纲"
     },
     "empty_states": {
       "catalog": "未加载记录目录。",
@@ -56,6 +66,7 @@
       "toggle_resume": "恢复模拟",
       "open_report": "打开日报",
       "export_report": "导出报告",
+      "export_outline": "导出答辩大纲",
       "send": "发送到当前模块",
       "close": "关闭"
     },
@@ -107,5 +118,69 @@
       "source": ["来源", "链接", "source", "url"]
     },
     "default_rank": "行业规定"
+  },
+  "competition": {
+    "headline": "面向资管研究与政策研判的智能分析工作台",
+    "subheadline": "把多源数据研究、专家 skills 编排与结构化报告输出压缩进同一条可演示闭环。",
+    "why_it_matters": [
+      "将查数据、读政策、做判断、写初稿整合为单一入口，减少重复检索和重复撰写。",
+      "通过规则信号、RAG 检索和专家 skills 协同提升输出的可解释性与结构完整度。",
+      "在没有真实业务数据时也可切换到演示模式，保证比赛现场 Demo 稳定可复现。"
+    ],
+    "differentiators": [
+      "不是聊天工具，而是面向真实研究流程的 AI 工作台。",
+      "支持 Baseline vs Enhanced 对比，突出专家编排与证据引用的增益。",
+      "同时产出正式报告、质量评分卡与答辩大纲，兼顾 Demo 与答辩。"
+    ],
+    "demo_flow": [
+      "加载预置 Demo Case",
+      "查看多源分析与专家协作",
+      "对比 Baseline 与 Enhanced 输出",
+      "导出正式报告与答辩大纲"
+    ],
+    "quant_outputs": [
+      ["岗位化模块", "4"],
+      ["专家 Skills", "8"],
+      ["输出形态", "3"]
+    ],
+    "quality_thresholds": {
+      "strong": 85,
+      "watch": 65
+    },
+    "demo_cases": [
+      {
+        "id": "policy_shock",
+        "title": "政策冲击型",
+        "category": "政策研判",
+        "hook": "展示政策目录、文档解析和研究报告导出的完整闭环。",
+        "summary": "围绕重点监管动态，展示政策解读到结构化研判报告的全过程。",
+        "button_label": "加载政策案例",
+        "active_module": "policy_analysis",
+        "tags": ["政策解析", "证据引用", "正式报告"],
+        "report_title": "政策研判报告"
+      },
+      {
+        "id": "market_volatility",
+        "title": "市场波动型",
+        "category": "市场监测",
+        "hook": "展示当日信号、历史回放与影响路径梳理。",
+        "summary": "围绕指数和产品异动，展示市场监测到行动建议的闭环。",
+        "button_label": "加载波动案例",
+        "active_module": "market_monitoring",
+        "tags": ["市场异动", "信号归因", "影响路径"],
+        "report_title": "市场研判报告"
+      },
+      {
+        "id": "product_strategy",
+        "title": "产品策略型",
+        "category": "产品研究",
+        "hook": "展示重点产品研究、策略观察与内容动作建议。",
+        "summary": "围绕重点产品，展示研究摘要、策略动作和对外表达框架。",
+        "button_label": "加载策略案例",
+        "active_module": "product_research",
+        "tags": ["产品研究", "策略建议", "内容输出"],
+        "report_title": "产品策略报告"
+      }
+    ]
   }
 }

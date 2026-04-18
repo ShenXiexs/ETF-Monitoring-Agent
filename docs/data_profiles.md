@@ -4,6 +4,7 @@
 
 - 工作台名称、说明文案和按钮文案
 - 模块名称、模块简介和系统 prompt
+- 比赛叙事、Demo Case、质量阈值和答辩展示文案
 - 外部文件名
 - JSON 字段映射
 - Excel 列别名
@@ -32,5 +33,6 @@
 - 前端展示文案读取 `workspace`
 - 数据加载读取 `files / snapshot / policy`
 - 模块标题和系统 prompt 读取 `workspace.module_overrides`
+- Demo Case、Why it matters、质量阈值和量化指标读取 `competition`
 
 这样在切换任务时，常见改动落在配置层，而不是页面模板和业务代码。

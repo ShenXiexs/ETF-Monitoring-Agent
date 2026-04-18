@@ -1,0 +1,174 @@
+{
+  "snapshot": {
+    "2026-03-17": {
+      "products": [
+        {
+          "code": "560101.SH",
+          "name": "示例智能制造ETF",
+          "setup_date": "2024-03-17",
+          "list_date": "2024-03-25",
+          "scale": 26.4,
+          "volume": 8.3,
+          "inflow": 1.9,
+          "index_code": "980001.CSI"
+        },
+        {
+          "code": "560102.SH",
+          "name": "示例红利低波ETF",
+          "setup_date": "2024-05-20",
+          "list_date": "2024-05-28",
+          "scale": 31.2,
+          "volume": 6.1,
+          "inflow": 0.8,
+          "index_code": "980002.CSI"
+        },
+        {
+          "code": "560103.SH",
+          "name": "示例算力基础设施ETF",
+          "setup_date": "2024-07-10",
+          "list_date": "2024-07-18",
+          "scale": 22.7,
+          "volume": 9.6,
+          "inflow": 2.4,
+          "index_code": "980003.CSI"
+        }
+      ],
+      "indices": {
+        "980001.CSI": {
+          "name": "示例智能制造指数",
+          "prev_close": 3120.0,
+          "open": 3148.0,
+          "change": 1.5,
+          "volume": 912.0
+        },
+        "980003.CSI": {
+          "name": "示例算力基础设施指数",
+          "prev_close": 4280.0,
+          "open": 4340.0,
+          "change": 2.2,
+          "volume": 1234.0
+        }
+      }
+    },
+    "2026-03-18": {
+      "products": [
+        {
+          "code": "560101.SH",
+          "name": "示例智能制造ETF",
+          "setup_date": "2024-03-17",
+          "list_date": "2024-03-25",
+          "scale": 27.1,
+          "volume": 7.8,
+          "inflow": 1.2,
+          "index_code": "980001.CSI"
+        },
+        {
+          "code": "560102.SH",
+          "name": "示例红利低波ETF",
+          "setup_date": "2024-05-20",
+          "list_date": "2024-05-28",
+          "scale": 31.8,
+          "volume": 5.4,
+          "inflow": 0.4,
+          "index_code": "980002.CSI"
+        },
+        {
+          "code": "560103.SH",
+          "name": "示例算力基础设施ETF",
+          "setup_date": "2024-07-10",
+          "list_date": "2024-07-18",
+          "scale": 23.9,
+          "volume": 10.8,
+          "inflow": 3.1,
+          "index_code": "980003.CSI"
+        }
+      ],
+      "indices": {
+        "980001.CSI": {
+          "name": "示例智能制造指数",
+          "prev_close": 3148.0,
+          "open": 3135.0,
+          "change": -0.8,
+          "volume": 860.0
+        },
+        "980003.CSI": {
+          "name": "示例算力基础设施指数",
+          "prev_close": 4340.0,
+          "open": 4405.0,
+          "change": 2.6,
+          "volume": 1368.0
+        }
+      }
+    },
+    "2026-03-19": {
+      "products": [
+        {
+          "code": "560101.SH",
+          "name": "示例智能制造ETF",
+          "setup_date": "2024-03-17",
+          "list_date": "2024-03-25",
+          "scale": 28.0,
+          "volume": 8.9,
+          "inflow": 1.5,
+          "index_code": "980001.CSI"
+        },
+        {
+          "code": "560102.SH",
+          "name": "示例红利低波ETF",
+          "setup_date": "2024-05-20",
+          "list_date": "2024-05-28",
+          "scale": 32.5,
+          "volume": 5.8,
+          "inflow": 0.6,
+          "index_code": "980002.CSI"
+        },
+        {
+          "code": "560103.SH",
+          "name": "示例算力基础设施ETF",
+          "setup_date": "2024-07-10",
+          "list_date": "2024-07-18",
+          "scale": 25.2,
+          "volume": 11.6,
+          "inflow": 3.8,
+          "index_code": "980003.CSI"
+        }
+      ],
+      "indices": {
+        "980001.CSI": {
+          "name": "示例智能制造指数",
+          "prev_close": 3135.0,
+          "open": 3182.0,
+          "change": 1.8,
+          "volume": 944.0
+        },
+        "980003.CSI": {
+          "name": "示例算力基础设施指数",
+          "prev_close": 4405.0,
+          "open": 4466.0,
+          "change": 2.1,
+          "volume": 1412.0
+        }
+      }
+    }
+  },
+  "policies": [
+    {
+      "公告日期": "2026-03-17",
+      "标题": "关于提升公募基金信息披露一致性的通知",
+      "法律位阶": "监管通知",
+      "来源": "内置演示目录"
+    },
+    {
+      "公告日期": "2026-03-18",
+      "标题": "关于优化指数产品风险揭示方式的工作提示",
+      "法律位阶": "行业提示",
+      "来源": "内置演示目录"
+    },
+    {
+      "公告日期": "2026-03-19",
+      "标题": "关于加强主题型产品持续监测的业务备忘",
+      "法律位阶": "业务备忘",
+      "来源": "内置演示目录"
+    }
+  ]
+}

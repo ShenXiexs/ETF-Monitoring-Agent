@@ -5,6 +5,8 @@
 - `DATA_SOURCE_DIR`：外部数据目录
 - `DATA_PROFILE_PATH`：字段映射与界面文案配置
 
+若未提供 `DATA_SOURCE_DIR`，且 `ENABLE_DEMO_MODE` 未关闭，系统会自动切换到仓库内置的脱敏演示数据。
+
 默认 profile 见 [config/default_profile.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/config/default_profile.json)，自定义模板见 [config/profile_template.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/config/profile_template.json)。
 
 ## 目录结构
@@ -41,3 +43,4 @@
 - 若只是换字段名或文件名，优先修改 profile，不要改 Python 代码。
 - 若是新的记录类任务，尽量把核心数值映射到 `scale / volume / inflow` 这三个标准指标，便于继续使用现有的排行、信号和日报逻辑。
 - 若数据完全不适合现有三指标范式，再考虑扩展规则引擎，而不是直接改前端页面。
+- 若需要比赛展示，可优先在 profile 中覆盖 `competition.demo_cases`、`competition.why_it_matters` 和 `competition.quality_thresholds`，而不是改模板。

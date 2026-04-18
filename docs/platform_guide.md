@@ -31,4 +31,14 @@ pip install -r requirements.txt
 - 默认绑定 `127.0.0.1:5000`，更适合本机开发和比赛演示。
 - 需要改端口时，设置 `PORT` 即可。
 - 需要局域网访问时，再显式设置 `HOST=0.0.0.0`。
-- 若未配置 `DATA_SOURCE_DIR`，系统会以空态模式启动，便于先检查界面和文档解析链路。
+- 若未配置 `DATA_SOURCE_DIR`，默认会切换到内置 Demo Mode；若想强制空态，可设置 `ENABLE_DEMO_MODE=0`。
+
+## 赛前建议
+
+正式展示前可先运行一次数据校验：
+
+```bash
+python -m src.preprocess /absolute/path/to/data --profile /absolute/path/to/profile.json
+```
+
+这样可以提前发现文件名、日期格式、字段映射和目录结构问题。

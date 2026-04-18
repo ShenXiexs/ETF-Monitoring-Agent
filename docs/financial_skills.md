@@ -34,6 +34,14 @@
 1. 先按 `政策解读 / 宏观与市场影响 / 产品策略建议 / 风险与合规 / 报告编审` 生成技能笔记
 2. 再合成为结构化研判报告
 
+## 比赛展示中的作用
+
+在竞赛版本中，这些 skills 不再只是 prompt 内的隐式设定，而是会直接出现在：
+
+- `报告 Trace`：展示当前案例调用了哪些专家视角
+- `结果对比`：展示增强版输出相较 Baseline 的提升
+- `质量评分卡`：解释为什么增强版在结构、证据和风险提示上更完整
+
 ## 实现位置
 
 - 技能定义：[financial_skills.py](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/src/financial_skills.py)

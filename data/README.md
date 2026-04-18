@@ -1,11 +1,12 @@
-# External Data Only
+# Data Directory
 
-仓库不内置业务数据。
+仓库不内置真实业务数据，但内置了一份**脱敏演示数据**用于比赛展示：
 
-运行时请通过 `DATA_SOURCE_DIR` 指向外部目录，并提供：
+- `demo_workspace.json`
+
+运行时优先读取 `DATA_SOURCE_DIR` 指向的外部目录，并按 profile 约定加载：
 
 - `market_snapshot.json`
 - `policy_catalog.xlsx`
 
-工作台在没有外部数据时会以空态模式启动。
-
+如果未提供外部目录，且 `ENABLE_DEMO_MODE` 未关闭，工作台会自动切换到内置演示模式，保证现场 Demo 可稳定运行。

@@ -38,11 +38,21 @@
       "signals": "当日信号",
       "history": "历史回放",
       "workspace": "协作工作台",
+      "demo_cases": "预置 Demo Case",
+      "pipeline": "研究流水线",
+      "research_overview": "研究对象概览",
+      "impact_path": "影响路径",
+      "quality": "报告质量卡",
+      "trace": "报告 Trace",
+      "comparison": "结果对比",
+      "why_matters": "Why it matters",
+      "diagnostics": "系统诊断",
       "daily_report": "当日工作摘要",
       "daily_report_eyebrow": "Daily Brief",
       "highlights": "亮点记录",
       "news": "重点信号",
-      "suggestions": "行动建议"
+      "suggestions": "行动建议",
+      "outline": "答辩大纲"
     },
     "empty_states": {
       "catalog": "未加载记录目录。",
@@ -56,6 +66,7 @@
       "toggle_resume": "恢复模拟",
       "open_report": "打开日报",
       "export_report": "导出报告",
+      "export_outline": "导出答辩大纲",
       "send": "发送到当前模块",
       "close": "关闭"
     },
@@ -107,5 +118,66 @@
       "source": ["来源", "链接", "source", "url"]
     },
     "default_rank": "行业规定"
+  },
+  "competition": {
+    "headline": "一句话描述你的竞赛级项目定位",
+    "subheadline": "说明这个工作台为什么不是简单聊天工具，而是完整的业务闭环产品。",
+    "why_it_matters": [
+      "说明它节省了什么人工流程。",
+      "说明它提升了什么分析效率。",
+      "说明它为什么适合真实业务场景。"
+    ],
+    "differentiators": [
+      "写出相较普通问答工具的关键差异点。"
+    ],
+    "demo_flow": [
+      "加载演示案例",
+      "查看多源分析",
+      "输出报告和答辩材料"
+    ],
+    "quant_outputs": [
+      ["岗位化模块", "4"],
+      ["专家 Skills", "8"],
+      ["输出形态", "3"]
+    ],
+    "quality_thresholds": {
+      "strong": 85,
+      "watch": 65
+    },
+    "demo_cases": [
+      {
+        "id": "policy_shock",
+        "title": "政策冲击型",
+        "category": "演示案例",
+        "hook": "一句话说明这个案例展示什么能力。",
+        "summary": "一句话摘要。",
+        "button_label": "加载案例",
+        "active_module": "policy_analysis",
+        "tags": ["政策解析"],
+        "report_title": "研判报告"
+      },
+      {
+        "id": "market_volatility",
+        "title": "市场波动型",
+        "category": "演示案例",
+        "hook": "一句话说明这个案例展示什么能力。",
+        "summary": "一句话摘要。",
+        "button_label": "加载案例",
+        "active_module": "market_monitoring",
+        "tags": ["市场监测"],
+        "report_title": "研判报告"
+      },
+      {
+        "id": "product_strategy",
+        "title": "产品策略型",
+        "category": "演示案例",
+        "hook": "一句话说明这个案例展示什么能力。",
+        "summary": "一句话摘要。",
+        "button_label": "加载案例",
+        "active_module": "product_research",
+        "tags": ["产品研究"],
+        "report_title": "研判报告"
+      }
+    ]
   }
 }

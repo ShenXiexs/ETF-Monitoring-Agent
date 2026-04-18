@@ -19,11 +19,22 @@ except ImportError:
 
 def create_app(test_config: Dict | None = None) -> Flask:
     module_keys = {item["key"] for item in MODULES}
-    allowed_actions = {"chat", "refresh", "toggle_simulation", "daily_report", "generate_report"}
+    allowed_actions = {
+        "chat",
+        "refresh",
+        "toggle_simulation",
+        "daily_report",
+        "generate_report",
+        "load_demo_case",
+        "report_trace",
+        "quality_snapshot",
+        "export_outline",
+    }
     app = Flask(__name__, template_folder="../templates", static_folder=None)
     app.config.from_mapping(
         DATA_SOURCE_DIR=os.getenv("DATA_SOURCE_DIR"),
         DATA_PROFILE_PATH=os.getenv("DATA_PROFILE_PATH"),
+        ENABLE_DEMO_MODE=os.getenv("ENABLE_DEMO_MODE", "1").strip() != "0",
         SIMULATION_INTERVAL=float(os.getenv("SIMULATION_INTERVAL_SECONDS", "5")),
         HOST=os.getenv("HOST", "127.0.0.1"),
         PORT=int(os.getenv("PORT", "5000")),
@@ -38,6 +49,7 @@ def create_app(test_config: Dict | None = None) -> Flask:
     manager = AssetWorkbenchManager(
         data_source_dir=app.config.get("DATA_SOURCE_DIR"),
         profile_path=app.config.get("DATA_PROFILE_PATH"),
+        enable_demo_mode=bool(app.config.get("ENABLE_DEMO_MODE", True)),
     )
     simulation_state = {
         "is_running": True,
@@ -45,11 +57,30 @@ def create_app(test_config: Dict | None = None) -> Flask:
     }
     chat_history = []
     document_sessions: Dict[str, dict] = {}
+    competition_state: Dict[str, object] = {
+        "latest_session_id": None,
+        "loaded_case": None,
+        "trace_summary": manager.default_trace_summary(),
+        "quality_metrics": manager.default_quality_metrics(),
+        "comparison": manager.default_comparison(),
+    }
     app.config["MANAGER"] = manager
     app.config["DOCUMENT_SESSIONS"] = document_sessions
 
     def current_bootstrap() -> dict:
-        return manager.get_bootstrap_state(simulation_state)
+        payload = manager.get_bootstrap_state(simulation_state)
+        payload.update(competition_state)
+        return payload
+
+    def update_competition_state(session_id: str | None = None, artifact: dict | None = None, loaded_case: dict | None = None) -> None:
+        if session_id:
+            competition_state["latest_session_id"] = session_id
+        if artifact:
+            competition_state["trace_summary"] = artifact["trace_summary"]
+            competition_state["quality_metrics"] = artifact["quality_metrics"]
+            competition_state["comparison"] = artifact["comparison"]
+        if loaded_case is not None:
+            competition_state["loaded_case"] = loaded_case
 
     def payload() -> dict:
         if request.is_json:
@@ -66,11 +97,21 @@ def create_app(test_config: Dict | None = None) -> Flask:
         ]
         for session_id in expired:
             document_sessions.pop(session_id, None)
+            if competition_state.get("latest_session_id") == session_id:
+                competition_state["latest_session_id"] = None
+                competition_state["loaded_case"] = None
+                competition_state["trace_summary"] = manager.default_trace_summary()
+                competition_state["quality_metrics"] = manager.default_quality_metrics()
+                competition_state["comparison"] = manager.default_comparison()
 
     def trim_history() -> None:
         max_items = int(app.config["MAX_CHAT_HISTORY"])
         if len(chat_history) > max_items:
             del chat_history[:-max_items]
+
+    def get_session_entry(session_id: str | None = None) -> dict | None:
+        resolved = session_id or str(competition_state.get("latest_session_id") or "")
+        return document_sessions.get(resolved) if resolved else None
 
     def validate_upload(file_storage) -> None:
         filename = (file_storage.filename or "").lower()
@@ -138,26 +179,89 @@ def create_app(test_config: Dict | None = None) -> Flask:
         if action == "daily_report":
             return jsonify(manager.get_daily_report(manager.get_current_date()))
 
+        if action == "load_demo_case":
+            case_id = data.get("case_id", "").strip()
+            if not case_id:
+                return jsonify({"error": "缺少 case_id。"}), 400
+            try:
+                artifact = manager.build_demo_case_artifact(case_id)
+            except ValueError as exc:
+                return jsonify({"error": str(exc)}), 400
+
+            session_id = uuid.uuid4().hex
+            document_sessions[session_id] = {
+                "text": artifact["text"],
+                "artifact": artifact,
+                "created_at": time.time(),
+            }
+            simulation_state["is_running"] = False
+            update_competition_state(session_id=session_id, artifact=artifact, loaded_case=artifact["case"])
+            response = current_bootstrap()
+            response.update(
+                {
+                    "session_id": session_id,
+                    "assistant_message": artifact["assistant_message"],
+                    "report_ready": True,
+                    "outline_ready": True,
+                    "active_module": artifact["case"]["active_module"],
+                }
+            )
+            return jsonify(response)
+
+        if action == "report_trace":
+            entry = get_session_entry(data.get("session_id", "").strip())
+            if entry and entry.get("artifact"):
+                return jsonify(entry["artifact"]["trace_summary"])
+            return jsonify(competition_state["trace_summary"])
+
+        if action == "quality_snapshot":
+            entry = get_session_entry(data.get("session_id", "").strip())
+            if entry and entry.get("artifact"):
+                return jsonify(entry["artifact"]["quality_metrics"])
+            return jsonify(competition_state["quality_metrics"])
+
         if action == "generate_report":
             session_id = data.get("session_id", "").strip()
-            source_text = document_sessions.get(session_id, {}).get("text", "")
+            entry = get_session_entry(session_id)
+            source_text = entry.get("text", "") if entry else ""
+            artifact = entry.get("artifact") if entry else None
             pdf_file = request.files.get("pdf_file")
             if pdf_file:
                 try:
                     source_text = parse_pdf(pdf_file)
                 except ValueError as exc:
                     return jsonify({"error": str(exc)}), 400
+                artifact = manager.build_document_artifact(source_text)
             if not source_text:
                 return jsonify({"error": "未找到可导出的文件内容。"}), 400
 
-            report_text = manager.analyze_document(source_text)
-            report_bytes = manager.build_docx_report(report_text)
+            if not artifact:
+                artifact = manager.build_document_artifact(source_text)
+            report_bytes = manager.build_docx_report(
+                artifact["enhanced_report"],
+                title=artifact.get("report_title", "政策研判报告"),
+            )
             report_date = manager.get_current_date() or time.strftime("%Y-%m-%d")
             return send_file(
                 io.BytesIO(report_bytes),
                 mimetype="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 as_attachment=True,
                 download_name=f"policy-report-{report_date}.docx",
+            )
+
+        if action == "export_outline":
+            session_id = data.get("session_id", "").strip()
+            entry = get_session_entry(session_id)
+            artifact = entry.get("artifact") if entry else None
+            if not artifact:
+                return jsonify({"error": "当前没有可导出的答辩大纲。"}), 400
+            outline_bytes = manager.build_outline_bytes(artifact["outline"])
+            report_date = manager.get_current_date() or time.strftime("%Y-%m-%d")
+            return send_file(
+                io.BytesIO(outline_bytes),
+                mimetype="text/markdown; charset=utf-8",
+                as_attachment=True,
+                download_name=f"competition-outline-{report_date}.md",
             )
 
         if action == "chat":
@@ -179,12 +283,15 @@ def create_app(test_config: Dict | None = None) -> Flask:
                         return
 
                     session_id = uuid.uuid4().hex
-                    document_sessions[session_id] = {"text": text, "created_at": time.time()}
-                    summary = manager.summarize_document(text)
+                    artifact = manager.build_document_artifact(text)
+                    document_sessions[session_id] = {"text": text, "artifact": artifact, "created_at": time.time()}
+                    update_competition_state(session_id=session_id, artifact=artifact)
+                    competition_state["loaded_case"] = None
                     final_message = (
                         "### 政策解析摘要\n\n"
-                        f"{summary}\n\n"
-                        "如需导出正式研判报告，请点击页面中的“导出报告”。"
+                        f"{artifact['enhanced_summary']}\n\n"
+                        f"- 综合评分：{round(sum(item['score'] for item in artifact['quality_metrics']) / len(artifact['quality_metrics']))} 分\n"
+                        "- 已生成报告 trace、质量评分卡和答辩大纲，可直接导出。"
                     )
                     chat_history.append({"role": "user", "content": "[上传文件]"})
                     chat_history.append({"role": "assistant", "content": final_message})
@@ -193,6 +300,10 @@ def create_app(test_config: Dict | None = None) -> Flask:
                         "content": final_message,
                         "session_id": session_id,
                         "report_ready": True,
+                        "outline_ready": True,
+                        "trace_summary": artifact["trace_summary"],
+                        "quality_metrics": artifact["quality_metrics"],
+                        "comparison": artifact["comparison"],
                         "metrics": {
                             "think_time": round(max(0.1, time.time() - start_time), 2),
                             "gen_time": 0.1,

@@ -46,7 +46,7 @@ def test_root_renders_without_data(empty_client):
     assert response.status_code == 200
     assert "资管产品洞察协作台" in body
     assert "Asset Intel Workbench" in body
-    assert "协作工作台" in body
+    assert "预置 Demo Case" in body
     assert "/api/" not in body
     assert "/workspace" in body
 
@@ -90,6 +90,9 @@ def test_refresh_toggle_and_daily_report(client_with_data):
     assert refresh.status_code == 200
     assert refresh_payload["has_data"] is True
     assert refresh_payload["summary"]["product_count"] == 2
+    assert "competition_story" in refresh_payload
+    assert "demo_cases" in refresh_payload
+    assert "quality_metrics" in refresh_payload
     policy_module = next(item for item in refresh_payload["modules"] if item["key"] == "policy_analysis")
     policy_skill_labels = [item["label"] for item in policy_module["skills"]]
     assert "政策解读" in policy_skill_labels
@@ -141,6 +144,44 @@ def test_generate_report_from_uploaded_pdf(client_with_data):
     )
     assert response.status_code == 200
     assert response.mimetype == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+
+def test_demo_mode_bootstrap_and_load_case(demo_client):
+    refresh = demo_client.post("/workspace", json={"action": "refresh"})
+    payload = refresh.get_json()
+    assert refresh.status_code == 200
+    assert payload["mode"] == "demo"
+    assert len(payload["demo_cases"]) == 3
+
+    load_case = demo_client.post("/workspace", json={"action": "load_demo_case", "case_id": "policy_shock"})
+    case_payload = load_case.get_json()
+    assert load_case.status_code == 200
+    assert case_payload["report_ready"] is True
+    assert case_payload["outline_ready"] is True
+    assert case_payload["active_module"] == "policy_analysis"
+    assert "assistant_message" in case_payload
+    assert case_payload["quality_metrics"]
+    assert case_payload["trace_summary"]["skills"]
+
+
+def test_trace_quality_and_outline_actions(demo_client):
+    load_case = demo_client.post("/workspace", json={"action": "load_demo_case", "case_id": "market_volatility"})
+    payload = load_case.get_json()
+    session_id = payload["session_id"]
+
+    trace = demo_client.post("/workspace", json={"action": "report_trace", "session_id": session_id})
+    trace_payload = trace.get_json()
+    assert trace.status_code == 200
+    assert trace_payload["report_sections"]
+
+    quality = demo_client.post("/workspace", json={"action": "quality_snapshot", "session_id": session_id})
+    quality_payload = quality.get_json()
+    assert quality.status_code == 200
+    assert len(quality_payload) == 4
+
+    outline = demo_client.post("/workspace", data={"action": "export_outline", "session_id": session_id})
+    assert outline.status_code == 200
+    assert outline.mimetype.startswith("text/markdown")
 
 
 def test_invalid_upload_rejected(client_with_data):

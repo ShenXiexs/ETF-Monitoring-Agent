@@ -7,13 +7,15 @@
     <style>
         :root {
             --bg: #f4efe6;
-            --paper: rgba(255, 252, 246, 0.92);
+            --paper: rgba(255, 252, 246, 0.94);
             --ink: #15202b;
             --muted: #5f6b73;
             --line: rgba(21, 32, 43, 0.1);
             --accent: #0f766e;
             --accent-strong: #115e59;
             --warn: #9a3412;
+            --watch: #92400e;
+            --weak: #991b1b;
             --shadow: 0 24px 60px rgba(21, 32, 43, 0.12);
         }
 
@@ -31,7 +33,7 @@
         }
 
         .shell {
-            width: min(1440px, calc(100% - 32px));
+            width: min(1480px, calc(100% - 32px));
             margin: 24px auto;
             padding: 28px;
             border: 1px solid rgba(255, 255, 255, 0.45);
@@ -41,11 +43,27 @@
             box-shadow: var(--shadow);
         }
 
-        .hero {
+        .hero,
+        .contest-grid,
+        .layout,
+        .report-grid {
             display: grid;
-            grid-template-columns: 1.4fr 1fr;
             gap: 16px;
+        }
+
+        .hero {
+            grid-template-columns: 1.45fr 1fr;
             align-items: stretch;
+        }
+
+        .contest-grid {
+            margin-top: 18px;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .layout {
+            margin-top: 22px;
+            grid-template-columns: 1.05fr 1.05fr 1.2fr;
         }
 
         .hero-card,
@@ -56,10 +74,14 @@
             border-radius: 24px;
         }
 
-        .hero-card {
-            padding: 24px;
+        .hero-card,
+        .panel {
             position: relative;
             overflow: hidden;
+        }
+
+        .hero-card {
+            padding: 24px;
         }
 
         .hero-card::after {
@@ -69,7 +91,12 @@
             width: 240px;
             height: 240px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(15, 118, 110, 0.18), transparent 68%);
+            background: radial-gradient(circle, rgba(15, 118, 110, 0.16), transparent 68%);
+        }
+
+        .panel {
+            padding: 20px;
+            min-height: 220px;
         }
 
         .eyebrow {
@@ -107,56 +134,156 @@
 
         .hero-copy {
             margin-top: 12px;
-            max-width: 720px;
+            max-width: 760px;
             color: var(--muted);
             font-size: 15px;
             line-height: 1.7;
         }
 
-        .hero-meta {
-            margin-top: 20px;
+        .hero-meta,
+        .stat-strip,
+        .tag-row,
+        .skill-tags {
+            margin-top: 18px;
             display: flex;
             flex-wrap: wrap;
-            gap: 12px;
+            gap: 10px;
         }
 
-        .pill {
+        .pill,
+        .stat-pill,
+        .tag-pill,
+        .skill-chip,
+        .status-chip {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 10px 14px;
+            padding: 8px 12px;
             border-radius: 999px;
-            background: rgba(15, 118, 110, 0.08);
-            color: var(--accent-strong);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
         }
 
-        .summary-grid {
+        .pill,
+        .stat-pill {
+            background: rgba(15, 118, 110, 0.08);
+            color: var(--accent-strong);
+        }
+
+        .tag-pill,
+        .skill-chip {
+            background: rgba(21, 32, 43, 0.08);
+            color: var(--muted);
+        }
+
+        .status-chip {
+            background: rgba(21, 32, 43, 0.06);
+            color: var(--muted);
+        }
+
+        .status-chip.ready,
+        .status-chip.strong {
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--accent-strong);
+        }
+
+        .status-chip.fallback,
+        .status-chip.watch {
+            background: rgba(146, 64, 14, 0.12);
+            color: var(--watch);
+        }
+
+        .status-chip.waiting,
+        .status-chip.weak {
+            background: rgba(153, 27, 27, 0.1);
+            color: var(--weak);
+        }
+
+        .summary-grid,
+        .stage-grid,
+        .metric-grid,
+        .demo-case-list,
+        .trace-list,
+        .diagnostics-list,
+        .scroll-list,
+        .chat-feed,
+        .composer {
             display: grid;
             gap: 12px;
+        }
+
+        .summary-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            padding: 22px;
         }
 
-        .summary-card {
-            padding: 18px;
-            border-radius: 20px;
-            background: linear-gradient(135deg, rgba(15, 118, 110, 0.1), rgba(255, 255, 255, 0.9));
-            border: 1px solid rgba(15, 118, 110, 0.08);
+        .stage-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
         }
 
-        .summary-card .label {
+        .metric-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .summary-card,
+        .stage-card,
+        .metric-card,
+        .case-card,
+        .trace-card,
+        .info-card,
+        .diagnostic-card,
+        .comparison-card,
+        .loaded-case,
+        .card-row {
+            padding: 16px;
+            border-radius: 18px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.84);
+        }
+
+        .summary-card .label,
+        .metric-card .label,
+        .stage-card .step-index,
+        .info-card .label {
             font-size: 12px;
             color: var(--muted);
             text-transform: uppercase;
             letter-spacing: 0.08em;
         }
 
-        .summary-card .value {
+        .summary-card .value,
+        .metric-card .value,
+        .info-card .value {
             margin-top: 8px;
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 700;
+        }
+
+        .stage-card .step-index {
+            display: inline-flex;
+            width: 28px;
+            height: 28px;
+            align-items: center;
+            justify-content: center;
+            border-radius: 999px;
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--accent-strong);
+            margin-bottom: 12px;
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .panel-header small,
+        .subtle,
+        .detail {
+            color: var(--muted);
+            font-size: 13px;
+            line-height: 1.6;
         }
 
         .warning-list {
@@ -204,70 +331,64 @@
             color: var(--ink);
         }
 
-        .layout {
-            margin-top: 22px;
+        .btn-tertiary {
+            margin-top: 12px;
+            background: rgba(21, 32, 43, 0.08);
+            color: var(--ink);
+            width: 100%;
+        }
+
+        .loaded-case {
+            margin-top: 18px;
+            display: none;
+            background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(255, 255, 255, 0.92));
+        }
+
+        .compare-grid {
             display: grid;
-            gap: 16px;
-            grid-template-columns: 1.05fr 1.05fr 1.2fr;
+            gap: 10px;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 10px;
         }
 
-        .panel {
-            padding: 20px;
-            min-height: 220px;
+        .modal {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(21, 32, 43, 0.25);
+            padding: 24px;
         }
 
-        .panel-header {
+        .modal-card {
+            width: min(960px, 100%);
+            padding: 24px;
+            max-height: 80vh;
+            overflow: auto;
+        }
+
+        .modal-actions {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            gap: 10px;
-            margin-bottom: 16px;
-        }
-
-        .panel-header small {
-            color: var(--muted);
-            font-size: 12px;
-        }
-
-        .scroll-list {
-            display: grid;
-            gap: 10px;
-            max-height: 520px;
-            overflow: auto;
-            padding-right: 4px;
-        }
-
-        .card-row {
-            padding: 14px 16px;
-            border-radius: 18px;
-            border: 1px solid var(--line);
-            background: rgba(255, 255, 255, 0.8);
-            cursor: pointer;
-        }
-
-        .card-row strong {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
-
-        .card-row .subtle {
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .signal-tag {
-            display: inline-flex;
             align-items: center;
-            padding: 5px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            background: rgba(15, 118, 110, 0.1);
-            color: var(--accent-strong);
-            margin-bottom: 8px;
+            margin-bottom: 20px;
+        }
+
+        .report-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .report-block {
+            padding: 16px;
+            border-radius: 18px;
+            background: rgba(21, 32, 43, 0.04);
+            border: 1px solid var(--line);
+        }
+
+        .report-block ul {
+            margin: 10px 0 0;
+            padding-left: 18px;
         }
 
         .module-grid {
@@ -300,28 +421,34 @@
             line-height: 1.5;
         }
 
-        .skill-tags {
-            margin-top: 10px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
+        .scroll-list {
+            max-height: 520px;
+            overflow: auto;
+            padding-right: 4px;
         }
 
-        .skill-chip {
+        .card-row strong {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .signal-tag {
             display: inline-flex;
             align-items: center;
-            padding: 5px 9px;
+            padding: 5px 10px;
             border-radius: 999px;
-            background: rgba(21, 32, 43, 0.08);
-            color: var(--muted);
             font-size: 11px;
-            line-height: 1;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            background: rgba(15, 118, 110, 0.1);
+            color: var(--accent-strong);
+            margin-bottom: 8px;
         }
 
         .chat-feed {
             margin-top: 16px;
-            display: grid;
-            gap: 12px;
             max-height: 360px;
             overflow: auto;
             padding-right: 4px;
@@ -350,12 +477,6 @@
             font-size: 12px;
         }
 
-        .composer {
-            margin-top: 16px;
-            display: grid;
-            gap: 10px;
-        }
-
         textarea {
             width: 100%;
             min-height: 110px;
@@ -380,48 +501,6 @@
             text-align: center;
         }
 
-        .modal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            background: rgba(21, 32, 43, 0.25);
-            padding: 24px;
-        }
-
-        .modal-card {
-            width: min(960px, 100%);
-            padding: 24px;
-            max-height: 80vh;
-            overflow: auto;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .report-grid {
-            display: grid;
-            gap: 16px;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .report-block {
-            padding: 16px;
-            border-radius: 18px;
-            background: rgba(21, 32, 43, 0.04);
-            border: 1px solid var(--line);
-        }
-
-        .report-block ul {
-            margin: 10px 0 0;
-            padding-left: 18px;
-        }
-
         table {
             width: 100%;
             border-collapse: collapse;
@@ -434,10 +513,14 @@
             text-align: left;
         }
 
-        @media (max-width: 1180px) {
+        @media (max-width: 1280px) {
             .hero,
+            .contest-grid,
             .layout,
-            .report-grid {
+            .report-grid,
+            .stage-grid,
+            .metric-grid,
+            .compare-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -449,7 +532,7 @@
             <div class="hero-card">
                 <div class="eyebrow" id="hero-eyebrow">{{ bootstrap.workspace.eyebrow or "Asset Intel Workbench" }}</div>
                 <h1 id="hero-title">{{ bootstrap.app_name }}</h1>
-                <div class="hero-tagline" id="hero-tagline">{{ bootstrap.workspace.tagline or "" }}</div>
+                <div class="hero-tagline" id="hero-tagline">{{ bootstrap.competition_story.headline or bootstrap.workspace.tagline or "" }}</div>
                 <div class="hero-copy" id="hero-copy"></div>
                 <div class="hero-meta" id="hero-meta"></div>
                 <div class="warning-list" id="warning-list"></div>
@@ -458,10 +541,84 @@
                     <button class="btn-secondary" id="toggle-btn" type="button">{{ bootstrap.workspace.actions.toggle_pause or "暂停模拟" }}</button>
                     <button class="btn-secondary" id="report-btn" type="button">{{ bootstrap.workspace.actions.open_report or "打开日报" }}</button>
                     <button class="btn-secondary" id="export-btn" type="button" disabled>{{ bootstrap.workspace.actions.export_report or "导出报告" }}</button>
+                    <button class="btn-secondary" id="outline-btn" type="button" disabled>{{ bootstrap.workspace.actions.export_outline or "导出答辩大纲" }}</button>
                 </div>
             </div>
             <div class="hero-card">
                 <div class="summary-grid" id="summary-grid"></div>
+                <div class="stat-strip" id="quant-strip"></div>
+            </div>
+        </section>
+
+        <div class="loaded-case" id="loaded-case-banner"></div>
+
+        <section class="panel" style="margin-top: 18px;">
+            <div class="panel-header">
+                <h2 id="pipeline-title">{{ bootstrap.workspace.panel_titles.pipeline or "研究流水线" }}</h2>
+                <small>适合比赛现场 Demo 与答辩讲解</small>
+            </div>
+            <div class="stage-grid" id="pipeline-grid"></div>
+        </section>
+
+        <section class="contest-grid">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 id="why-matters-title">{{ bootstrap.workspace.panel_titles.why_matters or "Why it matters" }}</h2>
+                    <small>项目价值</small>
+                </div>
+                <div id="why-matters-list"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 id="diagnostics-title">{{ bootstrap.workspace.panel_titles.diagnostics or "系统诊断" }}</h2>
+                    <small>运行状态</small>
+                </div>
+                <div class="diagnostics-list" id="diagnostics-list"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 id="research-overview-title">{{ bootstrap.workspace.panel_titles.research_overview or "研究对象概览" }}</h2>
+                    <small id="research-overview-headline"></small>
+                </div>
+                <div class="metric-grid" id="research-overview-grid"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 id="impact-path-title">{{ bootstrap.workspace.panel_titles.impact_path or "影响路径" }}</h2>
+                    <small>从输入到输出</small>
+                </div>
+                <div class="trace-list" id="impact-path-list"></div>
+            </div>
+        </section>
+
+        <section class="contest-grid">
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 id="demo-cases-title">{{ bootstrap.workspace.panel_titles.demo_cases or "预置 Demo Case" }}</h2>
+                    <small>一键加载案例</small>
+                </div>
+                <div class="demo-case-list" id="demo-case-list"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 id="quality-title">{{ bootstrap.workspace.panel_titles.quality or "报告质量卡" }}</h2>
+                    <small>规则评分</small>
+                </div>
+                <div class="metric-grid" id="quality-grid"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 id="comparison-title">{{ bootstrap.workspace.panel_titles.comparison or "结果对比" }}</h2>
+                    <small>Baseline vs Enhanced</small>
+                </div>
+                <div id="comparison-card"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">
+                    <h2 id="trace-title">{{ bootstrap.workspace.panel_titles.trace or "报告 Trace" }}</h2>
+                    <small>技能协作</small>
+                </div>
+                <div id="trace-card"></div>
             </div>
         </section>
 
@@ -533,7 +690,7 @@
         const BOOTSTRAP = {{ bootstrap|tojson }};
         let appState = BOOTSTRAP;
         let activeModule = (appState.modules[0] || {}).key || "product_research";
-        let latestSessionId = null;
+        let latestSessionId = appState.latest_session_id || null;
 
         const heroEyebrow = document.getElementById("hero-eyebrow");
         const heroTitle = document.getElementById("hero-title");
@@ -542,6 +699,18 @@
         const heroMeta = document.getElementById("hero-meta");
         const warningList = document.getElementById("warning-list");
         const summaryGrid = document.getElementById("summary-grid");
+        const quantStrip = document.getElementById("quant-strip");
+        const pipelineGrid = document.getElementById("pipeline-grid");
+        const whyMattersList = document.getElementById("why-matters-list");
+        const diagnosticsList = document.getElementById("diagnostics-list");
+        const researchOverviewHeadline = document.getElementById("research-overview-headline");
+        const researchOverviewGrid = document.getElementById("research-overview-grid");
+        const impactPathList = document.getElementById("impact-path-list");
+        const demoCaseList = document.getElementById("demo-case-list");
+        const qualityGrid = document.getElementById("quality-grid");
+        const comparisonCard = document.getElementById("comparison-card");
+        const traceCard = document.getElementById("trace-card");
+        const loadedCaseBanner = document.getElementById("loaded-case-banner");
         const productCount = document.getElementById("product-count");
         const productList = document.getElementById("product-list");
         const signalDate = document.getElementById("signal-date");
@@ -554,6 +723,7 @@
         const pdfInput = document.getElementById("pdf-input");
         const dailyReportModal = document.getElementById("daily-report-modal");
         const exportBtn = document.getElementById("export-btn");
+        const outlineBtn = document.getElementById("outline-btn");
         const refreshBtn = document.getElementById("refresh-btn");
         const toggleBtn = document.getElementById("toggle-btn");
         const reportBtn = document.getElementById("report-btn");
@@ -588,6 +758,10 @@
             return workspaceSection("labels")[key] || fallback;
         }
 
+        function story() {
+            return appState.competition_story || {};
+        }
+
         function escapeHtml(text) {
             return String(text || "")
                 .replace(/&/g, "&amp;")
@@ -598,6 +772,7 @@
         function formatMarkdown(text) {
             let output = escapeHtml(text);
             output = output.replace(/^### (.+)$/gm, "<h3>$1</h3>");
+            output = output.replace(/^# (.+)$/gm, "<h3>$1</h3>");
             output = output.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
             output = output.replace(/\n\n/g, "<br><br>");
             output = output.replace(/\n/g, "<br>");
@@ -618,7 +793,11 @@
         }
 
         function infoPill(label) {
-            return `<div class="pill">${label}</div>`;
+            return `<div class="pill">${escapeHtml(label)}</div>`;
+        }
+
+        function statusChip(label, status) {
+            return `<span class="status-chip ${escapeHtml(status || "")}">${escapeHtml(label)}</span>`;
         }
 
         function addMessage(role, content) {
@@ -637,8 +816,9 @@
             addMessage("assistant", placeholderText("chat_seed", "工作台已就绪。请选择模块并开始分析。"));
         }
 
-        function setReportButtonState() {
+        function setExportState() {
             exportBtn.disabled = !latestSessionId;
+            outlineBtn.disabled = !latestSessionId;
         }
 
         function renderWarnings() {
@@ -655,16 +835,7 @@
             const workspace = workspaceConfig();
             heroEyebrow.textContent = workspace.eyebrow || "Asset Intel Workbench";
             heroTitle.textContent = appState.app_name || "资管产品洞察协作台";
-            heroTagline.textContent = workspace.tagline || "";
-            document.getElementById("catalog-title").textContent = panelTitle("catalog", "记录目录");
-            document.getElementById("signals-title").textContent = panelTitle("signals", "当日信号");
-            document.getElementById("history-title").textContent = panelTitle("history", "历史回放");
-            document.getElementById("workspace-title").textContent = panelTitle("workspace", "协作工作台");
-            document.getElementById("daily-report-eyebrow").textContent = panelTitle("daily_report_eyebrow", "Daily Brief");
-            document.getElementById("highlights-title").textContent = panelTitle("highlights", "亮点记录");
-            document.getElementById("news-title").textContent = panelTitle("news", "重点信号");
-            document.getElementById("suggestions-title").textContent = panelTitle("suggestions", "行动建议");
-            document.getElementById("history-window-label").textContent = labelText("history_window", "最近 10 个日期");
+            heroTagline.textContent = story().headline || workspace.tagline || "";
             chatInput.placeholder = placeholderText("chat_input", "输入问题，或上传待解析的 PDF 文件。");
             refreshBtn.textContent = actionText("refresh", "刷新视图");
             toggleBtn.textContent = appState.simulation.is_running
@@ -672,17 +843,38 @@
                 : actionText("toggle_resume", "恢复模拟");
             reportBtn.textContent = actionText("open_report", "打开日报");
             exportBtn.textContent = actionText("export_report", "导出报告");
+            outlineBtn.textContent = actionText("export_outline", "导出答辩大纲");
             sendBtn.textContent = actionText("send", "发送到当前模块");
             closeModalBtn.textContent = actionText("close", "关闭");
+            document.getElementById("daily-report-eyebrow").textContent = panelTitle("daily_report_eyebrow", "Daily Brief");
+            document.getElementById("catalog-title").textContent = panelTitle("catalog", "记录目录");
+            document.getElementById("signals-title").textContent = panelTitle("signals", "当日信号");
+            document.getElementById("history-title").textContent = panelTitle("history", "历史回放");
+            document.getElementById("workspace-title").textContent = panelTitle("workspace", "协作工作台");
+            document.getElementById("pipeline-title").textContent = panelTitle("pipeline", "研究流水线");
+            document.getElementById("why-matters-title").textContent = panelTitle("why_matters", "Why it matters");
+            document.getElementById("diagnostics-title").textContent = panelTitle("diagnostics", "系统诊断");
+            document.getElementById("research-overview-title").textContent = panelTitle("research_overview", "研究对象概览");
+            document.getElementById("impact-path-title").textContent = panelTitle("impact_path", "影响路径");
+            document.getElementById("demo-cases-title").textContent = panelTitle("demo_cases", "预置 Demo Case");
+            document.getElementById("quality-title").textContent = panelTitle("quality", "报告质量卡");
+            document.getElementById("comparison-title").textContent = panelTitle("comparison", "结果对比");
+            document.getElementById("trace-title").textContent = panelTitle("trace", "报告 Trace");
+            document.getElementById("history-window-label").textContent = labelText("history_window", "最近 10 个日期");
+            document.getElementById("highlights-title").textContent = panelTitle("highlights", "亮点记录");
+            document.getElementById("news-title").textContent = panelTitle("news", "重点信号");
+            document.getElementById("suggestions-title").textContent = panelTitle("suggestions", "行动建议");
         }
 
         function renderHero() {
             const currentDate = appState.simulation.current_date || labelText("fallback_date", "未加载数据");
+            const modeLabel = appState.mode === "demo" ? "演示模式" : (appState.mode === "external" ? "外部数据" : "空态模式");
             heroCopy.textContent = appState.has_data
-                ? (workspaceConfig().description_loaded || "工作台已加载外部数据配置。")
-                : (workspaceConfig().description_empty || "当前处于空态模式。");
+                ? `${workspaceConfig().description_loaded || ""} ${story().subheadline || ""}`.trim()
+                : `${workspaceConfig().description_empty || ""} ${story().subheadline || ""}`.trim();
             heroMeta.innerHTML = [
-                infoPill(appState.has_data ? `当前日期 ${currentDate}` : labelText("fallback_date", "未加载数据")),
+                infoPill(`当前日期 ${currentDate}`),
+                infoPill(modeLabel),
                 infoPill(appState.simulation.is_running ? "模拟运行中" : "模拟已暂停"),
                 infoPill(`模块数 ${appState.modules.length}`),
             ].join("");
@@ -701,6 +893,159 @@
                     <div class="value">${escapeHtml(appState.summary?.[key] ?? "-")}</div>
                 </div>
             `).join("");
+            quantStrip.innerHTML = (story().quant_outputs || []).map((item) => `
+                <div class="stat-pill">${escapeHtml(item.label)} · ${escapeHtml(item.value)}</div>
+            `).join("");
+        }
+
+        function renderPipeline() {
+            pipelineGrid.innerHTML = (story().stages || []).map((stage, index) => `
+                <div class="stage-card">
+                    <div class="step-index">${index + 1}</div>
+                    <strong>${escapeHtml(stage.title)}</strong>
+                    <div class="detail">${escapeHtml(stage.summary)}</div>
+                </div>
+            `).join("");
+        }
+
+        function renderWhyMatters() {
+            const items = story().why_it_matters || [];
+            if (!items.length) {
+                whyMattersList.innerHTML = '<div class="empty-state">当前暂无项目价值说明。</div>';
+                return;
+            }
+            whyMattersList.innerHTML = items.map((item) => `
+                <div class="info-card">
+                    <div class="detail">${escapeHtml(item)}</div>
+                </div>
+            `).join("");
+        }
+
+        function renderDiagnostics() {
+            diagnosticsList.innerHTML = (appState.diagnostics?.checks || []).map((item) => `
+                <div class="diagnostic-card">
+                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+                        <strong>${escapeHtml(item.label)}</strong>
+                        ${statusChip(item.status === "ready" ? "Ready" : item.status === "fallback" ? "Fallback" : "Waiting", item.status)}
+                    </div>
+                    <div class="detail" style="margin-top:8px;">${escapeHtml(item.detail)}</div>
+                </div>
+            `).join("");
+        }
+
+        function renderResearchOverview() {
+            const overview = appState.research_overview || { items: [] };
+            researchOverviewHeadline.textContent = overview.headline || "";
+            researchOverviewGrid.innerHTML = (overview.items || []).map((item) => `
+                <div class="metric-card">
+                    <div class="label">${escapeHtml(item.label)}</div>
+                    <div class="value">${escapeHtml(item.value)}</div>
+                </div>
+            `).join("");
+        }
+
+        function renderImpactPath() {
+            impactPathList.innerHTML = (appState.impact_path?.steps || []).map((step) => `
+                <div class="trace-card">
+                    <strong>${escapeHtml(step.title)}</strong>
+                    <div class="detail">${escapeHtml(step.detail)}</div>
+                </div>
+            `).join("");
+        }
+
+        function renderLoadedCase() {
+            const loaded = appState.loaded_case;
+            if (!loaded) {
+                loadedCaseBanner.style.display = "none";
+                loadedCaseBanner.innerHTML = "";
+                return;
+            }
+            loadedCaseBanner.style.display = "block";
+            loadedCaseBanner.innerHTML = `
+                <div class="eyebrow">${escapeHtml(loaded.category || "Demo Case")}</div>
+                <h2 style="margin-top:12px;">${escapeHtml(loaded.title)}</h2>
+                <div class="detail" style="margin-top:10px;">${escapeHtml(loaded.hook || "")}</div>
+                <div class="tag-row">${(loaded.tags || []).map((item) => `<span class="tag-pill">${escapeHtml(item)}</span>`).join("")}</div>
+                <div class="detail" style="margin-top:10px;"><strong>关键问题：</strong>${escapeHtml(loaded.key_question || "")}</div>
+                <div class="detail" style="margin-top:10px;"><strong>输入数据：</strong>${escapeHtml((loaded.input_data || []).join("；"))}</div>
+            `;
+        }
+
+        function renderDemoCases() {
+            const cases = appState.demo_cases || [];
+            if (!cases.length) {
+                demoCaseList.innerHTML = '<div class="empty-state">当前没有可用的 Demo Case。</div>';
+                return;
+            }
+            demoCaseList.innerHTML = cases.map((item) => `
+                <div class="case-card">
+                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+                        <div>
+                            <strong>${escapeHtml(item.title)}</strong>
+                            <div class="detail">${escapeHtml(item.summary)}</div>
+                        </div>
+                        ${statusChip(item.available ? "Ready" : "Waiting", item.available ? "ready" : "waiting")}
+                    </div>
+                    <div class="tag-row">${(item.tags || []).map((tag) => `<span class="tag-pill">${escapeHtml(tag)}</span>`).join("")}</div>
+                    <div class="detail" style="margin-top:10px;">${escapeHtml(item.key_question || "")}</div>
+                    <button class="btn-tertiary" type="button" data-case-id="${escapeHtml(item.id)}" ${item.available ? "" : "disabled"}>${escapeHtml(item.button_label || "加载案例")}</button>
+                </div>
+            `).join("");
+            demoCaseList.querySelectorAll("button[data-case-id]").forEach((button) => {
+                button.addEventListener("click", () => loadDemoCase(button.getAttribute("data-case-id")));
+            });
+        }
+
+        function renderQuality() {
+            qualityGrid.innerHTML = (appState.quality_metrics || []).map((item) => `
+                <div class="metric-card">
+                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+                        <div class="label">${escapeHtml(item.label)}</div>
+                        ${statusChip(item.status === "strong" ? "Strong" : item.status === "watch" ? "Watch" : "Weak", item.status)}
+                    </div>
+                    <div class="value">${escapeHtml(item.score)}</div>
+                    <div class="detail">Baseline ${escapeHtml(item.baseline_score)} → Enhanced ${escapeHtml(item.score)}</div>
+                    <div class="detail" style="margin-top:8px;">${escapeHtml(item.detail)}</div>
+                </div>
+            `).join("");
+        }
+
+        function renderComparison() {
+            const comparison = appState.comparison || {};
+            comparisonCard.innerHTML = `
+                <div class="comparison-card">
+                    <div class="detail">${escapeHtml(comparison.title || "Baseline vs Enhanced")}</div>
+                    <div class="compare-grid">
+                        <div class="trace-card">
+                            <strong>${escapeHtml(comparison.baseline?.label || "Baseline")}</strong>
+                            <div class="detail">${escapeHtml(comparison.baseline?.summary || "")}</div>
+                            <div class="detail" style="margin-top:8px;">章节 ${escapeHtml(comparison.baseline?.sections || 0)} · 来源 ${escapeHtml(comparison.baseline?.citations || 0)} · 评分 ${escapeHtml(comparison.baseline?.score || 0)}</div>
+                        </div>
+                        <div class="trace-card">
+                            <strong>${escapeHtml(comparison.enhanced?.label || "Enhanced")}</strong>
+                            <div class="detail">${escapeHtml(comparison.enhanced?.summary || "")}</div>
+                            <div class="detail" style="margin-top:8px;">章节 ${escapeHtml(comparison.enhanced?.sections || 0)} · 来源 ${escapeHtml(comparison.enhanced?.citations || 0)} · 评分 ${escapeHtml(comparison.enhanced?.score || 0)}</div>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;">${(comparison.diffs || []).map((item) => `<div class="detail">• ${escapeHtml(item)}</div>`).join("")}</div>
+                </div>
+            `;
+        }
+
+        function renderTrace() {
+            const trace = appState.trace_summary || {};
+            traceCard.innerHTML = `
+                <div class="comparison-card">
+                    <strong>${escapeHtml(trace.title || "增强式研报编排")}</strong>
+                    <div class="detail" style="margin-top:8px;">${escapeHtml(trace.subtitle || "")}</div>
+                    <div style="margin-top:12px;">${(trace.steps || []).map((item) => `<div class="detail">• <strong>${escapeHtml(item.title)}</strong>：${escapeHtml(item.detail)}</div>`).join("")}</div>
+                    <div class="tag-row" style="margin-top:12px;">
+                        ${((trace.skills || []).map((item) => `<span class="skill-chip">${escapeHtml(item.label)}</span>`).join(""))}
+                    </div>
+                    <div style="margin-top:12px;">${(trace.included_observations || []).map((item) => `<div class="detail">• ${escapeHtml(item)}</div>`).join("") || '<div class="detail">加载案例后展示纳入报告的关键观察。</div>'}</div>
+                    <div style="margin-top:12px;">${(trace.evidence || []).map((item) => `<div class="detail"><strong>${escapeHtml(item.category)}</strong>：${escapeHtml((item.highlights || []).join("；") || "待补充")}</div>`).join("")}</div>
+                </div>
+            `;
         }
 
         function renderProducts() {
@@ -759,7 +1104,6 @@
                 historyList.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("history", "暂无历史记录。"))}</div>`;
                 return;
             }
-
             historyList.innerHTML = "";
             entries.forEach(([date, signals]) => {
                 const row = document.createElement("div");
@@ -824,6 +1168,7 @@
         async function refreshWorkspace() {
             try {
                 appState = await postJson("refresh");
+                latestSessionId = appState.latest_session_id || latestSessionId;
                 renderAll();
             } catch (error) {
                 addMessage("assistant", `刷新失败：${error.message}`);
@@ -833,9 +1178,26 @@
         async function toggleSimulation() {
             try {
                 appState = await postJson("toggle_simulation");
+                latestSessionId = appState.latest_session_id || latestSessionId;
                 renderAll();
             } catch (error) {
                 addMessage("assistant", `切换状态失败：${error.message}`);
+            }
+        }
+
+        async function loadDemoCase(caseId) {
+            try {
+                const caseMeta = (appState.demo_cases || []).find((item) => item.id === caseId);
+                addMessage("user", `加载 Demo Case：${caseMeta ? caseMeta.title : caseId}`);
+                appState = await postJson("load_demo_case", { case_id: caseId });
+                latestSessionId = appState.session_id || latestSessionId;
+                activeModule = appState.active_module || activeModule;
+                renderAll();
+                if (appState.assistant_message) {
+                    addMessage("assistant", appState.assistant_message);
+                }
+            } catch (error) {
+                addMessage("assistant", `加载案例失败：${error.message}`);
             }
         }
 
@@ -858,13 +1220,12 @@
             }
 
             highlights.innerHTML = (report.highlights || []).map((item) => `
-                <div class="card-row" style="cursor: default; margin-bottom: 10px;">
+                <div class="card-row" style="cursor:default;">
                     <strong>${escapeHtml(item.category)}</strong>
                     <div class="subtle">${escapeHtml(item.product_name)} (${escapeHtml(item.product_code)})</div>
                     <div class="subtle">${item.value.toFixed(2)} ${escapeHtml(item.unit)}</div>
                 </div>
             `).join("");
-
             news.innerHTML = `<ul>${(report.news || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
             suggestions.innerHTML = `<ul>${(report.suggestions || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
             dailyReportModal.style.display = "flex";
@@ -880,19 +1241,19 @@
             }
         }
 
-        async function exportReport() {
+        async function exportBinary(action, filename, errorPrefix) {
             if (!latestSessionId) {
                 return;
             }
             const formData = new FormData();
-            formData.append("action", "generate_report");
+            formData.append("action", action);
             formData.append("session_id", latestSessionId);
             const response = await fetch("/workspace", { method: "POST", body: formData });
             if (!response.ok) {
                 try {
                     await readJsonError(response);
                 } catch (error) {
-                    addMessage("assistant", `导出失败：${error.message}`);
+                    addMessage("assistant", `${errorPrefix}：${error.message}`);
                     return;
                 }
             }
@@ -900,9 +1261,17 @@
             const url = URL.createObjectURL(blob);
             const anchor = document.createElement("a");
             anchor.href = url;
-            anchor.download = "policy-report.docx";
+            anchor.download = filename;
             anchor.click();
             URL.revokeObjectURL(url);
+        }
+
+        async function exportReport() {
+            await exportBinary("generate_report", "competition-report.docx", "导出报告失败");
+        }
+
+        async function exportOutline() {
+            await exportBinary("export_outline", "competition-outline.md", "导出大纲失败");
         }
 
         async function sendMessage() {
@@ -969,7 +1338,16 @@
                     const payload = JSON.parse(line.slice(6));
                     if (payload.session_id) {
                         latestSessionId = payload.session_id;
-                        setReportButtonState();
+                        appState.latest_session_id = latestSessionId;
+                    }
+                    if (payload.trace_summary) {
+                        appState.trace_summary = payload.trace_summary;
+                    }
+                    if (payload.quality_metrics) {
+                        appState.quality_metrics = payload.quality_metrics;
+                    }
+                    if (payload.comparison) {
+                        appState.comparison = payload.comparison;
                     }
                     if (payload.metrics) {
                         latestMetrics = payload.metrics;
@@ -983,6 +1361,7 @@
                     chatFeed.scrollTop = chatFeed.scrollHeight;
                 }
             }
+            renderAll();
         }
 
         function renderAll() {
@@ -990,11 +1369,21 @@
             renderWarnings();
             renderHero();
             renderSummary();
+            renderPipeline();
+            renderWhyMatters();
+            renderDiagnostics();
+            renderResearchOverview();
+            renderImpactPath();
+            renderLoadedCase();
+            renderDemoCases();
+            renderQuality();
+            renderComparison();
+            renderTrace();
             renderProducts();
             renderSignals();
             renderHistory();
             renderModules();
-            setReportButtonState();
+            setExportState();
             ensureChatSeed();
         }
 
@@ -1002,6 +1391,7 @@
         toggleBtn.addEventListener("click", toggleSimulation);
         reportBtn.addEventListener("click", openDailyReport);
         exportBtn.addEventListener("click", exportReport);
+        outlineBtn.addEventListener("click", exportOutline);
         sendBtn.addEventListener("click", sendMessage);
         closeModalBtn.addEventListener("click", () => {
             dailyReportModal.style.display = "none";

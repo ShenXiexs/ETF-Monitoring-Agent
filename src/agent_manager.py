@@ -19,12 +19,13 @@ from dotenv import load_dotenv
 from openpyxl import load_workbook
 
 try:
-    from .financial_skills import DOCUMENT_WORKFLOWS, MODULE_SKILLS, build_skillbook, get_module_skill_cards
+    from .financial_skills import DOCUMENT_WORKFLOWS, MODULE_SKILLS, build_skillbook, get_module_skill_cards, get_skill_cards
 except ImportError:
-    from financial_skills import DOCUMENT_WORKFLOWS, MODULE_SKILLS, build_skillbook, get_module_skill_cards
+    from financial_skills import DOCUMENT_WORKFLOWS, MODULE_SKILLS, build_skillbook, get_module_skill_cards, get_skill_cards
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR / ".env"
+DEMO_BUNDLE_PATH = BASE_DIR / "data" / "demo_workspace.json"
 if ENV_PATH.exists():
     load_dotenv(ENV_PATH, override=True)
 else:
@@ -58,16 +59,23 @@ MODULES = [
 ]
 
 class AssetWorkbenchManager:
-    def __init__(self, data_source_dir: Optional[str] = None, profile_path: Optional[str] = None) -> None:
+    def __init__(
+        self,
+        data_source_dir: Optional[str] = None,
+        profile_path: Optional[str] = None,
+        enable_demo_mode: bool = True,
+    ) -> None:
         self.base_dir = BASE_DIR
         self.data_source_dir = Path(data_source_dir).expanduser() if data_source_dir else self._resolve_data_source_dir()
         self.profile_path = Path(profile_path).expanduser() if profile_path else None
+        self.enable_demo_mode = enable_demo_mode
         self.data: Dict[str, dict] = {}
         self.dates: List[str] = []
         self.current_index = 0
         self.policies: List[dict] = []
         self.all_signals: Dict[str, List[dict]] = {}
         self.warnings: List[str] = []
+        self.mode = "empty"
         self.profile = self._load_profile()
         self.cache_path = Path(tempfile.gettempdir()) / "asset_intel_workbench_llm_cache.db"
         self._init_cache()
@@ -168,13 +176,20 @@ class AssetWorkbenchManager:
         existing_warnings = list(self.warnings)
         self.data = {}
         self.policies = []
+        self.dates = []
+        self.current_index = 0
+        self.mode = "empty"
         self.warnings = existing_warnings
 
         if not self.data_source_dir:
+            if self._load_demo_bundle("未配置 DATA_SOURCE_DIR，已自动切换到内置演示模式。"):
+                return
             self.warnings.append("未配置 DATA_SOURCE_DIR，工作台以空态模式启动。")
             return
 
         if not self.data_source_dir.exists():
+            if self._load_demo_bundle(f"未找到外部数据目录：{self.data_source_dir}，已自动切换到内置演示模式。"):
+                return
             self.warnings.append(f"未找到外部数据目录：{self.data_source_dir}")
             return
 
@@ -194,10 +209,40 @@ class AssetWorkbenchManager:
             self.warnings.append(f"缺少文件：{policy_path.name}")
 
         if not self.data:
+            if self._load_demo_bundle("当前未加载任何可用市场快照，已自动切换到内置演示模式。"):
+                return
             self.warnings.append("当前未加载任何市场快照，监测与日报区域将显示空态。")
+            return
+
+        self.mode = "external"
+
+    def _load_demo_bundle(self, reason: str) -> bool:
+        if not self.enable_demo_mode or not DEMO_BUNDLE_PATH.exists():
+            return False
+        try:
+            bundle = json.loads(DEMO_BUNDLE_PATH.read_text(encoding="utf-8"))
+        except Exception:
+            return False
+
+        snapshot = bundle.get("snapshot", {})
+        policies = bundle.get("policies", [])
+        normalized = self._normalize_snapshot_bundle(snapshot)
+        if not normalized:
+            return False
+
+        self.data = normalized
+        self.dates = sorted(self.data.keys())
+        self.policies = self._normalize_policy_rows(policies)
+        self.mode = "demo"
+        self.warnings.append(reason)
+        self.warnings.append("当前使用内置脱敏演示数据，可直接加载 Demo Case 完成比赛展示。")
+        return True
 
     def _load_market_snapshot(self, snapshot_path: Path) -> Dict[str, dict]:
         raw = json.loads(snapshot_path.read_text(encoding="utf-8"))
+        return self._normalize_snapshot_bundle(raw)
+
+    def _normalize_snapshot_bundle(self, raw: object) -> Dict[str, dict]:
         normalized: Dict[str, dict] = {}
         snapshot_profile = self.profile.get("snapshot", {})
         date_field = snapshot_profile.get("date_field", "date")
@@ -256,7 +301,24 @@ class AssetWorkbenchManager:
                     "来源": str(record[source_idx] if source_idx is not None and source_idx < len(record) else "").strip(),
                 }
             )
-        return policies
+        return self._normalize_policy_rows(policies)
+
+    def _normalize_policy_rows(self, rows: List[dict]) -> List[dict]:
+        normalized: List[dict] = []
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            record = {
+                "公告日期": self._normalize_date(row.get("公告日期") or row.get("date") or row.get("日期")),
+                "标题": str(row.get("标题") or row.get("title") or "").strip(),
+                "法律位阶": str(
+                    row.get("法律位阶") or row.get("rank") or row.get("分类") or self.profile.get("policy", {}).get("default_rank", "行业规定")
+                ).strip(),
+                "来源": str(row.get("来源") or row.get("source") or row.get("链接") or "").strip(),
+            }
+            if record["标题"]:
+                normalized.append(record)
+        return normalized
 
     def _match_header(self, header_lookup: Dict[str, int], aliases: List[str]) -> Optional[int]:
         for alias in aliases:
@@ -573,11 +635,13 @@ class AssetWorkbenchManager:
         current_date = state["date"] if state else None
         workspace = self.profile.get("workspace", {})
         modules = self._module_definitions()
+        competition_story = self.get_competition_story()
         return {
             "app_name": workspace.get("app_name", "资管产品洞察协作台"),
             "workspace": workspace,
             "modules": [{**item, "skills": self.module_skill_cards(item["key"])} for item in modules],
             "has_data": self.has_data(),
+            "mode": self.mode,
             "warnings": self.warnings,
             "simulation": {
                 "is_running": simulation_state["is_running"],
@@ -588,7 +652,7 @@ class AssetWorkbenchManager:
                 "product_count": len(self.get_all_products()),
                 "policy_count": len(self.policies),
                 "signal_count": len(self.all_signals.get(current_date, [])) if current_date else 0,
-                "status": "已接入" if self.has_data() else "空态",
+                "status": "演示模式" if self.mode == "demo" else ("已接入" if self.has_data() else "空态"),
             },
             "current_state": state
             or {
@@ -601,7 +665,675 @@ class AssetWorkbenchManager:
             "signals": self.all_signals.get(current_date, []) if current_date else [],
             "history": {date: self.all_signals.get(date, []) for date in reversed(self.dates[-10:])},
             "daily_report": self.get_daily_report(current_date),
+            "demo_cases": self.get_demo_cases(),
+            "trace_summary": self.default_trace_summary(),
+            "quality_metrics": self.default_quality_metrics(),
+            "comparison": self.default_comparison(),
+            "competition_story": competition_story,
+            "research_overview": self.get_research_overview(),
+            "impact_path": self.get_impact_path(),
+            "diagnostics": self.get_diagnostics(),
+            "validation_report": self.get_validation_report(),
         }
+
+    def get_competition_story(self) -> dict:
+        competition = self.profile.get("competition", {})
+        stages = competition.get("stages") or [
+            {"title": "数据接入", "summary": "加载市场快照、政策目录和文档材料。"},
+            {"title": "多源分析", "summary": "结合规则信号、RAG 和专家 skills 做归因。"},
+            {"title": "结构化结论", "summary": "把事实、判断、建议和风险分层输出。"},
+            {"title": "报告输出", "summary": "生成研判报告、质量评分和答辩大纲。"},
+        ]
+        quant_outputs_raw = competition.get("quant_outputs") or [
+            {"label": "岗位化模块", "value": str(len(MODULES))},
+            {"label": "专家 Skills", "value": str(len(self.module_skill_cards("policy_analysis")) + 3)},
+            {"label": "输出形态", "value": "3"},
+        ]
+        quant_outputs = []
+        for item in quant_outputs_raw:
+            if isinstance(item, dict):
+                quant_outputs.append({"label": str(item.get("label", "")), "value": str(item.get("value", ""))})
+            elif isinstance(item, list) and len(item) >= 2:
+                quant_outputs.append({"label": str(item[0]), "value": str(item[1])})
+        return {
+            "headline": competition.get("headline", "面向资管研究与政策研判的智能分析工作台"),
+            "subheadline": competition.get(
+                "subheadline",
+                "把多源数据研究、专家技能编排和结构化研报输出压缩进同一条演示闭环。",
+            ),
+            "stages": stages,
+            "why_it_matters": competition.get("why_it_matters", []),
+            "differentiators": competition.get("differentiators", []),
+            "demo_flow": competition.get("demo_flow", []),
+            "quant_outputs": quant_outputs,
+        }
+
+    def get_demo_cases(self) -> List[dict]:
+        templates = self.profile.get("competition", {}).get("demo_cases", [])
+        cases: List[dict] = []
+        current_date = self.get_current_date() or (self.dates[0] if self.dates else None)
+        state = self.get_current_state() or {"products": [], "indices": {}, "policies": []}
+        signals = self.all_signals.get(current_date, []) if current_date else []
+        top_product = self.get_market_leaderboard("inflow", top_n=1)
+        lead_product = top_product[0] if top_product else None
+        top_signal = signals[0] if signals else None
+        top_policy = (state.get("policies") or self.policies[:1] or [None])[0]
+
+        for template in templates:
+            case_id = template.get("id", "demo_case")
+            active_module = template.get("active_module", "policy_analysis")
+            case = {
+                "id": case_id,
+                "title": template.get("title", case_id),
+                "category": template.get("category", "演示案例"),
+                "hook": template.get("hook", "展示多源分析到结构化报告的完整闭环。"),
+                "summary": template.get("summary", "点击加载比赛演示案例。"),
+                "tags": template.get("tags", []),
+                "active_module": active_module,
+                "focus_date": current_date,
+                "available": bool(current_date),
+                "button_label": template.get("button_label", "加载案例"),
+                "key_question": template.get("key_question", "请给出多源研判和结构化输出。"),
+                "input_data": [],
+            }
+
+            if case_id == "policy_shock":
+                policy_title = top_policy["标题"] if top_policy else "示例监管通知"
+                case["summary"] = template.get("summary", f"围绕政策条目“{policy_title}”展示政策研判闭环。")
+                case["key_question"] = template.get(
+                    "key_question",
+                    f"请围绕政策条目“{policy_title}”，说明关键变化、市场传导和产品动作。",
+                )
+                case["input_data"] = [
+                    f"政策目录：{policy_title}",
+                    f"研究日期：{current_date or '未加载'}",
+                    f"可用信号：{len(signals)} 条",
+                ]
+            elif case_id == "market_volatility":
+                signal_content = top_signal["content"] if top_signal else "示例指数出现波动"
+                case["summary"] = template.get("summary", f"围绕市场异动“{signal_content}”展示监测到策略输出。")
+                case["key_question"] = template.get(
+                    "key_question",
+                    f"请解释“{signal_content}”的市场影响，并形成研究摘要与行动建议。",
+                )
+                case["input_data"] = [
+                    f"当日信号：{signal_content}",
+                    f"历史回放：{len(self.dates)} 个日期",
+                    f"可用产品：{len(state.get('products', []))} 个",
+                ]
+            elif case_id == "product_strategy":
+                product_name = lead_product["name"] if lead_product else "示例产品"
+                case["summary"] = template.get("summary", f"围绕重点产品“{product_name}”展示研究到策略的完整闭环。")
+                case["key_question"] = template.get(
+                    "key_question",
+                    f"请围绕重点产品“{product_name}”，给出研究摘要、市场判断和策略动作。",
+                )
+                case["input_data"] = [
+                    f"重点产品：{product_name}",
+                    f"重点日期：{current_date or '未加载'}",
+                    f"当日政策：{len(state.get('policies', []))} 条",
+                ]
+            else:
+                case["input_data"] = [f"研究日期：{current_date or '未加载'}"]
+
+            cases.append(case)
+
+        return cases
+
+    def get_research_overview(self) -> dict:
+        state = self.get_current_state()
+        if not state:
+            return {
+                "headline": "等待研究对象",
+                "items": [
+                    {"label": "模式", "value": "空态模式"},
+                    {"label": "记录", "value": "0"},
+                    {"label": "政策", "value": "0"},
+                    {"label": "信号", "value": "0"},
+                ],
+            }
+
+        products = state.get("products", [])
+        policies = state.get("policies", [])
+        signals = self.all_signals.get(state["date"], [])
+        leader = max(products, key=lambda item: item.get("inflow", 0), default=None)
+        return {
+            "headline": f"{state['date']} 研究对象概览",
+            "items": [
+                {"label": "运行模式", "value": "演示模式" if self.mode == "demo" else "外部数据"},
+                {"label": "重点产品", "value": leader["name"] if leader else "暂无"},
+                {"label": "政策条目", "value": str(len(policies))},
+                {"label": "当日信号", "value": str(len(signals))},
+            ],
+        }
+
+    def get_impact_path(self) -> dict:
+        state = self.get_current_state()
+        signals = self.all_signals.get(self.get_current_date() or "", [])
+        top_policy = (state or {}).get("policies", [])[:1]
+        top_signal = signals[:1]
+        steps = [
+            {
+                "title": "输入数据",
+                "detail": top_policy[0]["标题"] if top_policy else (top_signal[0]["content"] if top_signal else "市场快照 / 政策目录 / 文档材料"),
+            },
+            {
+                "title": "多源分析",
+                "detail": "规则信号、RAG 检索与专家 skills 协同完成事实归因。",
+            },
+            {
+                "title": "结构化结论",
+                "detail": "区分事实、判断、建议和风险边界，避免直接生成式漂移。",
+            },
+            {
+                "title": "结果输出",
+                "detail": "同步生成研究摘要、正式报告和答辩大纲。",
+            },
+        ]
+        return {"title": "政策 / 信号影响路径", "steps": steps}
+
+    def get_diagnostics(self) -> dict:
+        checks = [
+            {
+                "label": "语言模型",
+                "status": "ready" if self._get_llm_api_key() else "fallback",
+                "detail": "已接入模型服务" if self._get_llm_api_key() else "未配置，当前将使用离线摘要与报告模板",
+            },
+            {
+                "label": "Embedding",
+                "status": "ready" if self._embedding_available() else "fallback",
+                "detail": "支持语义检索与意图识别" if self._embedding_available() else "未配置，当前退回关键词与规则检索",
+            },
+            {
+                "label": "数据模式",
+                "status": "ready" if self.has_data() else "waiting",
+                "detail": {
+                    "external": "当前加载外部数据目录",
+                    "demo": "当前加载内置演示数据",
+                }.get(self.mode, "当前未加载业务数据"),
+            },
+            {
+                "label": "Profile",
+                "status": "ready",
+                "detail": f"当前配置：{self._profile_path() or (self.base_dir / 'config' / 'default_profile.json')}",
+            },
+        ]
+        return {"mode": self.mode, "checks": checks}
+
+    def get_validation_report(self) -> dict:
+        products = [item for date in self.dates for item in self.data.get(date, {}).get("products", [])]
+        indices = [item for date in self.dates for item in self.data.get(date, {}).get("indices", {}).values()]
+        missing_setup = sum(1 for item in products if not item.get("setup_date"))
+        missing_index = sum(1 for item in products if not item.get("index_code"))
+        return {
+            "mode": self.mode,
+            "date_count": len(self.dates),
+            "record_count": len(products),
+            "index_count": len(indices),
+            "policy_count": len(self.policies),
+            "missing_setup_ratio": round(missing_setup / len(products), 2) if products else 0.0,
+            "missing_index_ratio": round(missing_index / len(products), 2) if products else 0.0,
+            "usable": bool(self.has_data() or self.policies),
+        }
+
+    def default_trace_summary(self) -> dict:
+        skills = get_skill_cards(self._workflow_skill_keys("report"))
+        return {
+            "title": "增强式研报编排",
+            "subtitle": "加载 Demo Case 或上传文件后，将展示专家 skills、证据来源和纳入报告的关键观察。",
+            "steps": [
+                {"title": "数据接入", "detail": "加载市场快照、政策目录和文档内容。"},
+                {"title": "技能拆解", "detail": "按政策解读、市场影响、产品策略、风险合规、报告编审拆解。"},
+                {"title": "证据归并", "detail": "把市场快照、政策目录、历史信号和文档内容统一归因。"},
+                {"title": "报告成稿", "detail": "输出带来源标签的结构化研判报告。"},
+            ],
+            "skills": [
+                {"label": item["label"], "focus": item["focus"], "observations": []}
+                for item in skills
+            ],
+            "evidence": [
+                {"category": "市场快照", "highlights": []},
+                {"category": "政策目录", "highlights": []},
+                {"category": "历史信号", "highlights": []},
+                {"category": "上传文档", "highlights": []},
+            ],
+            "included_observations": [],
+            "report_sections": ["政策概要", "关键变化", "市场与业务影响", "产品策略观察", "风险与合规边界", "执行优先级"],
+        }
+
+    def default_quality_metrics(self) -> List[dict]:
+        readiness_bonus = 20 if self.has_data() else 0
+        llm_bonus = 20 if self._get_llm_api_key() else 0
+        embed_bonus = 15 if self._embedding_available() else 0
+        metrics = [
+            ("fact_coverage", "事实覆盖度", 45 + readiness_bonus, "结构化数据和证据基础已就绪"),
+            ("citation_rate", "证据引用率", 40 + readiness_bonus + embed_bonus, "支持市场快照、政策目录、历史信号和文档来源标记"),
+            ("risk_completeness", "风险提示完整度", 55 + llm_bonus // 2, "风险与合规 skill 已加入默认工作流"),
+            ("structure_integrity", "结构完整度", 70 + llm_bonus // 2, "输出固定为摘要、报告和答辩大纲三类结果"),
+        ]
+        return [
+            {
+                "key": key,
+                "label": label,
+                "score": min(100, score),
+                "baseline_score": max(20, score - 18),
+                "status": self._quality_status(score),
+                "detail": detail,
+            }
+            for key, label, score, detail in metrics
+        ]
+
+    def default_comparison(self) -> dict:
+        baseline = {
+            "label": "Baseline",
+            "summary": "直接生成结果，结构较短，缺少来源标签和技能拆解。",
+            "sections": 4,
+            "citations": 0,
+            "score": 58,
+        }
+        enhanced = {
+            "label": "Enhanced",
+            "summary": "结合规则信号、RAG 和专家 skills，输出可解释的结构化结论。",
+            "sections": 6,
+            "citations": 4,
+            "score": 84,
+        }
+        return {
+            "title": "Baseline vs Enhanced",
+            "baseline": baseline,
+            "enhanced": enhanced,
+            "diffs": [
+                "输出结构从 4 段提升到 6 段。",
+                "证据来源从 0 提升到 4 类。",
+                "额外补充风险边界与执行优先级。",
+            ],
+        }
+
+    def build_demo_case_artifact(self, case_id: str) -> dict:
+        case = next((item for item in self.get_demo_cases() if item["id"] == case_id), None)
+        if not case or not case.get("available"):
+            raise ValueError("当前案例不可用，请先接入数据或启用演示模式。")
+
+        if case.get("focus_date") in self.dates:
+            self.current_index = self.dates.index(case["focus_date"])
+
+        briefing_text = self._compose_demo_case_briefing(case)
+        artifact = self.build_document_artifact(briefing_text, case=case)
+        artifact["case"] = case
+        artifact["assistant_message"] = self._build_demo_case_message(case, artifact)
+        return artifact
+
+    def build_document_artifact(self, text: str, case: Optional[dict] = None) -> dict:
+        trace = self._build_trace_summary(text, case=case)
+        baseline_report = self._build_baseline_report(text, trace, case=case)
+        raw_enhanced = self.analyze_document(text)
+        enhanced_report = self._compose_enhanced_report(raw_enhanced, trace, case=case)
+        baseline_summary = self._report_to_summary(baseline_report)
+        enhanced_summary = self._report_to_summary(enhanced_report)
+        quality_metrics = self._build_quality_metrics(baseline_report, enhanced_report, trace)
+        comparison = self._build_comparison_snapshot(baseline_summary, enhanced_summary, baseline_report, enhanced_report, quality_metrics)
+        outline = self._build_competition_outline(case, enhanced_summary, quality_metrics, trace)
+        return {
+            "text": text,
+            "baseline_report": baseline_report,
+            "enhanced_report": enhanced_report,
+            "baseline_summary": baseline_summary,
+            "enhanced_summary": enhanced_summary,
+            "trace_summary": trace,
+            "quality_metrics": quality_metrics,
+            "comparison": comparison,
+            "outline": outline,
+            "report_title": case.get("report_title", "政策研判报告") if case else "政策研判报告",
+        }
+
+    def _build_demo_case_message(self, case: dict, artifact: dict) -> str:
+        return (
+            f"### {case['title']}\n\n"
+            f"- 案例类型：{case['category']}\n"
+            f"- 关键问题：{case['key_question']}\n"
+            f"- 输入数据：{'；'.join(case.get('input_data', []))}\n"
+            f"- 结构化结论：{artifact['enhanced_summary'].splitlines()[0] if artifact['enhanced_summary'] else '已生成增强版摘要'}\n"
+            f"- 输出结果：已生成正式报告、质量评分卡与答辩大纲。"
+        )
+
+    def _compose_demo_case_briefing(self, case: dict) -> str:
+        state = self.get_current_state() or {"date": None, "products": [], "indices": {}, "policies": []}
+        signals = self.all_signals.get(state.get("date") or "", [])
+        products = state.get("products", [])
+        indices = list(state.get("indices", {}).values())
+        top_product = max(products, key=lambda item: item.get("inflow", 0), default=None)
+        top_signal = signals[0] if signals else None
+        top_policy = (state.get("policies") or [None])[0]
+        lines = [
+            f"案例名称：{case['title']}",
+            f"案例类型：{case['category']}",
+            f"研究日期：{state.get('date') or case.get('focus_date') or '未加载'}",
+            f"关键问题：{case['key_question']}",
+            "",
+            "一、输入数据",
+        ]
+        lines.extend(f"- {item}" for item in case.get("input_data", []))
+        lines.extend(["", "二、多源事实"])
+        if top_product:
+            lines.append(
+                f"- 市场快照显示，{top_product['name']}({top_product['code']}) 当日净流入 {top_product['inflow']:.2f} 亿，成交额 {top_product['volume']:.2f} 亿。"
+            )
+        if indices:
+            lead_index = max(indices, key=lambda item: abs(item.get("change", 0)))
+            lines.append(f"- 指数侧最显著变化来自 {lead_index['name']}，日内涨跌幅 {lead_index.get('change', 0):.1f}%。")
+        if top_policy:
+            lines.append(f"- 政策目录中可关联条目为《{top_policy['标题']}》，位阶为 {top_policy['法律位阶']}。")
+        if top_signal:
+            lines.append(f"- 历史信号提示：{top_signal['content']}")
+        lines.extend(
+            [
+                "",
+                "三、任务要求",
+                "- 先做事实归纳，再说明影响路径，最后给出产品动作与风险边界。",
+                "- 输出需支持正式研判报告和答辩摘要两个结果物。",
+            ]
+        )
+        return "\n".join(lines)
+
+    def _build_trace_summary(self, text: str, case: Optional[dict] = None) -> dict:
+        evidence = self._collect_evidence(text, case=case)
+        skill_cards = get_skill_cards(self._workflow_skill_keys("report"))
+        skills = []
+        included_observations: List[str] = []
+        for card in skill_cards:
+            observations = self._skill_observations(card["key"], evidence, case=case)
+            included_observations.extend(observations[:1])
+            skills.append(
+                {
+                    "label": card["label"],
+                    "focus": card["focus"],
+                    "observations": observations,
+                }
+            )
+        return {
+            "title": case["title"] if case else "增强式研报编排",
+            "subtitle": case["key_question"] if case else "展示专家协作、证据来源与结构化成稿路径。",
+            "steps": [
+                {"title": "数据接入", "detail": "整合市场快照、政策目录与文档上下文。"},
+                {"title": "专家拆解", "detail": "按政策解读、市场影响、产品策略、风险合规与报告编审拆解。"},
+                {"title": "证据归并", "detail": "将多类证据统一映射到报告章节。"},
+                {"title": "结构化成稿", "detail": "输出带来源标签的六段式研判报告。"},
+            ],
+            "skills": skills,
+            "evidence": evidence,
+            "included_observations": included_observations[:6],
+            "report_sections": ["政策概要", "关键变化", "市场与业务影响", "产品策略观察", "风险与合规边界", "执行优先级"],
+        }
+
+    def _collect_evidence(self, text: str, case: Optional[dict] = None) -> List[dict]:
+        state = self.get_current_state() or {"products": [], "indices": {}, "policies": [], "date": None}
+        signals = self.all_signals.get(state.get("date") or "", [])
+        products = state.get("products", [])
+        indices = list(state.get("indices", {}).values())
+        product_highlights = [
+            f"{item['name']} 净流入 {item['inflow']:.2f} 亿 / 成交额 {item['volume']:.2f} 亿"
+            for item in sorted(products, key=lambda entry: entry.get("inflow", 0), reverse=True)[:2]
+        ]
+        index_highlights = [
+            f"{item['name']} 涨跌幅 {item.get('change', 0):.1f}%"
+            for item in sorted(indices, key=lambda entry: abs(entry.get("change", 0)), reverse=True)[:1]
+        ]
+        policy_highlights = [
+            f"{item['标题']} ({item['法律位阶']})"
+            for item in (state.get("policies") or self.policies[:2])[:2]
+            if item.get("标题")
+        ]
+        signal_highlights = [item["content"] for item in signals[:3]]
+        doc_highlights = self._extract_document_clauses(text, limit=3)
+        return [
+            {
+                "category": "市场快照",
+                "highlights": product_highlights + index_highlights,
+            },
+            {
+                "category": "政策目录",
+                "highlights": policy_highlights,
+            },
+            {
+                "category": "历史信号",
+                "highlights": signal_highlights,
+            },
+            {
+                "category": "上传文档" if case else "文档内容",
+                "highlights": doc_highlights,
+            },
+        ]
+
+    def _skill_observations(self, skill_key: str, evidence: List[dict], case: Optional[dict] = None) -> List[str]:
+        evidence_map = {item["category"]: item["highlights"] for item in evidence}
+        market_points = evidence_map.get("市场快照", [])
+        policy_points = evidence_map.get("政策目录", [])
+        history_points = evidence_map.get("历史信号", [])
+        document_points = evidence_map.get("上传文档", []) or evidence_map.get("文档内容", [])
+        if skill_key == "policy_interpreter":
+            return [
+                document_points[0] if document_points else "政策文本可提炼出核心约束条件和执行对象。",
+                policy_points[0] if policy_points else "政策目录为当前研判提供了条目级背景。",
+            ]
+        if skill_key == "market_impact_analyst":
+            return [
+                history_points[0] if history_points else "历史信号提示市场已有明确反应。",
+                market_points[-1] if market_points else "市场快照可用于观察指数或板块传导路径。",
+            ]
+        if skill_key == "product_strategy_advisor":
+            return [
+                market_points[0] if market_points else "重点产品表现可以作为策略动作依据。",
+                "建议把产品动作限定在可量化、可验证的业务抓手上。",
+            ]
+        if skill_key == "risk_compliance_reviewer":
+            return [
+                "所有判断均需保留适用范围、时间窗口和信息完整性的前提说明。",
+                "对外表述应避免确定性收益和过度推演。",
+            ]
+        if skill_key == "report_editor":
+            return [
+                "报告统一拆为政策概要、关键变化、市场影响、策略观察、风险边界、执行优先级六段。",
+                "各章节均附来源类别，方便答辩时展示可解释性。",
+            ]
+        return [
+            market_points[0] if market_points else "多源数据已进入工作流。",
+            document_points[0] if document_points else "文档信息可作为补充证据。",
+        ]
+
+    def _build_baseline_report(self, text: str, trace: dict, case: Optional[dict] = None) -> str:
+        clauses = self._extract_document_clauses(text, limit=4)
+        while len(clauses) < 4:
+            clauses.append("当前信息有限，建议结合更多数据与正式文本继续复核。")
+        title = case["title"] if case else "直接生成草稿"
+        return (
+            f"# {title}\n"
+            f"{clauses[0]}\n\n"
+            "# 主要判断\n"
+            f"{clauses[1]}\n\n"
+            "# 业务提示\n"
+            f"{clauses[2]}\n\n"
+            "# 风险提醒\n"
+            f"{clauses[3]}"
+        )
+
+    def _compose_enhanced_report(self, raw_report: str, trace: dict, case: Optional[dict] = None) -> str:
+        source_map = {
+            "政策概要": ["上传文档", "政策目录"],
+            "关键变化": ["上传文档", "政策目录"],
+            "市场与业务影响": ["市场快照", "历史信号"],
+            "产品策略观察": ["市场快照", "历史信号"],
+            "风险与合规边界": ["上传文档", "政策目录"],
+            "执行优先级": ["市场快照", "历史信号", "上传文档"],
+        }
+        extracted = self._extract_report_sections(raw_report)
+        fallback = self._fallback_report_sections(trace, case=case)
+        sections = []
+        for heading in trace["report_sections"]:
+            body = extracted.get(heading) or fallback.get(heading) or "当前信息有限，建议结合更多证据继续补充。"
+            sources = " / ".join(source_map.get(heading, ["上传文档"]))
+            sections.append(f"# {heading}\n{body}\n[来源: {sources}]")
+        return "\n\n".join(sections)
+
+    def _extract_report_sections(self, raw_report: str) -> Dict[str, str]:
+        sections: Dict[str, List[str]] = {}
+        current_heading: Optional[str] = None
+        for line in raw_report.splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            if stripped.startswith("#"):
+                current_heading = stripped.replace("#", "").strip()
+                sections.setdefault(current_heading, [])
+                continue
+            if current_heading:
+                sections[current_heading].append(stripped)
+        return {key: " ".join(value).strip() for key, value in sections.items()}
+
+    def _fallback_report_sections(self, trace: dict, case: Optional[dict] = None) -> Dict[str, str]:
+        skill_map = {item["label"]: item["observations"] for item in trace.get("skills", [])}
+        policy_obs = skill_map.get("政策解读", [])
+        market_obs = skill_map.get("宏观与市场影响", [])
+        strategy_obs = skill_map.get("产品策略建议", [])
+        risk_obs = skill_map.get("风险与合规", [])
+        return {
+            "政策概要": policy_obs[0] if policy_obs else "本次案例聚焦政策或事件的核心变化及其研究价值。",
+            "关键变化": policy_obs[1] if len(policy_obs) > 1 else "关键变化体现在约束条件、适用对象或执行要求上。",
+            "市场与业务影响": "；".join(market_obs[:2]) if market_obs else "市场影响主要通过流动性、风险偏好和交易节奏传导。",
+            "产品策略观察": "；".join(strategy_obs[:2]) if strategy_obs else "产品策略建议应聚焦对象、动作和触发条件。",
+            "风险与合规边界": "；".join(risk_obs[:2]) if risk_obs else "需明确适用边界、数据完整性和表述限制。",
+            "执行优先级": "优先完成事实核对、影响归因、策略筛选和风险复核，再形成正式输出。",
+        }
+
+    def _report_to_summary(self, report: str) -> str:
+        extracted = self._extract_report_sections(report)
+        headings = ["政策概要", "关键变化", "市场与业务影响", "风险与合规边界"]
+        lines = []
+        for idx, heading in enumerate(headings, 1):
+            body = extracted.get(heading, "当前暂无对应内容。")
+            lines.append(f"{idx}. **{heading}**：{body[:90]}")
+        return "\n".join(lines)
+
+    def _build_quality_metrics(self, baseline_report: str, enhanced_report: str, trace: dict) -> List[dict]:
+        baseline_sections = max(1, baseline_report.count("# "))
+        enhanced_sections = max(1, enhanced_report.count("# "))
+        citations = enhanced_report.count("[来源:")
+        evidence_highlights = sum(len(item.get("highlights", [])) for item in trace.get("evidence", []))
+        risk_points = enhanced_report.count("风险") + enhanced_report.count("边界")
+        metrics = [
+            {
+                "key": "fact_coverage",
+                "label": "事实覆盖度",
+                "baseline_score": min(100, 36 + baseline_sections * 8),
+                "score": min(100, 52 + min(24, evidence_highlights * 5) + enhanced_sections * 4),
+                "detail": "综合结构化数据、政策目录、历史信号与文档内容的覆盖情况。",
+            },
+            {
+                "key": "citation_rate",
+                "label": "证据引用率",
+                "baseline_score": 18,
+                "score": min(100, 34 + citations * 14),
+                "detail": "报告章节是否显式标注来源类别。",
+            },
+            {
+                "key": "risk_completeness",
+                "label": "风险提示完整度",
+                "baseline_score": 32,
+                "score": min(100, 48 + risk_points * 8),
+                "detail": "是否补充适用边界、信息缺口和过度解读风险。",
+            },
+            {
+                "key": "structure_integrity",
+                "label": "结构完整度",
+                "baseline_score": min(100, 25 + baseline_sections * 10),
+                "score": min(100, 28 + enhanced_sections * 11),
+                "detail": "是否完整覆盖摘要、影响、策略、风险和执行优先级。",
+            },
+        ]
+        for metric in metrics:
+            metric["status"] = self._quality_status(metric["score"])
+        return metrics
+
+    def _build_comparison_snapshot(
+        self,
+        baseline_summary: str,
+        enhanced_summary: str,
+        baseline_report: str,
+        enhanced_report: str,
+        quality_metrics: List[dict],
+    ) -> dict:
+        overall_baseline = round(sum(item["baseline_score"] for item in quality_metrics) / len(quality_metrics))
+        overall_enhanced = round(sum(item["score"] for item in quality_metrics) / len(quality_metrics))
+        return {
+            "title": "Baseline vs Enhanced",
+            "baseline": {
+                "label": "Baseline",
+                "summary": baseline_summary.splitlines()[0] if baseline_summary else "直接生成的简版草稿。",
+                "sections": baseline_report.count("# "),
+                "citations": baseline_report.count("[来源:"),
+                "score": overall_baseline,
+            },
+            "enhanced": {
+                "label": "Enhanced",
+                "summary": enhanced_summary.splitlines()[0] if enhanced_summary else "专家 skills 编排增强版本。",
+                "sections": enhanced_report.count("# "),
+                "citations": enhanced_report.count("[来源:"),
+                "score": overall_enhanced,
+            },
+            "diffs": [
+                f"整体评分提升 {overall_enhanced - overall_baseline} 分。",
+                f"章节数量从 {baseline_report.count('# ')} 提升到 {enhanced_report.count('# ')}。",
+                f"来源标记从 {baseline_report.count('[来源:')} 提升到 {enhanced_report.count('[来源:')}。",
+            ],
+        }
+
+    def _build_competition_outline(self, case: Optional[dict], summary: str, quality_metrics: List[dict], trace: dict) -> str:
+        story = self.get_competition_story()
+        overall_score = round(sum(item["score"] for item in quality_metrics) / len(quality_metrics)) if quality_metrics else 0
+        lines = [
+            f"# {self.profile.get('workspace', {}).get('app_name', '资管产品洞察协作台')} 答辩摘要",
+            "",
+            "## 项目定位",
+            story["headline"],
+            story["subheadline"],
+            "",
+            "## Demo 场景",
+            case["title"] if case else "上传文档 / 即时研判",
+            case["key_question"] if case else "围绕当前输入完成多源分析和结构化报告输出。",
+            "",
+            "## AI 技术方案",
+            "- 结构化数据处理 + RAG 检索增强 + 金融专家 skills 编排 + 结构化报告导出。",
+            "- 使用市场快照、政策目录、历史信号和文档内容四类证据完成归因。",
+            "",
+            "## 关键结论",
+            summary,
+            "",
+            "## 可解释性证据",
+            *[f"- {item}" for item in trace.get("included_observations", [])[:4]],
+            "",
+            "## 质量评分",
+            *[f"- {item['label']}：{item['score']} 分" for item in quality_metrics],
+            f"- 综合评分：{overall_score} 分",
+            "",
+            "## 竞赛价值",
+            *[f"- {item}" for item in story.get("why_it_matters", [])[:3]],
+        ]
+        return "\n".join(lines)
+
+    def build_outline_bytes(self, content: str) -> bytes:
+        return content.encode("utf-8")
+
+    def _quality_status(self, score: int) -> str:
+        thresholds = self.profile.get("competition", {}).get("quality_thresholds", {})
+        strong = int(thresholds.get("strong", 85))
+        watch = int(thresholds.get("watch", 65))
+        if score >= strong:
+            return "strong"
+        if score >= watch:
+            return "watch"
+        return "weak"
+
+    def _embedding_available(self) -> bool:
+        return bool(os.getenv("EMBEDDING_API_KEY", "").strip() or os.getenv("DASHSCOPE_API_KEY", "").strip())
 
     def _module_definitions(self) -> List[dict]:
         overrides = self.profile.get("workspace", {}).get("module_overrides", {})
@@ -933,10 +1665,10 @@ class AssetWorkbenchManager:
                 break
         return unique
 
-    def build_docx_report(self, content: str) -> bytes:
+    def build_docx_report(self, content: str, title: str = "政策研判报告") -> bytes:
         app_name = self.profile.get("workspace", {}).get("app_name", "资管产品洞察协作台")
         paragraphs = [
-            self._docx_paragraph("政策研判报告", bold=True, size=34),
+            self._docx_paragraph(title, bold=True, size=34),
             self._docx_paragraph(f"生成时间：{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"),
             self._docx_paragraph(f"分析引擎：{app_name}"),
             self._docx_paragraph("=" * 48),

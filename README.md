@@ -1,8 +1,6 @@
 
-<p align="center">
-  <h1>ASSET WORKBENCH: 资管产品洞察协作台</h1>
-</p>
 
+<h1 align="center">ASSET WORKBENCH: 资管产品洞察协作台</h1>
 
 <p align="center">
   面向数据驱动研究、政策解析和结构化报告输出的本地工作台

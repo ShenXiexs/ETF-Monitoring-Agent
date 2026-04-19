@@ -21,7 +21,7 @@
 
 `•` 通过 `DATA_SOURCE_DIR` + `DATA_PROFILE_PATH` 适配不同数据任务，同时保留资管研究语境
 
-[快速开始](#快速开始) · [Demo Flow](#demo-flow) · [架构](#系统架构) · [平台运行](docs/platform_guide.md) · [数据接入](docs/data_contract.md) · [Data Profiles](docs/data_profiles.md) · [金融专家 Skills](docs/financial_skills.md) · [安全策略](SECURITY.md)
+[快速开始](#快速开始) · [Demo Flow](#demo-flow) · [实际示例](docs/examples/README.md) · [架构](#系统架构) · [平台运行](docs/platform_guide.md) · [数据接入](docs/data_contract.md) · [Data Profiles](docs/data_profiles.md) · [金融专家 Skills](docs/financial_skills.md) · [安全策略](SECURITY.md)
 
 ## 项目亮点
 
@@ -55,6 +55,15 @@
 3. 展示系统如何把市场快照、政策目录、历史信号和文档信息整合到同一条研究链路
 4. 切换到 `Baseline vs Enhanced` 区域，说明专家 skills 和证据引用带来的提升
 5. 导出正式报告和答辩大纲，完成完整闭环
+
+## 实际示例
+
+仓库已附带一组真实运行生成的示例文件，见 [docs/examples/README.md](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/docs/examples/README.md)。
+
+- `policy_shock_demo_summary.json`：展示真实接口返回的关键字段
+- `policy_shock_outline.md`：展示答辩大纲原文
+- `policy_shock_report_excerpt.txt`：展示 Word 报告抽取文本
+- `policy_shock_report.docx`：展示实际导出的报告文件
 
 ## 可量化产出
 

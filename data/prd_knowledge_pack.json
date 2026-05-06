@@ -1,0 +1,545 @@
+{
+  "workspace": {
+    "app_name": "Flash of Insights：PRD IDE 需求交付引擎",
+    "eyebrow": "AI Requirement Delivery Engine",
+    "slogan": "让PM跟工程师一样用上能够信息补全和自动联想的办公效率产品（跟用 IDE 一样）",
+    "tagline": "完整文档生成不是唯一答案；先把 PRD 写作过程做成像 IDE 一样的 Tab 联想、Next Edit 和 rephrase 工作流。",
+    "description": "面向 PM、BD 和交付团队，系统以跨页面 Work Buddy 的形态陪伴写作：基于团队 PRD/MRD 资产，在用户写作过程中实时补齐、重写、评审、提醒和回滚，把半成品文件整理成可评审 working docs。",
+    "shortcuts": [
+      {
+        "key": "Tab",
+        "label": "接受联想"
+      },
+      {
+        "key": "Esc",
+        "label": "取消联想 / 收起 diff"
+      },
+      {
+        "key": "⌘/Ctrl + K",
+        "label": "改写选区"
+      },
+      {
+        "key": "⌘/Ctrl + Enter",
+        "label": "AI Work Buddy 评审"
+      },
+      {
+        "key": "/assistant",
+        "label": "打开 Assistant 指令框"
+      },
+      {
+        "key": "@mbti",
+        "label": "切换写作人格"
+      },
+      {
+        "key": "@review",
+        "label": "触发 inline review"
+      }
+    ]
+  },
+  "challenge_story": {
+    "headline": "Flash of Insights：PRD Writing as an IDE",
+    "subheadline": "让 PM 写需求像工程师写代码一样：不是等 AI 生成整篇文档，而是在写作过程中持续获得 Tab 补全、Next Edit、rephrase、inline review、回滚和交付追踪。",
+    "market_gap": [
+      "效率 SaaS 的 AI 强在问答、总结、整篇生成和工作流，但在 PRD 写作过程中的下一步联想、局部重写和可回滚 diff 上仍不充分。",
+      "AI IDE 已经证明 Tab completion、next edit suggestion 和 context-aware diff 会改变创作流，但这些体验还没有迁移到 PM/BD 的需求文档工作。",
+      "桌宠型产品强在陪伴和人格化，但通常没有知识库支持的信息补齐、验收标准完善和交付状态管理。"
+    ],
+    "demo_flow": [
+      "加载团队 PRD/MRD cross-page knowledge pack",
+      "用户写下一句半成品需求",
+      "系统同时给出 Tab ghost completion 和 rephrase diff",
+      "用户按 Tab 接受下一段，或接受/拒绝/回滚 inline diff",
+      "用 @mbti 切换写作人格，用 @review 做 inline review",
+      "生成可提交的 working docs 和交付计划"
+    ],
+    "differentiators": [
+      "不是整篇文档生成器，而是写作过程中的 PRD IDE：每一段都可以被补齐、改写、评审和回滚。",
+      "不是单独聊天框，而是停留在文档旁边的 Assistant / Reminder 双模式鸟屋 Work Buddy。",
+      "不是通用润色，而是基于 PRD/MRD 资产、团队术语、MBTI 写作人格和交付规则做 context-aware next edit。"
+    ]
+  },
+  "style_fingerprints": [
+    {
+      "id": "style-brief-first",
+      "name": "Brief-first PRD style",
+      "display_name": "先摘要后细节",
+      "signals": [
+        "先写一句业务问题，再写目标用户和成功指标。",
+        "每个功能点要求包含对象、触发条件和边界。",
+        "避免只写愿景，要给出验收口径。"
+      ]
+    },
+    {
+      "id": "style-delivery-ready",
+      "name": "Delivery-ready requirement style",
+      "display_name": "交付可执行",
+      "signals": [
+        "需求段落需要转成研发、设计、测试都能理解的动作。",
+        "每个关键能力都要带数据指标或可观察结果。",
+        "风险要写成可处理项，而不是泛泛提醒。"
+      ]
+    }
+  ],
+  "glossary": [
+    {
+      "id": "term-prd",
+      "term": "PRD",
+      "definition": "Product Requirement Document，描述问题、目标、范围、功能、验收标准、指标和发布计划。"
+    },
+    {
+      "id": "term-mrd",
+      "term": "MRD",
+      "definition": "Market Requirement Document，描述市场机会、用户画像、竞品和需求来源。"
+    },
+    {
+      "id": "term-ghost-suggestion",
+      "term": "Ghost Suggestion",
+      "definition": "编辑器中等待用户按 Tab 接受的下一段联想内容。"
+    },
+    {
+      "id": "term-acceptance",
+      "term": "Acceptance Criteria",
+      "definition": "验收标准，必须可观察、可复现、可判定通过或失败。"
+    }
+  ],
+  "delivery_rules": [
+    {
+      "id": "rule-observable-criteria",
+      "name": "Observable acceptance rule",
+      "display_name": "验收可观察",
+      "description": "功能需求必须能转化为用户行为、系统状态或数据结果，避免只有主观评价。"
+    },
+    {
+      "id": "rule-owner-scope",
+      "name": "Owner and scope rule",
+      "display_name": "对象和范围明确",
+      "description": "需求必须明确使用对象、覆盖场景、非目标和依赖，否则交付时容易扩散。"
+    },
+    {
+      "id": "rule-risk-boundary",
+      "name": "Risk boundary rule",
+      "display_name": "风险边界前置",
+      "description": "PRD 应提前写出数据权限、模型幻觉、协作边界和灰度发布风险。"
+    },
+    {
+      "id": "rule-delivery-checkpoints",
+      "name": "Delivery checkpoint rule",
+      "display_name": "交付节点可追踪",
+      "description": "从需求到上线至少需要原型评审、技术评审、测试验收、灰度复盘四类检查点。"
+    },
+    {
+      "id": "rule-next-edit-before-generation",
+      "name": "Next edit before full generation",
+      "display_name": "先过程补全，再整篇生成",
+      "description": "优先在用户写作过程里补齐、重写和评审，避免一上来生成整篇导致不可控。"
+    },
+    {
+      "id": "rule-reversible-diff",
+      "name": "Reversible diff rule",
+      "display_name": "建议必须可回滚",
+      "description": "任何重写和 inline review 都必须以 diff 呈现，并支持接受、拒绝和回滚。"
+    }
+  ],
+  "section_templates": {
+    "background": {
+      "title": "背景",
+      "ghost_text": "## 背景\n当前团队沉淀了大量 PRD、MRD 和项目复盘，但新人写需求时很难快速复用历史风格、常用结构和验收口径，导致需求文档质量不稳定，评审往返成本高。"
+    },
+    "goal": {
+      "title": "目标",
+      "ghost_text": "## 目标\n- 将 PRD 初稿写作时间降低到 30 分钟内。\n- 在写作过程中自动补齐关键章节、验收标准和风险边界。\n- 让新人可以复用团队历史文档的表达风格和交付规范。"
+    },
+    "user_story": {
+      "title": "用户故事",
+      "ghost_text": "## 用户故事\n- 作为新人产品经理，我希望在写 PRD 时获得下一段联想和改写建议，以便按照团队标准快速产出可评审的需求文档。\n- 作为项目负责人，我希望系统能自动发现缺失章节和交付风险，以便减少评审返工。"
+    },
+    "scope": {
+      "title": "范围",
+      "ghost_text": "## 范围\n本期覆盖 PRD 编辑器、知识包检索、Tab 联想、选区改写、AI 评审、交付计划生成和 Markdown 导出。"
+    },
+    "non_goals": {
+      "title": "非目标",
+      "ghost_text": "## 非目标\n- v1 不直接接入真实飞书、Notion、Slack 或钉钉权限。\n- v1 不替代人工需求评审，只提供写作辅助、结构检查和交付建议。\n- v1 不承诺生成内容可直接上线，最终结论仍需业务负责人确认。"
+    },
+    "flow": {
+      "title": "关键流程",
+      "ghost_text": "## 关键流程\n1. 用户加载团队 PRD Knowledge Pack。\n2. 用户在编辑器中输入半成品需求。\n3. 系统根据当前上下文生成 ghost suggestion。\n4. 用户按 Tab 接受，或按 Esc 取消。\n5. 用户选中文本后通过 Cmd/Ctrl+K 选择改写模式。\n6. 用户运行 Work Buddy 评审并生成交付计划。"
+    },
+    "requirements": {
+      "title": "功能需求",
+      "ghost_text": "## 功能需求\n- PRD 编辑器需要支持实时字数、章节完整度和当前联想状态展示。\n- Tab 联想需要根据缺失章节、团队风格和交付规则生成下一段建议。\n- 选区改写需要支持简化、正式化、用户故事化、补充验收标准、澄清歧义和任务拆解。"
+    },
+    "acceptance": {
+      "title": "验收标准",
+      "ghost_text": "## 验收标准\n- Given 用户正在编辑 PRD，当系统识别到缺失章节时，Then 需要在 1 秒内返回可接受的 ghost suggestion。\n- Given 用户选中一段模糊需求并选择“澄清歧义”，Then 输出必须包含对象、触发条件、边界和验收口径。\n- Given 用户点击生成交付计划，Then 系统必须返回阶段、任务、负责人角色、依赖和检查点。"
+    },
+    "metrics": {
+      "title": "指标",
+      "ghost_text": "## 指标\n- 初稿完成时间：从 90 分钟降低到 30 分钟内。\n- 评审返工率：需求评审后重大缺口数下降 40%。\n- 章节完整度：Demo PRD 至少覆盖 9 个核心章节。\n- 验收可测试率：核心功能点至少 80% 具备明确验收标准。"
+    },
+    "risks": {
+      "title": "风险与边界",
+      "ghost_text": "## 风险与边界\n- AI 可能基于历史样例生成不适用于当前业务的内容，需要在 trace 中展示来源并由用户确认。\n- 知识包如果缺少最新业务规则，联想结果可能过时。\n- v1 需要避免把通用润色包装成完整交付能力，必须突出结构补全、验收标准和任务拆解。"
+    },
+    "rollout": {
+      "title": "发布计划",
+      "ghost_text": "## 发布计划\n- Demo 阶段：内置 PRD Knowledge Pack，保证无外部权限也可稳定展示。\n- Alpha 阶段：接入团队文档上传和模板管理。\n- Beta 阶段：接入飞书/Notion 文档源和任务系统。\n- GA 阶段：支持团队级风格画像、权限隔离和交付数据回流。"
+    }
+  },
+  "demo_documents": [
+    {
+      "id": "prd_ide",
+      "title": "PRD IDE：AI 需求写作工作台",
+      "category": "核心 Demo",
+      "summary": "展示 Tab 联想、选区改写、AI 评审和交付计划生成。",
+      "seed_text": "# PRD IDE：AI 需求写作工作台\n\n## 背景\n团队沉淀了很多 PRD 和 MRD，但新人很难知道下一段该怎么写，也很难复用历史文档的表达风格。\n\n## 目标\n让产品经理在写 PRD 时像写代码一样获得联想、改写和诊断能力。\n\n## 用户故事\n作为新人产品经理，我希望系统能根据团队历史文档提示下一段内容，以便更快写出可评审的 PRD。\n\n## 范围\n本期提供独立 PRD 编辑器、知识包、Tab 联想、选区改写和评审摘要。"
+    },
+    {
+      "id": "review_agent",
+      "title": "Work Buddy：需求评审助手",
+      "category": "评审 Demo",
+      "summary": "展示缺失章节、风险边界、验收标准和任务拆解。",
+      "seed_text": "# Work Buddy：需求评审助手\n\n## 背景\n需求评审往往发现得太晚，导致产品、设计、研发和测试反复拉齐。\n\n## 目标\n在 PRD 初稿阶段提前发现缺口，并生成可执行的交付计划。\n\n## 功能需求\n- 系统需要检查 PRD 是否包含背景、目标、范围、验收标准、指标和风险。\n- 系统需要把评审意见转成任务清单。"
+    }
+  ],
+  "rewrite_modes": [
+    {
+      "key": "make_concise",
+      "label": "Make Concise",
+      "display_label": "压缩表达"
+    },
+    {
+      "key": "make_formal",
+      "label": "Make Formal",
+      "display_label": "正式化"
+    },
+    {
+      "key": "convert_user_story",
+      "label": "Convert to User Story",
+      "display_label": "转成用户故事"
+    },
+    {
+      "key": "add_acceptance_criteria",
+      "label": "Add Acceptance Criteria",
+      "display_label": "补充验收标准"
+    },
+    {
+      "key": "clarify_ambiguity",
+      "label": "Clarify Ambiguity",
+      "display_label": "澄清歧义"
+    },
+    {
+      "key": "turn_into_delivery_tasks",
+      "label": "Turn into Delivery Tasks",
+      "display_label": "转成交付任务"
+    }
+  ],
+  "agent_modes": [
+    {
+      "key": "REMINDER",
+      "display_label": "提醒模式",
+      "description": "默认低打扰模式，鸟屋停留在右下角，只在空白页、停留过久、缺失章节或风险升高时提醒。",
+      "default_mascot_state": "peek"
+    },
+    {
+      "key": "ASSISTANT",
+      "display_label": "协作模式",
+      "description": "主动写作协作模式，小鸟从鸟屋飞出，提供 Tab 补齐、@mbti 风格化、@review 评审和可回滚 diff。",
+      "default_mascot_state": "fly_out"
+    }
+  ],
+  "mascot_assets": {
+    "brand_hero": "docs/ref/logo1.png",
+    "reminder_idle": "docs/ref/logo2.png",
+    "assistant_active": "docs/ref/logo3.png",
+    "persona_matrix": "docs/ref/MBTI.png"
+  },
+  "persona_profiles": [
+    {
+      "key": "INTJ_ARCHITECT",
+      "display_label": "INTJ 建筑师",
+      "tone": "concise_strategic",
+      "risk_bias": "high",
+      "rewrite_rules": [
+        "先给结构，再给判断",
+        "突出边界、依赖和长期架构影响",
+        "减少情绪化表达"
+      ],
+      "sample_prompt": "用建筑师风格把这段需求改成更克制、更结构化、更有边界感的 PRD 表达。"
+    },
+    {
+      "key": "ENTJ_COMMANDER",
+      "display_label": "ENTJ 指挥官",
+      "tone": "decisive_execution",
+      "risk_bias": "medium_high",
+      "rewrite_rules": [
+        "强调目标、优先级和 owner",
+        "把建议转成行动项",
+        "突出交付节奏和决策点"
+      ],
+      "sample_prompt": "用指挥官风格把这段需求改成目标明确、行动导向的交付表达。"
+    },
+    {
+      "key": "INFJ_ADVOCATE",
+      "display_label": "INFJ 提倡者",
+      "tone": "warm_insightful",
+      "risk_bias": "medium",
+      "rewrite_rules": [
+        "强调用户动机和长期价值",
+        "保留温和解释",
+        "兼顾团队协作感"
+      ],
+      "sample_prompt": "用提倡者风格把这段需求改成更关注用户感受和协作价值的表达。"
+    },
+    {
+      "key": "ENFP_CAMPAIGNER",
+      "display_label": "ENFP 竞选者",
+      "tone": "creative_energizing",
+      "risk_bias": "low_medium",
+      "rewrite_rules": [
+        "增强想象力和场景感",
+        "用更有感染力的语言描述机会",
+        "保留清晰验收条件"
+      ],
+      "sample_prompt": "用竞选者风格把这段需求改成更有画面感和推动力的表达。"
+    }
+  ],
+  "assistant_commands": [
+    {
+      "key": "assistant",
+      "trigger": "/assistant",
+      "description": "打开自然语言指令框，进入主动协作。"
+    },
+    {
+      "key": "mbti",
+      "trigger": "@mbti",
+      "description": "按指定 MBTI persona 改写或扩写选区。"
+    },
+    {
+      "key": "review",
+      "trigger": "@review",
+      "description": "对当前 PRD 运行 inline review 并生成可回滚 diff。"
+    },
+    {
+      "key": "expand",
+      "trigger": "@expand",
+      "description": "根据当前段落扩写需求细节和验收标准。"
+    }
+  ],
+  "reminder_rules": [
+    {
+      "trigger": "empty_page",
+      "threshold": 20,
+      "message": "页面还很空，要不要我先帮你搭一个 PRD 骨架？",
+      "mascot_state": "peek",
+      "severity": "low"
+    },
+    {
+      "trigger": "idle",
+      "threshold": 90,
+      "message": "你已经停留一会儿了，我可以帮你补下一段或整理已有内容。",
+      "mascot_state": "peek",
+      "severity": "low"
+    },
+    {
+      "trigger": "missing_acceptance",
+      "threshold": "acceptance_absent",
+      "message": "当前 PRD 还缺验收标准，评审时容易反复确认。",
+      "mascot_state": "warning",
+      "severity": "high"
+    },
+    {
+      "trigger": "long_section",
+      "threshold": 520,
+      "message": "这一段有点长，要不要拆成目标、范围和验收标准？",
+      "mascot_state": "working",
+      "severity": "medium"
+    },
+    {
+      "trigger": "deadline",
+      "threshold": "demo",
+      "message": "建议在演示前导出 PRD，并检查风险与回滚记录。",
+      "mascot_state": "celebrate",
+      "severity": "low"
+    }
+  ],
+  "rollback_policy": {
+    "token_ttl_seconds": 3600,
+    "max_history": 12,
+    "description": "每次 inline review 或 persona rewrite 都返回 rollback_token；前端可用 token 恢复建议前文本。"
+  },
+  "flash_insight": {
+    "headline": "Flash of Insight：不是再造一个文档生成器，而是把 PRD 写作过程 IDE 化",
+    "problem": "主流办公效率 SaaS 已经在做知识库问答、总结和整篇文档生成，但 PRD/MRD 写作的关键卡点常发生在过程里：下一段该写什么、这句话怎么写成团队风格、哪些验收条件缺失。",
+    "middle_state": "我们追求的中间态是先不替用户完整代写，而是在 PM/BD 自己写作时提供像工程师 coding 一样的 Tab completion、next edit suggestion、inline rephrase 和可回滚 diff。",
+    "product_thesis": "完整文档生成是终局能力，过程补全才是高频入口。先让用户把自己写好的 file 重整成可交付 working docs，再逐步进入跨系统 agentic delivery。",
+    "demo_sentence": "用户写下一句模糊需求后，小鸟 Work Buddy 同时给出下一段补齐、当前句 rephrase、来源解释和可回滚 diff。"
+  },
+  "market_landscape": [
+    {
+      "key": "productivity_saas",
+      "display_label": "效率 SaaS / 协作平台",
+      "players": [
+        "Notion",
+        "Slack",
+        "飞书",
+        "钉钉",
+        "Teams",
+        "Google Docs",
+        "Amazon Quick Suite"
+      ],
+      "what_they_do_well": "知识库问答、会议纪要、摘要、翻译、整篇生成、工作流和外部应用连接。",
+      "unserved_gap": "缺少 PRD 写作过程里的 next edit、局部 rephrase、验收补齐、diff 接受/拒绝/回滚。"
+    },
+    {
+      "key": "ai_ide",
+      "display_label": "IDE / AI IDE",
+      "players": [
+        "VS Code",
+        "Antigravity",
+        "Cursor",
+        "Claude Code",
+        "TRAE",
+        "WorkBuddy",
+        "Qoder"
+      ],
+      "what_they_do_well": "Tab completion、next edit suggestion、context-aware diff、jump/import、agent mode 和代码级回滚。",
+      "unserved_gap": "这些能力主要服务工程师，尚未被垂直迁移到 PRD/MRD/BD 方案等办公文档写作。"
+    },
+    {
+      "key": "desktop_pet",
+      "display_label": "桌宠 / 人格化助手",
+      "players": [
+        "Clicky-style desktop pet",
+        "floating companion",
+        "personalized assistant"
+      ],
+      "what_they_do_well": "低打扰陪伴、状态感、人格化形象和轻量提醒。",
+      "unserved_gap": "通常没有团队知识库、PRD 结构规则、验收标准和交付追踪能力。"
+    },
+    {
+      "key": "our_wedge",
+      "display_label": "我们的切入点",
+      "players": [
+        "Cross-page Work Buddy",
+        "PRD IDE",
+        "Birdhouse Assistant"
+      ],
+      "what_they_do_well": "把效率 SaaS 的知识库、AI IDE 的 Tab/next edit、桌宠的陪伴感放到同一条 PRD delivery workflow。",
+      "unserved_gap": "先做高频中间态：PM 自己写，AI 在过程里补齐、改写、评审、回滚和重整。"
+    }
+  ],
+  "next_edit_patterns": [
+    {
+      "id": "next-edit-vague-to-structured",
+      "kind": "rewrite_then_complete",
+      "display_label": "模糊句重写 + 下一段补齐",
+      "trigger": "用户刚写下一句愿景型、抽象型需求",
+      "behavior": "生成当前句 rephrase diff，并同时给出下一段 ghost completion。"
+    },
+    {
+      "id": "next-edit-missing-acceptance",
+      "kind": "acceptance_completion",
+      "display_label": "验收标准补齐",
+      "trigger": "PRD 已有背景/目标/需求，但缺少验收标准",
+      "behavior": "在当前 cursor 后补 Given/When/Then 或检查项。"
+    },
+    {
+      "id": "next-edit-scope-boundary",
+      "kind": "scope_boundary_rewrite",
+      "display_label": "范围边界重整",
+      "trigger": "出现“优化、提升、自动化”等宽泛表达但没有范围/非目标",
+      "behavior": "建议把段落改成对象、场景、范围、非目标四段。"
+    },
+    {
+      "id": "next-edit-delivery-ready",
+      "kind": "delivery_task_projection",
+      "display_label": "交付任务投影",
+      "trigger": "核心章节基本齐备",
+      "behavior": "提示进入任务拆解、owner、依赖和检查点。"
+    }
+  ],
+  "cross_page_assets": [
+    {
+      "id": "prd-history-onboarding",
+      "source_type": "seeded_prd",
+      "title": "历史 PRD：新人需求写作 Onboarding",
+      "signals": [
+        "背景先解释新人卡点",
+        "目标必须量化初稿时间和返工率",
+        "范围和非目标分开写"
+      ],
+      "sample": "新人需要在 30 分钟内完成第一版可评审 PRD，系统应优先补齐背景、目标、范围、验收标准。"
+    },
+    {
+      "id": "mrd-market-ai-office",
+      "source_type": "seeded_mrd",
+      "title": "MRD：AI 办公效率产品趋势",
+      "signals": [
+        "Notion/Slack/飞书/钉钉侧重知识问答和自动化",
+        "AI IDE 强在过程补全",
+        "桌宠强在陪伴但缺交付能力"
+      ],
+      "sample": "机会不在再做一个聊天框，而在把写作过程里的下一步联想做成高频入口。"
+    },
+    {
+      "id": "retro-review-rework",
+      "source_type": "delivery_retro",
+      "title": "复盘：需求评审返工原因",
+      "signals": [
+        "验收标准缺失",
+        "owner 不清晰",
+        "非目标缺失导致范围扩散"
+      ],
+      "sample": "评审前必须检查验收、owner、范围、非目标、风险和指标。"
+    },
+    {
+      "id": "acceptance-library",
+      "source_type": "acceptance_library",
+      "title": "验收标准样例库",
+      "signals": [
+        "Given/When/Then",
+        "可观察状态",
+        "可判定结果"
+      ],
+      "sample": "Given 用户正在编辑 PRD，When 系统检测到缺失章节，Then 需要在 1 秒内返回可接受建议。"
+    }
+  ],
+  "writing_journey_states": [
+    {
+      "key": "EMPTY_PAGE",
+      "display_label": "空白页探头",
+      "trigger": "document_length < 20",
+      "mascot_state": "peek",
+      "message": "我先帮你搭 PRD 骨架？"
+    },
+    {
+      "key": "FIRST_LINE",
+      "display_label": "第一行后询问",
+      "trigger": "first_meaningful_line",
+      "mascot_state": "fly_out",
+      "message": "要切到 Assistant Mode，让我开始补齐和改写吗？"
+    },
+    {
+      "key": "NEXT_EDIT_WORKING",
+      "display_label": "文内猛猛干活",
+      "trigger": "next_edit_suggest",
+      "mascot_state": "working",
+      "message": "我找到了下一段补齐和当前句重写建议。"
+    },
+    {
+      "key": "REVIEW_WARNING",
+      "display_label": "评审风险警戒",
+      "trigger": "risk_flags_present",
+      "mascot_state": "warning",
+      "message": "这里缺验收或边界，评审时容易返工。"
+    },
+    {
+      "key": "DELIVER_READY",
+      "display_label": "交付就绪庆祝",
+      "trigger": "readiness >= 70",
+      "mascot_state": "celebrate",
+      "message": "可以导出 working docs，并进入交付计划。"
+    }
+  ]
+}

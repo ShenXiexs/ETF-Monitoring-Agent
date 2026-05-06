@@ -1,8 +1,6 @@
-# 平台运行说明
+# Platform Guide
 
 ## macOS / Linux
-
-推荐命令：
 
 ```bash
 python3 -m venv .venv
@@ -11,10 +9,10 @@ pip install -r requirements.txt
 ./start_server.sh
 ```
 
-如果脚本没有执行权限，也可以直接运行：
+Or run directly:
 
 ```bash
-bash start_server.sh
+python -m src.app
 ```
 
 ## Windows PowerShell
@@ -26,19 +24,22 @@ pip install -r requirements.txt
 .\start_server.ps1
 ```
 
-## 运行时建议
+## Runtime Variables
 
-- 默认绑定 `127.0.0.1:5000`，更适合本机开发和比赛演示。
-- 需要改端口时，设置 `PORT` 即可。
-- 需要局域网访问时，再显式设置 `HOST=0.0.0.0`。
-- 若未配置 `DATA_SOURCE_DIR`，默认会切换到内置 Demo Mode；若想强制空态，可设置 `ENABLE_DEMO_MODE=0`。
+- `HOST`: defaults to `127.0.0.1`.
+- `PORT`: defaults to `5000`.
+- `PRD_KNOWLEDGE_PACK_PATH`: optional path to a custom seeded PRD knowledge pack.
 
-## 赛前建议
+## Demo Checklist
 
-正式展示前可先运行一次数据校验：
-
-```bash
-python -m src.preprocess /absolute/path/to/data --profile /absolute/path/to/profile.json
-```
-
-这样可以提前发现文件名、日期格式、字段映射和目录结构问题。
+- Open `http://127.0.0.1:5000`.
+- Load the PRD demo document.
+- Confirm the floating birdhouse appears in `ReminderMode`.
+- Switch to `AssistantMode` and verify the mascot changes to the expanded assistant asset.
+- Run Next Edit, then press `Tab` to accept ghost text and accept/reject the rephrase diff.
+- Select a sentence and press `Cmd/Ctrl+K` to rewrite it.
+- Run `@mbti` or select a persona to apply MBTI style rewriting.
+- Run `@review` or `Cmd/Ctrl+Enter` to generate inline review.
+- Accept, reject, and rollback the inline diff.
+- Generate the delivery plan.
+- Export the PRD Markdown.

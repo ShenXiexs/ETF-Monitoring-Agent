@@ -1,46 +1,98 @@
-# 数据接入约定
+# PRD Knowledge Pack Contract v2
 
-项目的数据接入由两部分组成：
+The app runs without external integrations by loading a seeded PRD knowledge pack. A custom pack can be supplied with `PRD_KNOWLEDGE_PACK_PATH`.
 
-- `DATA_SOURCE_DIR`：外部数据目录
-- `DATA_PROFILE_PATH`：字段映射与界面文案配置
+Internal keys must stay English and stable. Chinese should be used only for user-facing UI labels, PRD content, assistant messages, and exported reports.
 
-若未提供 `DATA_SOURCE_DIR`，且 `ENABLE_DEMO_MODE` 未关闭，系统会自动切换到仓库内置的脱敏演示数据。
+## Required Top-level Keys
 
-默认 profile 见 [config/default_profile.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/config/default_profile.json)，自定义模板见 [config/profile_template.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/config/profile_template.json)。
+- `workspace`: app name, slogan, tagline, description, and shortcut labels.
+- `challenge_story`: competition narrative, market gap, demo flow, and differentiators.
+- `flash_insight`: core product thesis explaining why process completion beats full-document generation for v1.
+- `market_landscape`: competitive matrix across productivity SaaS, AI IDE, desktop pet products, and our wedge.
+- `style_fingerprints`: reusable PRD/MRD writing patterns.
+- `glossary`: product and delivery terms.
+- `delivery_rules`: rules used by suggestion, review, reminder, and task planning.
+- `section_templates`: PRD section templates used for ghost suggestions.
+- `demo_documents`: deterministic demo drafts.
+- `rewrite_modes`: supported rewrite modes.
+- `next_edit_patterns`: deterministic patterns for Tab completion plus rephrase diff.
+- `cross_page_assets`: seeded PRD/MRD/retro/acceptance assets used to simulate cross-page knowledge.
+- `writing_journey_states`: birdhouse process states from empty page to delivery-ready.
+- `agent_modes`: English canonical modes such as `REMINDER` and `ASSISTANT`.
+- `mascot_assets`: local asset paths for birdhouse, assistant mascot, brand hero, and persona matrix.
+- `persona_profiles`: MBTI writing persona definitions with English canonical keys.
+- `assistant_commands`: command palette entries such as `/assistant`, `@mbti`, `@review`, and `@expand`.
+- `reminder_rules`: low-noise reminder triggers and mascot states.
+- `rollback_policy`: deterministic rollback constraints and retention policy.
 
-## 目录结构
+## Next Edit Patterns
 
-默认情况下，外部目录使用以下文件名：
+Each `next_edit_patterns` item should include:
 
-- `market_snapshot.json`
-- `policy_catalog.xlsx`
+- `id`: stable English identifier.
+- `kind`: English canonical kind such as `rewrite_then_complete` or `acceptance_completion`.
+- `display_label`: Chinese UI label.
+- `trigger`: Chinese user-facing trigger explanation.
+- `behavior`: Chinese explanation of what Tab/rephrase should do.
 
-如果你的任务使用不同文件名，可以在 profile 的 `files` 段覆盖。
+## Agent Modes
 
-## 快照文件
+Each `agent_modes` item should include:
 
-默认快照是按日期组织的 JSON，支持字典或列表两种形式。系统会把原始字段映射到一组标准字段：
+- `key`: English canonical key, e.g. `REMINDER` or `ASSISTANT`.
+- `display_label`: Chinese UI label.
+- `description`: Chinese user-facing explanation.
+- `default_mascot_state`: one of `peek`, `fly_out`, `working`, `warning`, or `celebrate`.
 
-- 记录字段：`code`、`name`、`setup_date`、`list_date`、`scale`、`volume`、`inflow`、`index_code`
-- 参考指标字段：`name`、`prev_close`、`open`、`change`、`volume`
+## Persona Profiles
 
-这些名字只是系统内部使用的标准键，不要求你的原始数据真的叫这个名字。只要在 profile 的 `snapshot.product_fields` 和 `snapshot.index_fields` 里做映射即可。
+Each `persona_profiles` item should include:
 
-## 文档目录文件
+- `key`: English canonical key, e.g. `INTJ_ARCHITECT`.
+- `display_label`: Chinese label, e.g. `建筑师`.
+- `tone`: English style bucket such as `concise`, `formal`, `warm`, or `creative`.
+- `rewrite_rules`: Chinese user-facing style rules.
+- `risk_bias`: how strongly the persona surfaces risk.
+- `sample_prompt`: optional Chinese prompt example shown in the UI.
 
-默认文档目录是 Excel 文件，系统按表头别名定位列。默认识别以下标准列：
+The v2 demo ships four high-signal personas: `INTJ_ARCHITECT`, `ENTJ_COMMANDER`, `INFJ_ADVOCATE`, and `ENFP_CAMPAIGNER`.
 
-- 日期列：`公告日期`
-- 标题列：`标题`
-- 分类列：`法律位阶`
-- 来源列：`来源`
+## Reminder Rules
 
-你也可以在 profile 的 `policy.columns` 中配置别名，例如把 `文档标题` 映射到标题列，把 `发布日期` 映射到日期列。
+Each `reminder_rules` item should include:
 
-## 适配建议
+- `trigger`: `empty_page`, `idle`, `missing_acceptance`, `long_section`, or `deadline`.
+- `threshold`: numeric threshold or condition string.
+- `message`: Chinese user-facing hint.
+- `mascot_state`: `peek`, `fly_out`, `working`, `warning`, or `celebrate`.
+- `severity`: low-noise priority such as `info`, `warning`, or `critical`.
 
-- 若只是换字段名或文件名，优先修改 profile，不要改 Python 代码。
-- 若是新的记录类任务，尽量把核心数值映射到 `scale / volume / inflow` 这三个标准指标，便于继续使用现有的排行、信号和日报逻辑。
-- 若数据完全不适合现有三指标范式，再考虑扩展规则引擎，而不是直接改前端页面。
-- 若需要比赛展示，可优先在 profile 中覆盖 `competition.demo_cases`、`competition.why_it_matters` 和 `competition.quality_thresholds`，而不是改模板。
+## Section Templates
+
+Each item in `section_templates` should use a stable English key:
+
+- `background`
+- `goal`
+- `user_story`
+- `scope`
+- `non_goals`
+- `flow`
+- `requirements`
+- `acceptance`
+- `metrics`
+- `risks`
+- `rollout`
+
+Each template needs:
+
+- `title`: user-facing Chinese section title.
+- `ghost_text`: Markdown text returned by `inline_suggest`.
+
+## Evidence Refs
+
+Every `style_fingerprints`, `glossary`, and `delivery_rules` item must include an `id`. These IDs become `evidence_refs` in API responses so the UI can explain why a suggestion was made.
+
+## Compatibility
+
+v2 intentionally avoids live Feishu, Notion, Slack, or DingTalk integrations. Those sources can later be converted into the same pack shape after permission, indexing, and access-control work is designed.

@@ -1,26 +1,20 @@
-# 实际运行示例
+# PRD IDE Example
 
-这组文件来自一次真实本地运行，使用的是项目内置 `Demo Mode` 和预置案例 `policy_shock`。
+This folder is reserved for generated PRD IDE exports.
 
-执行路径如下：
+Recommended manual demo path:
 
 1. `GET /`
-2. `POST /workspace` with `action=refresh`
-3. `POST /workspace` with `action=load_demo_case` and `case_id=policy_shock`
-4. `POST /workspace` with `action=report_trace`
-5. `POST /workspace` with `action=quality_snapshot`
-6. `POST /workspace` with `action=export_outline`
-7. `POST /workspace` with `action=generate_report`
+2. `POST /workspace` with `action=load_prd_demo`
+3. `POST /workspace` with `action=switch_agent_mode`
+4. `POST /workspace` with `action=next_edit_suggest`
+5. `POST /workspace` with `action=inline_suggest`
+6. `POST /workspace` with `action=rewrite_selection`
+7. `POST /workspace` with `action=apply_persona_rewrite`
+8. `POST /workspace` with `action=inline_review`
+9. `POST /workspace` with `action=rollback_suggestion`
+10. `POST /workspace` with `action=reminder_snapshot`
+11. `POST /workspace` with `action=generate_delivery_plan`
+12. `POST /workspace` with `action=export_prd`
 
-目录说明：
-
-- [policy_shock_demo_summary.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/docs/examples/policy_shock_demo_summary.json)：本次运行的结构化摘要，包含会话 ID、质量卡、trace steps 和输出预览。
-- [policy_shock_outline.md](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/docs/examples/policy_shock_outline.md)：答辩大纲原文，可直接给评委或放进项目介绍页。
-- [policy_shock_report_excerpt.txt](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/docs/examples/policy_shock_report_excerpt.txt)：从导出的 Word 研判报告中抽取的正文文本，便于 GitHub 在线查看。
-- [policy_shock_report.docx](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/docs/examples/policy_shock_report.docx)：实际导出的 Word 报告文件。
-
-说明：
-
-- 这组示例在 `2026-04-19` 生成。
-- 当前示例基于内置脱敏演示数据，不依赖外部业务目录即可复现。
-- `session_id` 属于单次运行结果，每次重新加载案例都会变化。
+The active seeded context lives in [data/prd_knowledge_pack.json](/Users/samxie/Research/Agent-Promotion/ai-driven-end-to-end-demand-delivery-engine/data/prd_knowledge_pack.json).

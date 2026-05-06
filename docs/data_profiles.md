@@ -1,38 +1,30 @@
-# Data Profiles
+# Custom PRD Knowledge Packs
 
-`DATA_PROFILE_PATH` 用来把外部数据和工作台界面解耦。你可以通过一个 JSON 文件同时定义：
+`PRD_KNOWLEDGE_PACK_PATH` selects a custom PRD knowledge pack. The product adapts through one JSON pack rather than scattered demo fixtures.
 
-- 工作台名称、说明文案和按钮文案
-- 模块名称、模块简介和系统 prompt
-- 比赛叙事、Demo Case、质量阈值和答辩展示文案
-- 外部文件名
-- JSON 字段映射
-- Excel 列别名
+## When to Customize
 
-## 最小流程
+Use a custom pack when you want the Work Buddy + PRD IDE to imitate a different team style, domain, mascot behavior, persona set, or delivery process.
 
-1. 复制 [profile_template.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/config/profile_template.json)
-2. 修改 `workspace` 段中的名称和文案
-3. 修改 `files` 段中的文件名
-4. 修改 `snapshot` 和 `policy` 段中的字段映射
-5. 设置 `DATA_PROFILE_PATH=/absolute/path/to/profile.json`
+Common changes:
 
-## 适用边界
+- Replace `demo_documents` with your own PRD/MRD examples.
+- Adjust `style_fingerprints` to match the team writing style.
+- Add glossary terms used by product, engineering, QA, design, BD, or delivery teams.
+- Change `delivery_rules` to reflect real review gates.
+- Rewrite `section_templates` for another document type.
+- Tune `persona_profiles` if your team uses different writing personas.
+- Tune `reminder_rules` if the birdhouse assistant feels too quiet or too interruptive.
 
-当前 profile 机制适合“记录快照 + 参考指标 + 文档目录”这类任务。它可以覆盖：
+## Recommended Workflow
 
-- 资管产品数据
-- 行业监测样本
-- 事件台账
-- 研究对象目录加文档目录的混合型任务
+1. Copy [data/prd_knowledge_pack.json](/Users/samxie/Research/Agent-Promotion/ai-driven-end-to-end-demand-delivery-engine/data/prd_knowledge_pack.json).
+2. Edit the copied JSON.
+3. Keep internal keys English and stable.
+4. Set `PRD_KNOWLEDGE_PACK_PATH=/absolute/path/to/your_pack.json`.
+5. Restart the server.
+6. Use `refresh`, `inline_suggest`, `reminder_snapshot`, `inline_review`, and `quality_snapshot` to verify the pack.
 
-如果你的任务仍然需要“排行、异常信号、日报、文档解析”这些通用能力，通常只改 profile 就够了。
+## Design Constraint
 
-## 与代码的关系
-
-- 前端展示文案读取 `workspace`
-- 数据加载读取 `files / snapshot / policy`
-- 模块标题和系统 prompt 读取 `workspace.module_overrides`
-- Demo Case、Why it matters、质量阈值和量化指标读取 `competition`
-
-这样在切换任务时，常见改动落在配置层，而不是页面模板和业务代码。
+Internal skill, persona, mode, action, and schema names should stay English canonical. User-facing titles, section text, assistant messages, reminder cards, and generated PRD output can remain Chinese.

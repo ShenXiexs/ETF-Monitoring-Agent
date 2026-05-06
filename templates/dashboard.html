@@ -6,761 +6,843 @@
     <title>{{ bootstrap.app_name }}</title>
     <style>
         :root {
-            --bg: #f4efe6;
-            --paper: rgba(255, 252, 246, 0.94);
-            --ink: #15202b;
-            --muted: #5f6b73;
-            --line: rgba(21, 32, 43, 0.1);
-            --accent: #0f766e;
-            --accent-strong: #115e59;
-            --warn: #9a3412;
-            --watch: #92400e;
-            --weak: #991b1b;
-            --shadow: 0 24px 60px rgba(21, 32, 43, 0.12);
+            --bg: #101820;
+            --panel: rgba(251, 247, 239, 0.96);
+            --paper: #fffdf7;
+            --ink: #17212b;
+            --muted: #66717c;
+            --line: rgba(23, 33, 43, 0.12);
+            --accent: #d8612a;
+            --accent-dark: #9f3f18;
+            --green: #0f766e;
+            --blue: #1f4f8f;
+            --weak: #9f1239;
+            --watch: #a16207;
+            --shadow: 0 28px 80px rgba(0, 0, 0, 0.22);
         }
 
         * { box-sizing: border-box; }
 
         body {
             margin: 0;
-            font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
-            color: var(--ink);
-            background:
-                radial-gradient(circle at top left, rgba(15, 118, 110, 0.16), transparent 38%),
-                radial-gradient(circle at top right, rgba(180, 83, 9, 0.14), transparent 30%),
-                linear-gradient(180deg, #faf6ef 0%, var(--bg) 100%);
             min-height: 100vh;
+            color: var(--ink);
+            font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
+            background:
+                radial-gradient(circle at 12% 5%, rgba(216, 97, 42, 0.34), transparent 28%),
+                radial-gradient(circle at 88% 12%, rgba(31, 79, 143, 0.38), transparent 30%),
+                linear-gradient(135deg, #101820 0%, #1a242f 42%, #2b211a 100%);
         }
+
+        button,
+        textarea,
+        select,
+        input {
+            font: inherit;
+        }
+
+        button {
+            border: 0;
+            border-radius: 999px;
+            padding: 11px 15px;
+            cursor: pointer;
+            transition: transform 0.16s ease, opacity 0.16s ease, background 0.16s ease;
+        }
+
+        button:hover:not(:disabled) { transform: translateY(-1px); }
+        button:disabled { opacity: 0.45; cursor: not-allowed; }
 
         .shell {
-            width: min(1480px, calc(100% - 32px));
-            margin: 24px auto;
-            padding: 28px;
-            border: 1px solid rgba(255, 255, 255, 0.45);
-            border-radius: 28px;
-            background: rgba(255, 255, 255, 0.62);
-            backdrop-filter: blur(20px);
-            box-shadow: var(--shadow);
-        }
-
-        .hero,
-        .contest-grid,
-        .layout,
-        .report-grid {
-            display: grid;
-            gap: 16px;
+            width: min(1680px, calc(100% - 28px));
+            margin: 18px auto;
         }
 
         .hero {
-            grid-template-columns: 1.45fr 1fr;
-            align-items: stretch;
-        }
-
-        .contest-grid {
-            margin-top: 18px;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .layout {
-            margin-top: 22px;
-            grid-template-columns: 1.05fr 1.05fr 1.2fr;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr;
+            gap: 16px;
+            margin-bottom: 16px;
         }
 
         .hero-card,
         .panel,
-        .modal-card {
-            background: var(--paper);
-            border: 1px solid var(--line);
-            border-radius: 24px;
-        }
-
-        .hero-card,
-        .panel {
-            position: relative;
-            overflow: hidden;
+        .editor-wrap {
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            background: var(--panel);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
         }
 
         .hero-card {
-            padding: 24px;
+            position: relative;
+            overflow: hidden;
+            padding: 28px;
         }
 
         .hero-card::after {
             content: "";
             position: absolute;
-            inset: auto -10% -45% auto;
-            width: 240px;
-            height: 240px;
+            right: -80px;
+            bottom: -120px;
+            width: 280px;
+            height: 280px;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(15, 118, 110, 0.16), transparent 68%);
-        }
-
-        .panel {
-            padding: 20px;
-            min-height: 220px;
+            background: radial-gradient(circle, rgba(216, 97, 42, 0.18), transparent 70%);
         }
 
         .eyebrow {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 12px;
             border-radius: 999px;
-            background: rgba(21, 32, 43, 0.05);
+            padding: 7px 12px;
+            background: rgba(23, 33, 43, 0.07);
             color: var(--muted);
             font-size: 12px;
+            font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
         }
 
-        h1, h2, h3 {
+        h1,
+        h2,
+        h3 {
             margin: 0;
             font-family: "Iowan Old Style", "Palatino Linotype", "Noto Serif SC", serif;
-            font-weight: 700;
+            line-height: 1.08;
         }
 
         h1 {
-            margin-top: 14px;
-            font-size: clamp(32px, 4vw, 52px);
-            line-height: 1.05;
+            margin-top: 16px;
+            max-width: 940px;
+            font-size: clamp(36px, 4.7vw, 72px);
         }
 
-        .hero-tagline {
-            margin-top: 10px;
-            color: var(--accent-strong);
-            font-size: 15px;
-            font-weight: 600;
-            line-height: 1.6;
+        .slogan {
+            margin-top: 12px;
+            color: var(--accent-dark);
+            font-size: 22px;
+            font-weight: 800;
         }
 
         .hero-copy {
-            margin-top: 12px;
-            max-width: 760px;
+            margin-top: 14px;
+            max-width: 900px;
             color: var(--muted);
             font-size: 15px;
-            line-height: 1.7;
+            line-height: 1.75;
         }
 
-        .hero-meta,
-        .stat-strip,
-        .tag-row,
-        .skill-tags {
-            margin-top: 18px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .pill,
-        .stat-pill,
-        .tag-pill,
-        .skill-chip,
-        .status-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .pill,
-        .stat-pill {
-            background: rgba(15, 118, 110, 0.08);
-            color: var(--accent-strong);
-        }
-
-        .tag-pill,
-        .skill-chip {
-            background: rgba(21, 32, 43, 0.08);
-            color: var(--muted);
-        }
-
-        .status-chip {
-            background: rgba(21, 32, 43, 0.06);
-            color: var(--muted);
-        }
-
-        .status-chip.ready,
-        .status-chip.strong {
-            background: rgba(15, 118, 110, 0.12);
-            color: var(--accent-strong);
-        }
-
-        .status-chip.fallback,
-        .status-chip.watch {
-            background: rgba(146, 64, 14, 0.12);
-            color: var(--watch);
-        }
-
-        .status-chip.waiting,
-        .status-chip.weak {
-            background: rgba(153, 27, 27, 0.1);
-            color: var(--weak);
-        }
-
-        .summary-grid,
-        .stage-grid,
+        .shortcut-grid,
+        .stat-grid,
+        .app-grid,
+        .list,
         .metric-grid,
-        .demo-case-list,
         .trace-list,
-        .diagnostics-list,
-        .scroll-list,
-        .chat-feed,
-        .composer {
+        .toolbar,
+        .button-row {
             display: grid;
             gap: 12px;
         }
 
-        .summary-grid {
+        .shortcut-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+            margin-top: 18px;
         }
 
-        .stage-grid {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-        }
-
-        .metric-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .summary-card,
-        .stage-card,
-        .metric-card,
-        .case-card,
-        .trace-card,
-        .info-card,
-        .diagnostic-card,
-        .comparison-card,
-        .loaded-case,
-        .card-row {
-            padding: 16px;
-            border-radius: 18px;
+        .shortcut {
+            padding: 14px;
             border: 1px solid var(--line);
-            background: rgba(255, 255, 255, 0.84);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.72);
         }
 
-        .summary-card .label,
-        .metric-card .label,
-        .stage-card .step-index,
-        .info-card .label {
-            font-size: 12px;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .summary-card .value,
-        .metric-card .value,
-        .info-card .value {
-            margin-top: 8px;
-            font-size: 28px;
+        .shortcut kbd {
+            display: inline-block;
+            min-width: 42px;
+            margin-bottom: 8px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            background: #17212b;
+            color: #fffdf7;
             font-weight: 700;
+            font-size: 12px;
         }
 
-        .stage-card .step-index {
-            display: inline-flex;
-            width: 28px;
-            height: 28px;
-            align-items: center;
-            justify-content: center;
-            border-radius: 999px;
-            background: rgba(15, 118, 110, 0.12);
-            color: var(--accent-strong);
-            margin-bottom: 12px;
+        .stat-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .stat {
+            padding: 18px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid var(--line);
+        }
+
+        .stat .label,
+        .metric .label {
+            color: var(--muted);
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .stat .value,
+        .metric .value {
+            margin-top: 8px;
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+        .app-grid {
+            grid-template-columns: 0.86fr minmax(520px, 1.45fr) 0.98fr;
+            align-items: start;
+        }
+
+        .panel,
+        .editor-wrap {
+            padding: 18px;
+            min-height: 220px;
         }
 
         .panel-header {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            gap: 10px;
-            margin-bottom: 16px;
+            align-items: flex-start;
+            gap: 12px;
+            margin-bottom: 14px;
         }
 
         .panel-header small,
-        .subtle,
-        .detail {
+        .detail,
+        .muted {
             color: var(--muted);
             font-size: 13px;
-            line-height: 1.6;
+            line-height: 1.55;
         }
 
-        .warning-list {
-            display: grid;
-            gap: 10px;
-            margin-top: 18px;
-        }
-
-        .warning-item {
-            padding: 14px 16px;
+        .card,
+        .metric,
+        .trace,
+        .ghost-card,
+        .buddy-card {
+            border: 1px solid var(--line);
             border-radius: 18px;
-            background: rgba(154, 52, 18, 0.08);
-            border: 1px solid rgba(154, 52, 18, 0.12);
-            color: var(--warn);
-            font-size: 14px;
+            background: rgba(255, 255, 255, 0.82);
+            padding: 14px;
         }
 
-        .toolbar {
-            margin-top: 18px;
+        .card strong,
+        .trace strong {
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        .tag-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
+            margin-top: 10px;
         }
 
-        button {
-            appearance: none;
-            border: 0;
+        .tag {
+            display: inline-flex;
+            align-items: center;
             border-radius: 999px;
-            padding: 12px 16px;
-            font: inherit;
-            cursor: pointer;
-            transition: transform 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+            padding: 6px 9px;
+            background: rgba(23, 33, 43, 0.08);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
         }
 
-        button:hover:not(:disabled) { transform: translateY(-1px); }
-        button:disabled { opacity: 0.45; cursor: not-allowed; }
+        .tag.strong {
+            background: rgba(15, 118, 110, 0.12);
+            color: var(--green);
+        }
+
+        .tag.watch {
+            background: rgba(161, 98, 7, 0.12);
+            color: var(--watch);
+        }
+
+        .tag.weak,
+        .tag.high {
+            background: rgba(159, 18, 57, 0.1);
+            color: var(--weak);
+        }
+
+        .tag.medium {
+            background: rgba(161, 98, 7, 0.12);
+            color: var(--watch);
+        }
 
         .btn-primary {
             background: var(--accent);
             color: white;
         }
 
+        .btn-dark {
+            background: var(--ink);
+            color: white;
+        }
+
         .btn-secondary {
-            background: rgba(21, 32, 43, 0.06);
+            background: rgba(23, 33, 43, 0.08);
             color: var(--ink);
         }
 
-        .btn-tertiary {
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--line);
+            color: var(--ink);
+        }
+
+        .toolbar {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            margin-bottom: 12px;
+        }
+
+        .button-row {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
             margin-top: 12px;
-            background: rgba(21, 32, 43, 0.08);
-            color: var(--ink);
+        }
+
+        select {
             width: 100%;
+            padding: 11px 13px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: white;
+            color: var(--ink);
         }
 
-        .loaded-case {
-            margin-top: 18px;
-            display: none;
-            background: linear-gradient(135deg, rgba(15, 118, 110, 0.08), rgba(255, 255, 255, 0.92));
+        .editor-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 10px;
         }
 
-        .compare-grid {
-            display: grid;
-            gap: 10px;
+        textarea {
+            width: 100%;
+            min-height: 620px;
+            resize: vertical;
+            padding: 22px;
+            border: 1px solid rgba(23, 33, 43, 0.16);
+            border-radius: 22px;
+            outline: none;
+            background: #fffdf8;
+            color: var(--ink);
+            font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
+            font-size: 14px;
+            line-height: 1.74;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        }
+
+        textarea:focus {
+            border-color: rgba(216, 97, 42, 0.6);
+            box-shadow: 0 0 0 4px rgba(216, 97, 42, 0.12);
+        }
+
+        .ghost-card {
+            margin-top: 12px;
+            border-color: rgba(216, 97, 42, 0.28);
+            background:
+                linear-gradient(135deg, rgba(216, 97, 42, 0.11), rgba(255, 255, 255, 0.88));
+        }
+
+        .ghost-text {
+            margin-top: 10px;
+            white-space: pre-wrap;
+            color: rgba(23, 33, 43, 0.72);
+            font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
+            line-height: 1.65;
+        }
+
+        .metric-grid {
             grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .metric .value {
+            color: var(--blue);
+        }
+
+        .scroll {
+            max-height: 470px;
+            overflow: auto;
+            padding-right: 4px;
+        }
+
+        .delivery-plan {
+            white-space: pre-wrap;
+        }
+
+        .empty {
+            border: 1px dashed rgba(23, 33, 43, 0.18);
+            border-radius: 18px;
+            padding: 18px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+
+        .brand-art {
+            position: absolute;
+            right: 18px;
+            bottom: 12px;
+            width: 190px;
+            max-width: 36%;
+            opacity: 0.94;
+            filter: drop-shadow(0 18px 28px rgba(23, 33, 43, 0.18));
+        }
+
+        .mode-switch,
+        .persona-panel,
+        .command-panel,
+        .inline-diff,
+        .reminder-panel {
+            margin-top: 14px;
+        }
+
+        .mode-switch {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .mode-switch button.active {
+            background: var(--ink);
+            color: white;
+        }
+
+        .persona-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
             margin-top: 10px;
         }
 
-        .modal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            background: rgba(21, 32, 43, 0.25);
-            padding: 24px;
-        }
-
-        .modal-card {
-            width: min(960px, 100%);
-            padding: 24px;
-            max-height: 80vh;
-            overflow: auto;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .report-grid {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .report-block {
-            padding: 16px;
-            border-radius: 18px;
-            background: rgba(21, 32, 43, 0.04);
+        .persona-card {
             border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.78);
+            cursor: pointer;
         }
 
-        .report-block ul {
-            margin: 10px 0 0;
-            padding-left: 18px;
+        .persona-card.active {
+            border-color: rgba(216, 97, 42, 0.55);
+            background: rgba(216, 97, 42, 0.1);
         }
 
-        .module-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .module-btn {
-            padding: 14px;
+        .persona-preview {
+            width: 100%;
+            margin-top: 10px;
             border-radius: 18px;
-            background: rgba(21, 32, 43, 0.05);
-            border: 1px solid transparent;
-            text-align: left;
+            border: 1px solid var(--line);
+            display: block;
         }
 
-        .module-btn.active {
-            background: rgba(15, 118, 110, 0.12);
-            border-color: rgba(15, 118, 110, 0.22);
+        .command-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            margin-top: 10px;
         }
 
-        .module-btn .title {
-            font-weight: 700;
+        .command-row input {
+            width: 100%;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            padding: 12px 14px;
+            background: white;
         }
 
-        .module-btn .desc {
-            margin-top: 6px;
+        .inline-diff {
+            border-color: rgba(31, 79, 143, 0.28);
+            background: linear-gradient(135deg, rgba(31, 79, 143, 0.08), rgba(255, 255, 255, 0.88));
+            display: none;
+        }
+
+        .diff-body {
+            margin-top: 10px;
+            white-space: pre-wrap;
+            max-height: 220px;
+            overflow: auto;
+            color: var(--muted);
+            font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .floating-buddy {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 220px;
+            z-index: 20;
+            border-radius: 28px;
+            background: rgba(255, 253, 247, 0.94);
+            border: 1px solid rgba(23, 33, 43, 0.12);
+            box-shadow: 0 22px 70px rgba(0, 0, 0, 0.24);
+            padding: 14px;
+            backdrop-filter: blur(18px);
+        }
+
+        .floating-buddy img {
+            width: 100%;
+            display: block;
+            border-radius: 22px;
+            background: white;
+        }
+
+        .buddy-greeting {
+            margin-top: 10px;
             color: var(--muted);
             font-size: 12px;
             line-height: 1.5;
         }
 
-        .scroll-list {
-            max-height: 520px;
-            overflow: auto;
-            padding-right: 4px;
-        }
-
-        .card-row strong {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 14px;
-        }
-
-        .signal-tag {
-            display: inline-flex;
+        .buddy-status {
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            padding: 5px 10px;
-            border-radius: 999px;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-            background: rgba(15, 118, 110, 0.1);
-            color: var(--accent-strong);
-            margin-bottom: 8px;
-        }
-
-        .chat-feed {
-            margin-top: 16px;
-            max-height: 360px;
-            overflow: auto;
-            padding-right: 4px;
-        }
-
-        .message {
-            max-width: 90%;
-            padding: 14px 16px;
-            border-radius: 18px;
-            line-height: 1.7;
-            font-size: 14px;
-        }
-
-        .message.user {
-            margin-left: auto;
-            background: rgba(15, 118, 110, 0.12);
-        }
-
-        .message.assistant {
-            background: rgba(21, 32, 43, 0.05);
-        }
-
-        .message .metrics {
+            gap: 8px;
             margin-top: 10px;
-            color: var(--muted);
-            font-size: 12px;
         }
 
-        textarea {
-            width: 100%;
-            min-height: 110px;
-            resize: vertical;
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            padding: 16px;
-            font: inherit;
-            background: rgba(255, 255, 255, 0.9);
+        .floating-buddy.working {
+            animation: bob 1.8s ease-in-out infinite;
         }
 
-        input[type="file"] {
-            width: 100%;
-            font: inherit;
+        .floating-buddy.warning {
+            border-color: rgba(159, 18, 57, 0.28);
+            box-shadow: 0 22px 70px rgba(159, 18, 57, 0.18);
         }
 
-        .empty-state {
-            padding: 22px;
-            border-radius: 18px;
-            border: 1px dashed rgba(21, 32, 43, 0.18);
-            color: var(--muted);
-            text-align: center;
+        .flash-copy {
+            margin-top: 12px;
+            display: grid;
+            gap: 10px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .flash-copy .thesis {
+            border-left: 4px solid var(--accent);
+            padding-left: 12px;
+            font-size: 17px;
+            line-height: 1.65;
+            color: var(--ink);
+            font-weight: 800;
+        }
+
+        .market-section {
+            margin-bottom: 16px;
+        }
+
+        .market-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .market-card {
+            min-height: 190px;
+        }
+
+        .market-card .players {
             margin: 8px 0;
+            color: var(--accent-dark);
+            font-weight: 800;
+            line-height: 1.45;
         }
 
-        th, td {
+        .next-edit-meta {
+            margin-top: 10px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .next-edit-meta .meta-row {
             border: 1px solid var(--line);
-            padding: 8px 10px;
-            text-align: left;
+            border-radius: 14px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.72);
         }
 
-        @media (max-width: 1280px) {
+        .process-strip {
+            display: grid;
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        @keyframes bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @media (max-width: 1320px) {
             .hero,
-            .contest-grid,
-            .layout,
-            .report-grid,
-            .stage-grid,
-            .metric-grid,
-            .compare-grid {
+            .app-grid,
+            .market-grid,
+            .toolbar,
+            .button-row,
+            .stat-grid,
+            .shortcut-grid,
+            .metric-grid {
                 grid-template-columns: 1fr;
+            }
+
+            textarea {
+                min-height: 460px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="shell">
+    <main class="shell">
         <section class="hero">
             <div class="hero-card">
-                <div class="eyebrow" id="hero-eyebrow">{{ bootstrap.workspace.eyebrow or "Asset Intel Workbench" }}</div>
-                <h1 id="hero-title">{{ bootstrap.app_name }}</h1>
-                <div class="hero-tagline" id="hero-tagline">{{ bootstrap.competition_story.headline or bootstrap.workspace.tagline or "" }}</div>
-                <div class="hero-copy" id="hero-copy"></div>
-                <div class="hero-meta" id="hero-meta"></div>
-                <div class="warning-list" id="warning-list"></div>
-                <div class="toolbar">
-                    <button class="btn-primary" id="refresh-btn" type="button">{{ bootstrap.workspace.actions.refresh or "刷新视图" }}</button>
-                    <button class="btn-secondary" id="toggle-btn" type="button">{{ bootstrap.workspace.actions.toggle_pause or "暂停模拟" }}</button>
-                    <button class="btn-secondary" id="report-btn" type="button">{{ bootstrap.workspace.actions.open_report or "打开日报" }}</button>
-                    <button class="btn-secondary" id="export-btn" type="button" disabled>{{ bootstrap.workspace.actions.export_report or "导出报告" }}</button>
-                    <button class="btn-secondary" id="outline-btn" type="button" disabled>{{ bootstrap.workspace.actions.export_outline or "导出答辩大纲" }}</button>
-                </div>
+                <div class="eyebrow" id="eyebrow">{{ bootstrap.workspace.eyebrow }}</div>
+                <h1 id="headline">{{ bootstrap.challenge_story.headline }}</h1>
+                <div class="slogan" id="slogan">{{ bootstrap.workspace.slogan }}</div>
+                <div class="hero-copy" id="hero-copy">{{ bootstrap.challenge_story.subheadline }}</div>
+                <img class="brand-art" id="brand-art" src="/assets/ref/logo1.png" alt="Work Buddy mascot">
+                <div class="shortcut-grid" id="shortcut-grid"></div>
             </div>
             <div class="hero-card">
-                <div class="summary-grid" id="summary-grid"></div>
-                <div class="stat-strip" id="quant-strip"></div>
+                <div class="panel-header">
+                    <div>
+                        <div class="eyebrow">Flash Insight</div>
+                        <h2 style="margin-top:12px;">过程补全 > 整篇代写</h2>
+                    </div>
+                    <button class="btn-outline" id="refresh-btn" type="button">刷新</button>
+                </div>
+                <div class="flash-copy" id="flash-insight"></div>
+                <div class="stat-grid" id="pack-stats" style="margin-top:16px;"></div>
             </div>
         </section>
 
-        <div class="loaded-case" id="loaded-case-banner"></div>
-
-        <section class="panel" style="margin-top: 18px;">
+        <section class="panel market-section">
             <div class="panel-header">
-                <h2 id="pipeline-title">{{ bootstrap.workspace.panel_titles.pipeline or "研究流水线" }}</h2>
-                <small>适合比赛现场 Demo 与答辩讲解</small>
+                <div>
+                    <div class="eyebrow">Competitive Gap Matrix</div>
+                    <h2 style="margin-top:10px;">效率 SaaS × AI IDE × 桌宠助手的中间态</h2>
+                </div>
             </div>
-            <div class="stage-grid" id="pipeline-grid"></div>
+            <div class="market-grid" id="market-matrix"></div>
         </section>
 
-        <section class="contest-grid">
-            <div class="panel">
+        <section class="app-grid">
+            <aside class="panel">
                 <div class="panel-header">
-                    <h2 id="why-matters-title">{{ bootstrap.workspace.panel_titles.why_matters or "Why it matters" }}</h2>
-                    <small>项目价值</small>
+                    <div>
+                        <h2>Context Pack</h2>
+                        <small>团队 PRD/MRD 风格、术语和交付规则</small>
+                    </div>
                 </div>
-                <div id="why-matters-list"></div>
-            </div>
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="diagnostics-title">{{ bootstrap.workspace.panel_titles.diagnostics or "系统诊断" }}</h2>
-                    <small>运行状态</small>
-                </div>
-                <div class="diagnostics-list" id="diagnostics-list"></div>
-            </div>
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="research-overview-title">{{ bootstrap.workspace.panel_titles.research_overview or "研究对象概览" }}</h2>
-                    <small id="research-overview-headline"></small>
-                </div>
-                <div class="metric-grid" id="research-overview-grid"></div>
-            </div>
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="impact-path-title">{{ bootstrap.workspace.panel_titles.impact_path or "影响路径" }}</h2>
-                    <small>从输入到输出</small>
-                </div>
-                <div class="trace-list" id="impact-path-list"></div>
-            </div>
-        </section>
+                <div class="list" id="demo-list"></div>
 
-        <section class="contest-grid">
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="demo-cases-title">{{ bootstrap.workspace.panel_titles.demo_cases or "预置 Demo Case" }}</h2>
-                    <small>一键加载案例</small>
+                <div class="panel-header" style="margin-top:18px;">
+                    <div>
+                        <h2>English Skills</h2>
+                        <small>内部能力名英文，展示标签中文</small>
+                    </div>
                 </div>
-                <div class="demo-case-list" id="demo-case-list"></div>
-            </div>
-            <div class="panel">
+                <div class="list" id="skill-list"></div>
+
+                <div class="panel-header" style="margin-top:18px;">
+                    <div>
+                        <h2>Delivery Rules</h2>
+                        <small>AI 联想依据</small>
+                    </div>
+                </div>
+                <div class="list scroll" id="rule-list"></div>
+            </aside>
+
+            <section class="editor-wrap">
                 <div class="panel-header">
-                    <h2 id="quality-title">{{ bootstrap.workspace.panel_titles.quality or "报告质量卡" }}</h2>
-                    <small>规则评分</small>
+                    <div>
+                        <div class="eyebrow">PRD Editor</div>
+                        <h2 style="margin-top:10px;" id="doc-title">PRD 草稿</h2>
+                    </div>
+                    <div class="tag-row">
+                        <span class="tag strong">Next Edit</span>
+                        <span class="tag">Tab Completion</span>
+                        <span class="tag">Rephrase Diff</span>
+                        <span class="tag">Review</span>
+                    </div>
+                </div>
+
+                <div class="toolbar">
+                    <button class="btn-primary" id="suggest-btn" type="button">Next Edit 联想</button>
+                    <button class="btn-dark" id="accept-btn" type="button">Tab 接受补齐</button>
+                    <button class="btn-secondary" id="review-btn" type="button">Work Buddy 评审</button>
+                    <button class="btn-secondary" id="export-btn" type="button">导出 PRD</button>
+                </div>
+
+                <div class="editor-meta">
+                    <div class="muted" id="editor-count">0 words</div>
+                    <div class="muted">快捷键：Tab 接受 · Esc 取消 · Cmd/Ctrl+K 改写 · Cmd/Ctrl+Enter 评审</div>
+                </div>
+
+                <textarea id="prd-editor" spellcheck="false"></textarea>
+
+                <div class="ghost-card" id="ghost-card">
+                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
+                        <strong>Next Edit Suggestion</strong>
+                        <span class="tag strong">Tab 接受补齐 · 右侧接受 rephrase diff</span>
+                    </div>
+                    <div class="next-edit-meta" id="next-edit-meta"></div>
+                    <div class="ghost-text" id="ghost-text"></div>
+                    <div class="tag-row" id="evidence-tags"></div>
+                </div>
+
+                <div class="button-row">
+                    <select id="rewrite-mode"></select>
+                    <button class="btn-secondary" id="rewrite-btn" type="button">Cmd/Ctrl+K 改写选区</button>
+                    <button class="btn-secondary" id="plan-btn" type="button">生成交付计划</button>
+                </div>
+            </section>
+
+            <aside class="panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>AI Work Buddy</h2>
+                        <small>质量评分、缺口、风险和 trace</small>
+                    </div>
+                </div>
+                <div class="buddy-card">
+                    <strong id="review-summary">等待评审</strong>
+                    <div class="detail" id="style-match" style="margin-top:8px;"></div>
+                    <div class="mode-switch">
+                        <button class="btn-outline" id="reminder-mode-btn" type="button">Reminder</button>
+                        <button class="btn-outline" id="assistant-mode-btn" type="button">Assistant</button>
+                    </div>
+                </div>
+
+                <div class="process-strip" id="process-strip"></div>
+
+                <div class="persona-panel">
+                    <div class="panel-header">
+                        <h2>MBTI Persona</h2>
+                        <small>@mbti 写作人格</small>
+                    </div>
+                    <div class="persona-grid" id="persona-grid"></div>
+                    <img class="persona-preview" src="/assets/ref/MBTI.png" alt="MBTI bird persona reference">
+                </div>
+
+                <div class="command-panel card">
+                    <strong>Assistant Command</strong>
+                    <div class="detail">支持 /assistant、@mbti、@review、@expand</div>
+                    <div class="command-row">
+                        <input id="assistant-command" value="@review 请检查验收标准" aria-label="Assistant command">
+                        <button class="btn-dark" id="command-btn" type="button">运行</button>
+                    </div>
+                </div>
+
+                <div class="inline-diff card" id="inline-diff-card">
+                    <strong id="inline-diff-title">Inline Diff</strong>
+                    <div class="detail" id="inline-diff-summary"></div>
+                    <div class="diff-body" id="inline-diff-body"></div>
+                    <div class="tag-row">
+                        <button class="btn-primary" id="accept-diff-btn" type="button">接受 diff</button>
+                        <button class="btn-secondary" id="reject-diff-btn" type="button">拒绝</button>
+                        <button class="btn-outline" id="rollback-btn" type="button">回滚</button>
+                    </div>
+                </div>
+
+                <div class="reminder-panel">
+                    <div class="panel-header">
+                        <h2>Reminder Cards</h2>
+                        <small>低打扰提醒</small>
+                    </div>
+                    <div class="list" id="reminder-list"></div>
+                </div>
+
+                <div class="panel-header" style="margin-top:18px;">
+                    <h2>Quality</h2>
+                    <small>Delivery readiness</small>
                 </div>
                 <div class="metric-grid" id="quality-grid"></div>
-            </div>
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="comparison-title">{{ bootstrap.workspace.panel_titles.comparison or "结果对比" }}</h2>
-                    <small>Baseline vs Enhanced</small>
+
+                <div class="panel-header" style="margin-top:18px;">
+                    <h2>Missing Sections</h2>
+                    <small>PRD diagnostics</small>
                 </div>
-                <div id="comparison-card"></div>
-            </div>
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="trace-title">{{ bootstrap.workspace.panel_titles.trace or "报告 Trace" }}</h2>
-                    <small>技能协作</small>
+                <div class="list" id="missing-list"></div>
+
+                <div class="panel-header" style="margin-top:18px;">
+                    <h2>Risk Flags</h2>
+                    <small>Review warnings</small>
                 </div>
-                <div id="trace-card"></div>
-            </div>
+                <div class="list" id="risk-list"></div>
+
+                <div class="panel-header" style="margin-top:18px;">
+                    <h2>Why This Suggestion</h2>
+                    <small>Evidence trace</small>
+                </div>
+                <div class="trace-list" id="trace-list"></div>
+
+                <div class="panel-header" style="margin-top:18px;">
+                    <h2>Delivery Plan</h2>
+                    <small>Generated tasks</small>
+                </div>
+                <div class="card delivery-plan" id="delivery-plan">点击“生成交付计划”后展示。</div>
+            </aside>
         </section>
+    </main>
 
-        <section class="layout">
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="catalog-title">{{ bootstrap.workspace.panel_titles.catalog or "记录目录" }}</h2>
-                    <small id="product-count"></small>
-                </div>
-                <div class="scroll-list" id="product-list"></div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="signals-title">{{ bootstrap.workspace.panel_titles.signals or "当日信号" }}</h2>
-                    <small id="signal-date"></small>
-                </div>
-                <div class="scroll-list" id="signal-list"></div>
-                <div class="panel-header" style="margin-top: 20px;">
-                    <h2 id="history-title">{{ bootstrap.workspace.panel_titles.history or "历史回放" }}</h2>
-                    <small id="history-window-label">{{ bootstrap.workspace.labels.history_window or "最近 10 个日期" }}</small>
-                </div>
-                <div class="scroll-list" id="history-list" style="max-height: 220px;"></div>
-            </div>
-
-            <div class="panel">
-                <div class="panel-header">
-                    <h2 id="workspace-title">{{ bootstrap.workspace.panel_titles.workspace or "协作工作台" }}</h2>
-                    <small id="active-module-label"></small>
-                </div>
-                <div class="module-grid" id="module-grid"></div>
-                <div class="chat-feed" id="chat-feed"></div>
-                <div class="composer">
-                    <textarea id="chat-input" placeholder="{{ bootstrap.workspace.placeholders.chat_input or '输入问题，或上传待解析的 PDF 文件。' }}"></textarea>
-                    <input id="pdf-input" type="file" accept=".pdf">
-                    <button class="btn-primary" id="send-btn" type="button">{{ bootstrap.workspace.actions.send or "发送到当前模块" }}</button>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <div class="modal" id="daily-report-modal">
-        <div class="modal-card">
-            <div class="modal-actions">
-                <div>
-                    <div class="eyebrow" id="daily-report-eyebrow">{{ bootstrap.workspace.panel_titles.daily_report_eyebrow or "Daily Brief" }}</div>
-                    <h2 id="modal-title">{{ bootstrap.workspace.panel_titles.daily_report or "当日工作摘要" }}</h2>
-                </div>
-                <button class="btn-secondary" id="close-modal-btn" type="button">{{ bootstrap.workspace.actions.close or "关闭" }}</button>
-            </div>
-            <div class="report-grid">
-                <div class="report-block">
-                    <h3 id="highlights-title">{{ bootstrap.workspace.panel_titles.highlights or "亮点记录" }}</h3>
-                    <div id="modal-highlights"></div>
-                </div>
-                <div class="report-block">
-                    <h3 id="news-title">{{ bootstrap.workspace.panel_titles.news or "重点信号" }}</h3>
-                    <div id="modal-news"></div>
-                </div>
-                <div class="report-block">
-                    <h3 id="suggestions-title">{{ bootstrap.workspace.panel_titles.suggestions or "行动建议" }}</h3>
-                    <div id="modal-suggestions"></div>
-                </div>
-            </div>
+    <div class="floating-buddy" id="floating-buddy">
+        <img id="buddy-image" src="/assets/ref/logo2.png" alt="Birdhouse Work Buddy">
+        <div class="buddy-greeting" id="buddy-greeting">我先在鸟屋里待命。写下第一行后，可以切到 Assistant Mode。</div>
+        <div class="buddy-status">
+            <span class="tag" id="buddy-mode-tag">reminder</span>
+            <span class="tag" id="buddy-emotion-tag">calm</span>
         </div>
     </div>
 
     <script>
         const BOOTSTRAP = {{ bootstrap|tojson }};
         let appState = BOOTSTRAP;
-        let activeModule = (appState.modules[0] || {}).key || "product_research";
-        let latestSessionId = appState.latest_session_id || null;
+        let ghostText = appState.ghost_text || "";
+        let debounceTimer = null;
+        let selectedPersona = (appState.persona_profile || {}).key || "INTJ_ARCHITECT";
+        let rollbackToken = appState.rollback_token || null;
+        let inlineDiff = appState.inline_diff || null;
+        let activeAgentMode = appState.agent_mode || "reminder";
 
-        const heroEyebrow = document.getElementById("hero-eyebrow");
-        const heroTitle = document.getElementById("hero-title");
-        const heroTagline = document.getElementById("hero-tagline");
-        const heroCopy = document.getElementById("hero-copy");
-        const heroMeta = document.getElementById("hero-meta");
-        const warningList = document.getElementById("warning-list");
-        const summaryGrid = document.getElementById("summary-grid");
-        const quantStrip = document.getElementById("quant-strip");
-        const pipelineGrid = document.getElementById("pipeline-grid");
-        const whyMattersList = document.getElementById("why-matters-list");
-        const diagnosticsList = document.getElementById("diagnostics-list");
-        const researchOverviewHeadline = document.getElementById("research-overview-headline");
-        const researchOverviewGrid = document.getElementById("research-overview-grid");
-        const impactPathList = document.getElementById("impact-path-list");
-        const demoCaseList = document.getElementById("demo-case-list");
+        const editor = document.getElementById("prd-editor");
+        const ghostTextEl = document.getElementById("ghost-text");
+        const ghostCard = document.getElementById("ghost-card");
+        const evidenceTags = document.getElementById("evidence-tags");
+        const nextEditMeta = document.getElementById("next-edit-meta");
+        const processStrip = document.getElementById("process-strip");
+        const docTitle = document.getElementById("doc-title");
+        const editorCount = document.getElementById("editor-count");
         const qualityGrid = document.getElementById("quality-grid");
-        const comparisonCard = document.getElementById("comparison-card");
-        const traceCard = document.getElementById("trace-card");
-        const loadedCaseBanner = document.getElementById("loaded-case-banner");
-        const productCount = document.getElementById("product-count");
-        const productList = document.getElementById("product-list");
-        const signalDate = document.getElementById("signal-date");
-        const signalList = document.getElementById("signal-list");
-        const historyList = document.getElementById("history-list");
-        const moduleGrid = document.getElementById("module-grid");
-        const activeModuleLabel = document.getElementById("active-module-label");
-        const chatFeed = document.getElementById("chat-feed");
-        const chatInput = document.getElementById("chat-input");
-        const pdfInput = document.getElementById("pdf-input");
-        const dailyReportModal = document.getElementById("daily-report-modal");
-        const exportBtn = document.getElementById("export-btn");
-        const outlineBtn = document.getElementById("outline-btn");
-        const refreshBtn = document.getElementById("refresh-btn");
-        const toggleBtn = document.getElementById("toggle-btn");
-        const reportBtn = document.getElementById("report-btn");
-        const sendBtn = document.getElementById("send-btn");
-        const closeModalBtn = document.getElementById("close-modal-btn");
-
-        function workspaceConfig() {
-            return appState.workspace || {};
-        }
-
-        function workspaceSection(key) {
-            return workspaceConfig()[key] || {};
-        }
-
-        function panelTitle(key, fallback) {
-            return workspaceSection("panel_titles")[key] || fallback;
-        }
-
-        function emptyText(key, fallback) {
-            return workspaceSection("empty_states")[key] || fallback;
-        }
-
-        function actionText(key, fallback) {
-            return workspaceSection("actions")[key] || fallback;
-        }
-
-        function placeholderText(key, fallback) {
-            return workspaceSection("placeholders")[key] || fallback;
-        }
-
-        function labelText(key, fallback) {
-            return workspaceSection("labels")[key] || fallback;
-        }
-
-        function story() {
-            return appState.competition_story || {};
-        }
+        const missingList = document.getElementById("missing-list");
+        const riskList = document.getElementById("risk-list");
+        const traceList = document.getElementById("trace-list");
+        const reviewSummary = document.getElementById("review-summary");
+        const styleMatch = document.getElementById("style-match");
+        const deliveryPlan = document.getElementById("delivery-plan");
+        const rewriteMode = document.getElementById("rewrite-mode");
+        const personaGrid = document.getElementById("persona-grid");
+        const assistantCommand = document.getElementById("assistant-command");
+        const reminderList = document.getElementById("reminder-list");
+        const inlineDiffCard = document.getElementById("inline-diff-card");
+        const inlineDiffTitle = document.getElementById("inline-diff-title");
+        const inlineDiffSummary = document.getElementById("inline-diff-summary");
+        const inlineDiffBody = document.getElementById("inline-diff-body");
+        const floatingBuddy = document.getElementById("floating-buddy");
+        const buddyImage = document.getElementById("buddy-image");
+        const buddyGreeting = document.getElementById("buddy-greeting");
+        const buddyModeTag = document.getElementById("buddy-mode-tag");
+        const buddyEmotionTag = document.getElementById("buddy-emotion-tag");
+        const reminderModeBtn = document.getElementById("reminder-mode-btn");
+        const assistantModeBtn = document.getElementById("assistant-mode-btn");
 
         function escapeHtml(text) {
             return String(text || "")
@@ -769,388 +851,14 @@
                 .replace(/>/g, "&gt;");
         }
 
-        function formatMarkdown(text) {
-            let output = escapeHtml(text);
-            output = output.replace(/^### (.+)$/gm, "<h3>$1</h3>");
-            output = output.replace(/^# (.+)$/gm, "<h3>$1</h3>");
-            output = output.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
-            output = output.replace(/\n\n/g, "<br><br>");
-            output = output.replace(/\n/g, "<br>");
-            if (output.includes("|")) {
-                output = output.replace(
-                    /\|(.+)\|<br>\|[-:\s|]+\|<br>((?:\|.+\|<br>?)+)/g,
-                    (_, header, body) => {
-                        const headers = header.split("|").filter(Boolean).map((item) => `<th>${item.trim()}</th>`).join("");
-                        const rows = body.trim().split("<br>").filter(Boolean).map((row) => {
-                            const cols = row.split("|").filter(Boolean).map((cell) => `<td>${cell.trim()}</td>`).join("");
-                            return `<tr>${cols}</tr>`;
-                        }).join("");
-                        return `<table><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
-                    }
-                );
-            }
-            return output;
+        function wordCount(text) {
+            const matches = String(text || "").match(/[\w\u4e00-\u9fff]+/g);
+            return matches ? matches.length : 0;
         }
 
-        function infoPill(label) {
-            return `<div class="pill">${escapeHtml(label)}</div>`;
-        }
-
-        function statusChip(label, status) {
-            return `<span class="status-chip ${escapeHtml(status || "")}">${escapeHtml(label)}</span>`;
-        }
-
-        function addMessage(role, content) {
-            const bubble = document.createElement("div");
-            bubble.className = `message ${role}`;
-            bubble.innerHTML = formatMarkdown(content);
-            chatFeed.appendChild(bubble);
-            chatFeed.scrollTop = chatFeed.scrollHeight;
-            return bubble;
-        }
-
-        function ensureChatSeed() {
-            if (chatFeed.children.length > 0) {
-                return;
-            }
-            addMessage("assistant", placeholderText("chat_seed", "工作台已就绪。请选择模块并开始分析。"));
-        }
-
-        function setExportState() {
-            exportBtn.disabled = !latestSessionId;
-            outlineBtn.disabled = !latestSessionId;
-        }
-
-        function renderWarnings() {
-            warningList.innerHTML = "";
-            (appState.warnings || []).forEach((item) => {
-                const row = document.createElement("div");
-                row.className = "warning-item";
-                row.textContent = item;
-                warningList.appendChild(row);
-            });
-        }
-
-        function renderChrome() {
-            const workspace = workspaceConfig();
-            heroEyebrow.textContent = workspace.eyebrow || "Asset Intel Workbench";
-            heroTitle.textContent = appState.app_name || "资管产品洞察协作台";
-            heroTagline.textContent = story().headline || workspace.tagline || "";
-            chatInput.placeholder = placeholderText("chat_input", "输入问题，或上传待解析的 PDF 文件。");
-            refreshBtn.textContent = actionText("refresh", "刷新视图");
-            toggleBtn.textContent = appState.simulation.is_running
-                ? actionText("toggle_pause", "暂停模拟")
-                : actionText("toggle_resume", "恢复模拟");
-            reportBtn.textContent = actionText("open_report", "打开日报");
-            exportBtn.textContent = actionText("export_report", "导出报告");
-            outlineBtn.textContent = actionText("export_outline", "导出答辩大纲");
-            sendBtn.textContent = actionText("send", "发送到当前模块");
-            closeModalBtn.textContent = actionText("close", "关闭");
-            document.getElementById("daily-report-eyebrow").textContent = panelTitle("daily_report_eyebrow", "Daily Brief");
-            document.getElementById("catalog-title").textContent = panelTitle("catalog", "记录目录");
-            document.getElementById("signals-title").textContent = panelTitle("signals", "当日信号");
-            document.getElementById("history-title").textContent = panelTitle("history", "历史回放");
-            document.getElementById("workspace-title").textContent = panelTitle("workspace", "协作工作台");
-            document.getElementById("pipeline-title").textContent = panelTitle("pipeline", "研究流水线");
-            document.getElementById("why-matters-title").textContent = panelTitle("why_matters", "Why it matters");
-            document.getElementById("diagnostics-title").textContent = panelTitle("diagnostics", "系统诊断");
-            document.getElementById("research-overview-title").textContent = panelTitle("research_overview", "研究对象概览");
-            document.getElementById("impact-path-title").textContent = panelTitle("impact_path", "影响路径");
-            document.getElementById("demo-cases-title").textContent = panelTitle("demo_cases", "预置 Demo Case");
-            document.getElementById("quality-title").textContent = panelTitle("quality", "报告质量卡");
-            document.getElementById("comparison-title").textContent = panelTitle("comparison", "结果对比");
-            document.getElementById("trace-title").textContent = panelTitle("trace", "报告 Trace");
-            document.getElementById("history-window-label").textContent = labelText("history_window", "最近 10 个日期");
-            document.getElementById("highlights-title").textContent = panelTitle("highlights", "亮点记录");
-            document.getElementById("news-title").textContent = panelTitle("news", "重点信号");
-            document.getElementById("suggestions-title").textContent = panelTitle("suggestions", "行动建议");
-        }
-
-        function renderHero() {
-            const currentDate = appState.simulation.current_date || labelText("fallback_date", "未加载数据");
-            const modeLabel = appState.mode === "demo" ? "演示模式" : (appState.mode === "external" ? "外部数据" : "空态模式");
-            heroCopy.textContent = appState.has_data
-                ? `${workspaceConfig().description_loaded || ""} ${story().subheadline || ""}`.trim()
-                : `${workspaceConfig().description_empty || ""} ${story().subheadline || ""}`.trim();
-            heroMeta.innerHTML = [
-                infoPill(`当前日期 ${currentDate}`),
-                infoPill(modeLabel),
-                infoPill(appState.simulation.is_running ? "模拟运行中" : "模拟已暂停"),
-                infoPill(`模块数 ${appState.modules.length}`),
-            ].join("");
-        }
-
-        function renderSummary() {
-            const summaryCards = workspaceConfig().summary_cards || [
-                ["记录数", "product_count"],
-                ["文档条目", "policy_count"],
-                ["当日信号", "signal_count"],
-                ["状态", "status"],
-            ];
-            summaryGrid.innerHTML = summaryCards.map(([label, key]) => `
-                <div class="summary-card">
-                    <div class="label">${escapeHtml(label)}</div>
-                    <div class="value">${escapeHtml(appState.summary?.[key] ?? "-")}</div>
-                </div>
-            `).join("");
-            quantStrip.innerHTML = (story().quant_outputs || []).map((item) => `
-                <div class="stat-pill">${escapeHtml(item.label)} · ${escapeHtml(item.value)}</div>
-            `).join("");
-        }
-
-        function renderPipeline() {
-            pipelineGrid.innerHTML = (story().stages || []).map((stage, index) => `
-                <div class="stage-card">
-                    <div class="step-index">${index + 1}</div>
-                    <strong>${escapeHtml(stage.title)}</strong>
-                    <div class="detail">${escapeHtml(stage.summary)}</div>
-                </div>
-            `).join("");
-        }
-
-        function renderWhyMatters() {
-            const items = story().why_it_matters || [];
-            if (!items.length) {
-                whyMattersList.innerHTML = '<div class="empty-state">当前暂无项目价值说明。</div>';
-                return;
-            }
-            whyMattersList.innerHTML = items.map((item) => `
-                <div class="info-card">
-                    <div class="detail">${escapeHtml(item)}</div>
-                </div>
-            `).join("");
-        }
-
-        function renderDiagnostics() {
-            diagnosticsList.innerHTML = (appState.diagnostics?.checks || []).map((item) => `
-                <div class="diagnostic-card">
-                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
-                        <strong>${escapeHtml(item.label)}</strong>
-                        ${statusChip(item.status === "ready" ? "Ready" : item.status === "fallback" ? "Fallback" : "Waiting", item.status)}
-                    </div>
-                    <div class="detail" style="margin-top:8px;">${escapeHtml(item.detail)}</div>
-                </div>
-            `).join("");
-        }
-
-        function renderResearchOverview() {
-            const overview = appState.research_overview || { items: [] };
-            researchOverviewHeadline.textContent = overview.headline || "";
-            researchOverviewGrid.innerHTML = (overview.items || []).map((item) => `
-                <div class="metric-card">
-                    <div class="label">${escapeHtml(item.label)}</div>
-                    <div class="value">${escapeHtml(item.value)}</div>
-                </div>
-            `).join("");
-        }
-
-        function renderImpactPath() {
-            impactPathList.innerHTML = (appState.impact_path?.steps || []).map((step) => `
-                <div class="trace-card">
-                    <strong>${escapeHtml(step.title)}</strong>
-                    <div class="detail">${escapeHtml(step.detail)}</div>
-                </div>
-            `).join("");
-        }
-
-        function renderLoadedCase() {
-            const loaded = appState.loaded_case;
-            if (!loaded) {
-                loadedCaseBanner.style.display = "none";
-                loadedCaseBanner.innerHTML = "";
-                return;
-            }
-            loadedCaseBanner.style.display = "block";
-            loadedCaseBanner.innerHTML = `
-                <div class="eyebrow">${escapeHtml(loaded.category || "Demo Case")}</div>
-                <h2 style="margin-top:12px;">${escapeHtml(loaded.title)}</h2>
-                <div class="detail" style="margin-top:10px;">${escapeHtml(loaded.hook || "")}</div>
-                <div class="tag-row">${(loaded.tags || []).map((item) => `<span class="tag-pill">${escapeHtml(item)}</span>`).join("")}</div>
-                <div class="detail" style="margin-top:10px;"><strong>关键问题：</strong>${escapeHtml(loaded.key_question || "")}</div>
-                <div class="detail" style="margin-top:10px;"><strong>输入数据：</strong>${escapeHtml((loaded.input_data || []).join("；"))}</div>
-            `;
-        }
-
-        function renderDemoCases() {
-            const cases = appState.demo_cases || [];
-            if (!cases.length) {
-                demoCaseList.innerHTML = '<div class="empty-state">当前没有可用的 Demo Case。</div>';
-                return;
-            }
-            demoCaseList.innerHTML = cases.map((item) => `
-                <div class="case-card">
-                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
-                        <div>
-                            <strong>${escapeHtml(item.title)}</strong>
-                            <div class="detail">${escapeHtml(item.summary)}</div>
-                        </div>
-                        ${statusChip(item.available ? "Ready" : "Waiting", item.available ? "ready" : "waiting")}
-                    </div>
-                    <div class="tag-row">${(item.tags || []).map((tag) => `<span class="tag-pill">${escapeHtml(tag)}</span>`).join("")}</div>
-                    <div class="detail" style="margin-top:10px;">${escapeHtml(item.key_question || "")}</div>
-                    <button class="btn-tertiary" type="button" data-case-id="${escapeHtml(item.id)}" ${item.available ? "" : "disabled"}>${escapeHtml(item.button_label || "加载案例")}</button>
-                </div>
-            `).join("");
-            demoCaseList.querySelectorAll("button[data-case-id]").forEach((button) => {
-                button.addEventListener("click", () => loadDemoCase(button.getAttribute("data-case-id")));
-            });
-        }
-
-        function renderQuality() {
-            qualityGrid.innerHTML = (appState.quality_metrics || []).map((item) => `
-                <div class="metric-card">
-                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
-                        <div class="label">${escapeHtml(item.label)}</div>
-                        ${statusChip(item.status === "strong" ? "Strong" : item.status === "watch" ? "Watch" : "Weak", item.status)}
-                    </div>
-                    <div class="value">${escapeHtml(item.score)}</div>
-                    <div class="detail">Baseline ${escapeHtml(item.baseline_score)} → Enhanced ${escapeHtml(item.score)}</div>
-                    <div class="detail" style="margin-top:8px;">${escapeHtml(item.detail)}</div>
-                </div>
-            `).join("");
-        }
-
-        function renderComparison() {
-            const comparison = appState.comparison || {};
-            comparisonCard.innerHTML = `
-                <div class="comparison-card">
-                    <div class="detail">${escapeHtml(comparison.title || "Baseline vs Enhanced")}</div>
-                    <div class="compare-grid">
-                        <div class="trace-card">
-                            <strong>${escapeHtml(comparison.baseline?.label || "Baseline")}</strong>
-                            <div class="detail">${escapeHtml(comparison.baseline?.summary || "")}</div>
-                            <div class="detail" style="margin-top:8px;">章节 ${escapeHtml(comparison.baseline?.sections || 0)} · 来源 ${escapeHtml(comparison.baseline?.citations || 0)} · 评分 ${escapeHtml(comparison.baseline?.score || 0)}</div>
-                        </div>
-                        <div class="trace-card">
-                            <strong>${escapeHtml(comparison.enhanced?.label || "Enhanced")}</strong>
-                            <div class="detail">${escapeHtml(comparison.enhanced?.summary || "")}</div>
-                            <div class="detail" style="margin-top:8px;">章节 ${escapeHtml(comparison.enhanced?.sections || 0)} · 来源 ${escapeHtml(comparison.enhanced?.citations || 0)} · 评分 ${escapeHtml(comparison.enhanced?.score || 0)}</div>
-                        </div>
-                    </div>
-                    <div style="margin-top:12px;">${(comparison.diffs || []).map((item) => `<div class="detail">• ${escapeHtml(item)}</div>`).join("")}</div>
-                </div>
-            `;
-        }
-
-        function renderTrace() {
-            const trace = appState.trace_summary || {};
-            traceCard.innerHTML = `
-                <div class="comparison-card">
-                    <strong>${escapeHtml(trace.title || "增强式研报编排")}</strong>
-                    <div class="detail" style="margin-top:8px;">${escapeHtml(trace.subtitle || "")}</div>
-                    <div style="margin-top:12px;">${(trace.steps || []).map((item) => `<div class="detail">• <strong>${escapeHtml(item.title)}</strong>：${escapeHtml(item.detail)}</div>`).join("")}</div>
-                    <div class="tag-row" style="margin-top:12px;">
-                        ${((trace.skills || []).map((item) => `<span class="skill-chip">${escapeHtml(item.label)}</span>`).join(""))}
-                    </div>
-                    <div style="margin-top:12px;">${(trace.included_observations || []).map((item) => `<div class="detail">• ${escapeHtml(item)}</div>`).join("") || '<div class="detail">加载案例后展示纳入报告的关键观察。</div>'}</div>
-                    <div style="margin-top:12px;">${(trace.evidence || []).map((item) => `<div class="detail"><strong>${escapeHtml(item.category)}</strong>：${escapeHtml((item.highlights || []).join("；") || "待补充")}</div>`).join("")}</div>
-                </div>
-            `;
-        }
-
-        function renderProducts() {
-            const products = appState.products || [];
-            productCount.textContent = appState.has_data
-                ? `${products.length} ${labelText("catalog_count_loaded", "条记录")}`
-                : labelText("catalog_count_empty", "等待外部数据");
-            if (!products.length) {
-                productList.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("catalog", "未加载记录目录。"))}</div>`;
-                return;
-            }
-
-            productList.innerHTML = "";
-            products.forEach((item) => {
-                const row = document.createElement("div");
-                row.className = "card-row";
-                row.innerHTML = `<strong>${escapeHtml(item.name)}</strong><div class="subtle">${escapeHtml(item.code)}</div>`;
-                row.onclick = () => {
-                    chatInput.value = `请提供记录快照：${item.name} ${item.code}`;
-                    activeModule = "product_research";
-                    renderModules();
-                };
-                productList.appendChild(row);
-            });
-        }
-
-        function renderSignals() {
-            signalDate.textContent = appState.simulation.current_date || labelText("fallback_date", "未加载数据");
-            const signals = appState.signals || [];
-            if (!signals.length) {
-                signalList.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("signals", "当前没有可展示的监测信号。"))}</div>`;
-                return;
-            }
-
-            signalList.innerHTML = "";
-            signals.forEach((item) => {
-                const row = document.createElement("div");
-                row.className = "card-row";
-                row.innerHTML = `
-                    <div class="signal-tag">${escapeHtml(item.category)}</div>
-                    <strong>${escapeHtml(item.content)}</strong>
-                    <div class="subtle">${escapeHtml(item.date || "")}</div>
-                `;
-                row.onclick = () => {
-                    chatInput.value = `请从${item.category}角度解读：${item.content}`;
-                    activeModule = item.category === "监管政策" ? "policy_analysis" : "market_monitoring";
-                    renderModules();
-                };
-                signalList.appendChild(row);
-            });
-        }
-
-        function renderHistory() {
-            const entries = Object.entries(appState.history || {});
-            if (!entries.length) {
-                historyList.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("history", "暂无历史记录。"))}</div>`;
-                return;
-            }
-            historyList.innerHTML = "";
-            entries.forEach(([date, signals]) => {
-                const row = document.createElement("div");
-                row.className = "card-row";
-                row.innerHTML = `
-                    <strong>${escapeHtml(date)}</strong>
-                    <div class="subtle">${signals.length} ${escapeHtml(labelText("history_item", "条信号"))}</div>
-                `;
-                row.onclick = () => {
-                    chatInput.value = `请总结 ${date} 的重点变化`;
-                    activeModule = "market_monitoring";
-                    renderModules();
-                };
-                historyList.appendChild(row);
-            });
-        }
-
-        function renderModules() {
-            const activeCard = appState.modules.find((item) => item.key === activeModule) || {};
-            const activeSkills = (activeCard.skills || []).map((item) => item.label).join(" · ");
-            activeModuleLabel.textContent = activeSkills ? `${activeCard.label} · ${activeSkills}` : (activeCard.label || "");
-            moduleGrid.innerHTML = "";
-            appState.modules.forEach((item) => {
-                const btn = document.createElement("button");
-                btn.type = "button";
-                btn.className = `module-btn ${item.key === activeModule ? "active" : ""}`;
-                const skillTags = (item.skills || []).map((skill) => `<span class="skill-chip">${escapeHtml(skill.label)}</span>`).join("");
-                btn.innerHTML = `
-                    <div class="title">${escapeHtml(item.label)}</div>
-                    <div class="desc">${escapeHtml(item.summary)}</div>
-                    <div class="skill-tags">${skillTags}</div>
-                `;
-                btn.onclick = () => {
-                    activeModule = item.key;
-                    renderModules();
-                };
-                moduleGrid.appendChild(btn);
-            });
-        }
-
-        async function readJsonError(response) {
-            const contentType = response.headers.get("content-type") || "";
-            if (contentType.includes("application/json")) {
-                const payload = await response.json();
-                throw new Error(payload.error || `请求失败 (${response.status})`);
-            }
-            throw new Error(`请求失败 (${response.status})`);
+        function assetUrl(path) {
+            const name = String(path || "").split("/").pop();
+            return `/assets/ref/${name}`;
         }
 
         async function postJson(action, extra = {}) {
@@ -1160,254 +868,436 @@
                 body: JSON.stringify({ action, ...extra }),
             });
             if (!response.ok) {
-                await readJsonError(response);
+                const payload = await response.json().catch(() => ({}));
+                throw new Error(payload.error || `请求失败 (${response.status})`);
             }
             return response.json();
         }
 
-        async function refreshWorkspace() {
-            try {
-                appState = await postJson("refresh");
-                latestSessionId = appState.latest_session_id || latestSessionId;
-                renderAll();
-            } catch (error) {
-                addMessage("assistant", `刷新失败：${error.message}`);
+        function setState(payload) {
+            appState = { ...appState, ...payload };
+            if (payload.ghost_text !== undefined) {
+                ghostText = payload.ghost_text || "";
             }
+            if (payload.persona_profile) {
+                selectedPersona = payload.persona_profile.key || selectedPersona;
+            }
+            if (payload.rollback_token !== undefined) {
+                rollbackToken = payload.rollback_token || rollbackToken;
+            }
+            if (payload.inline_diff !== undefined) {
+                inlineDiff = payload.inline_diff || null;
+            }
+            if (payload.agent_mode) {
+                activeAgentMode = payload.agent_mode;
+            }
+            renderDynamic();
         }
 
-        async function toggleSimulation() {
-            try {
-                appState = await postJson("toggle_simulation");
-                latestSessionId = appState.latest_session_id || latestSessionId;
-                renderAll();
-            } catch (error) {
-                addMessage("assistant", `切换状态失败：${error.message}`);
-            }
-        }
+        function renderStatic() {
+            document.getElementById("shortcut-grid").innerHTML = (appState.workspace.shortcuts || []).map((item) => `
+                <div class="shortcut"><kbd>${escapeHtml(item.key)}</kbd><div>${escapeHtml(item.label)}</div></div>
+            `).join("");
 
-        async function loadDemoCase(caseId) {
-            try {
-                const caseMeta = (appState.demo_cases || []).find((item) => item.id === caseId);
-                addMessage("user", `加载 Demo Case：${caseMeta ? caseMeta.title : caseId}`);
-                appState = await postJson("load_demo_case", { case_id: caseId });
-                latestSessionId = appState.session_id || latestSessionId;
-                activeModule = appState.active_module || activeModule;
-                renderAll();
-                if (appState.assistant_message) {
-                    addMessage("assistant", appState.assistant_message);
-                }
-            } catch (error) {
-                addMessage("assistant", `加载案例失败：${error.message}`);
-            }
-        }
+            const insight = appState.flash_insight || {};
+            document.getElementById("flash-insight").innerHTML = `
+                <div class="thesis">${escapeHtml(insight.headline || "Flash of Insight")}</div>
+                <div class="detail">${escapeHtml(insight.middle_state || "")}</div>
+                <div class="detail">${escapeHtml(insight.product_thesis || "")}</div>
+            `;
 
-        function renderReportModal(report) {
-            const highlights = document.getElementById("modal-highlights");
-            const news = document.getElementById("modal-news");
-            const suggestions = document.getElementById("modal-suggestions");
-            const modalTitle = document.getElementById("modal-title");
+            document.getElementById("pack-stats").innerHTML = [
+                ["Styles", appState.knowledge_pack.style_count],
+                ["Rules", appState.knowledge_pack.rule_count],
+                ["Assets", appState.knowledge_pack.asset_count],
+                ["NextEdits", appState.knowledge_pack.next_edit_pattern_count],
+            ].map(([label, value]) => `
+                <div class="stat"><div class="label">${label}</div><div class="value">${escapeHtml(value)}</div></div>
+            `).join("");
 
-            modalTitle.textContent = report.available
-                ? `${report.date} ${panelTitle("daily_report", "当日工作摘要")}`
-                : panelTitle("daily_report", "当日工作摘要");
-
-            if (!report.available) {
-                highlights.innerHTML = `<div class="empty-state">${escapeHtml(emptyText("daily_report", "当前没有可展示的日报。"))}</div>`;
-                news.innerHTML = "";
-                suggestions.innerHTML = `<ul><li>${escapeHtml((report.suggestions || [])[0] || "暂无建议。")}</li></ul>`;
-                dailyReportModal.style.display = "flex";
-                return;
-            }
-
-            highlights.innerHTML = (report.highlights || []).map((item) => `
-                <div class="card-row" style="cursor:default;">
-                    <strong>${escapeHtml(item.category)}</strong>
-                    <div class="subtle">${escapeHtml(item.product_name)} (${escapeHtml(item.product_code)})</div>
-                    <div class="subtle">${item.value.toFixed(2)} ${escapeHtml(item.unit)}</div>
+            document.getElementById("market-matrix").innerHTML = (appState.market_landscape || []).map((item) => `
+                <div class="card market-card">
+                    <strong>${escapeHtml(item.display_label)}</strong>
+                    <div class="players">${escapeHtml((item.players || []).join(" · "))}</div>
+                    <div class="detail">强项：${escapeHtml(item.what_they_do_well)}</div>
+                    <div class="detail" style="margin-top:8px;">缺口：${escapeHtml(item.unserved_gap)}</div>
                 </div>
             `).join("");
-            news.innerHTML = `<ul>${(report.news || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
-            suggestions.innerHTML = `<ul>${(report.suggestions || []).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`;
-            dailyReportModal.style.display = "flex";
+
+            document.getElementById("demo-list").innerHTML = (appState.demo_documents || []).map((item) => `
+                <div class="card">
+                    <strong>${escapeHtml(item.title)}</strong>
+                    <div class="detail">${escapeHtml(item.summary)}</div>
+                    <div class="tag-row"><span class="tag strong">${escapeHtml(item.category)}</span></div>
+                    <button class="btn-outline" style="margin-top:12px;width:100%;" type="button" data-demo-id="${escapeHtml(item.id)}">加载 Demo</button>
+                </div>
+            `).join("");
+            document.querySelectorAll("[data-demo-id]").forEach((button) => {
+                button.addEventListener("click", () => loadDemo(button.getAttribute("data-demo-id")));
+            });
+
+            document.getElementById("skill-list").innerHTML = (appState.skills || []).map((item) => `
+                <div class="card">
+                    <strong>${escapeHtml(item.skill_name)}</strong>
+                    <div class="detail">${escapeHtml(item.display_label)} · ${escapeHtml(item.focus)}</div>
+                </div>
+            `).join("");
+
+            document.getElementById("rule-list").innerHTML = (appState.knowledge_pack.delivery_rules || []).map((item) => `
+                <div class="card">
+                    <strong>${escapeHtml(item.display_name)}</strong>
+                    <div class="detail">${escapeHtml(item.description)}</div>
+                </div>
+            `).join("");
+
+            rewriteMode.innerHTML = (appState.rewrite_modes || []).map((item) => `
+                <option value="${escapeHtml(item.key)}">${escapeHtml(item.display_label)} · ${escapeHtml(item.label)}</option>
+            `).join("");
+
+            personaGrid.innerHTML = (appState.persona_profiles || []).map((item) => `
+                <div class="persona-card" data-persona="${escapeHtml(item.key)}">
+                    <strong>${escapeHtml(item.display_label)}</strong>
+                    <div class="detail">${escapeHtml(item.tone)} · risk ${escapeHtml(item.risk_bias)}</div>
+                </div>
+            `).join("");
+            personaGrid.querySelectorAll("[data-persona]").forEach((card) => {
+                card.addEventListener("click", () => {
+                    selectedPersona = card.getAttribute("data-persona");
+                    renderDynamic();
+                    applyPersonaRewrite();
+                });
+            });
+
+            editor.value = appState.document_text || "";
         }
 
-        async function openDailyReport() {
-            try {
-                const report = await postJson("daily_report");
-                appState.daily_report = report;
-                renderReportModal(report);
-            } catch (error) {
-                addMessage("assistant", `日报加载失败：${error.message}`);
+        function renderDynamic() {
+            const text = editor.value;
+            const title = (appState.artifact_preview || {}).title || "PRD 草稿";
+            docTitle.textContent = title;
+            editorCount.textContent = `${wordCount(text)} tokens · ${text.length} chars`;
+            ghostCard.style.display = ghostText ? "block" : "none";
+            nextEditMeta.innerHTML = `
+                <div class="meta-row"><strong>${escapeHtml(appState.next_edit_label || "Next Edit")}</strong><div class="detail">${escapeHtml(appState.rewrite_hint || "")}</div></div>
+                <div class="meta-row"><span class="tag strong">${escapeHtml(appState.suggestion_kind || "section_completion")}</span><div class="detail">${escapeHtml((appState.cursor_target || {}).instruction || "按 Tab 接受建议。")}</div></div>
+            `;
+            ghostTextEl.textContent = ghostText || "";
+            evidenceTags.innerHTML = (appState.evidence_refs || []).map((item) => `
+                <span class="tag">${escapeHtml(item.source_type)} · ${escapeHtml(item.title)}</span>
+            `).join("");
+
+            qualityGrid.innerHTML = (appState.quality_metrics || []).map((item) => `
+                <div class="metric">
+                    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
+                        <div class="label">${escapeHtml(item.label)}</div>
+                        <span class="tag ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span>
+                    </div>
+                    <div class="value">${escapeHtml(item.score)}</div>
+                    <div class="detail">${escapeHtml(item.rationale)}</div>
+                </div>
+            `).join("");
+
+            missingList.innerHTML = (appState.missing_sections || []).length
+                ? (appState.missing_sections || []).map((item) => `<div class="card"><strong>${escapeHtml(item.label)}</strong><div class="detail">${escapeHtml(item.key)}</div></div>`).join("")
+                : '<div class="empty">核心章节已基本齐备。</div>';
+
+            riskList.innerHTML = (appState.risk_flags || []).length
+                ? (appState.risk_flags || []).map((item) => `
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;gap:8px;">
+                            <strong>${escapeHtml(item.title)}</strong>
+                            <span class="tag ${escapeHtml(item.severity)}">${escapeHtml(item.severity)}</span>
+                        </div>
+                        <div class="detail">${escapeHtml(item.detail)}</div>
+                    </div>
+                `).join("")
+                : '<div class="empty">暂无高优先级风险。</div>';
+
+            traceList.innerHTML = (appState.delivery_trace || []).map((item) => `
+                <div class="trace">
+                    <strong>${escapeHtml(item.skill_name)} · ${escapeHtml(item.display_label)}</strong>
+                    <div class="detail">${escapeHtml(item.step)}</div>
+                    <div class="detail">${escapeHtml(item.detail)}</div>
+                    <div class="tag-row">${(item.evidence_refs || []).map((ref) => `<span class="tag">${escapeHtml(ref)}</span>`).join("")}</div>
+                </div>
+            `).join("");
+
+            const match = appState.style_match || {};
+            styleMatch.textContent = match.summary ? `${match.label || "Style Match"}：${match.score} 分。${match.summary}` : "";
+
+            personaGrid.querySelectorAll("[data-persona]").forEach((card) => {
+                card.classList.toggle("active", card.getAttribute("data-persona") === selectedPersona);
+            });
+
+            processStrip.innerHTML = (appState.writing_journey_states || []).map((item) => `
+                <div class="card">
+                    <strong>${escapeHtml(item.display_label)}</strong>
+                    <div class="detail">${escapeHtml(item.message)} · ${escapeHtml(item.mascot_state)}</div>
+                </div>
+            `).join("");
+
+            reminderList.innerHTML = (appState.reminder_cards || []).length
+                ? (appState.reminder_cards || []).map((item) => `
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;gap:8px;">
+                            <strong>${escapeHtml(item.trigger)}</strong>
+                            <span class="tag ${escapeHtml(item.severity)}">${escapeHtml(item.mascot_state)}</span>
+                        </div>
+                        <div class="detail">${escapeHtml(item.message)}</div>
+                    </div>
+                `).join("")
+                : '<div class="empty">小鸟暂时不打扰。</div>';
+
+            inlineDiffCard.style.display = inlineDiff ? "block" : "none";
+            if (inlineDiff) {
+                inlineDiffTitle.textContent = inlineDiff.summary || "Inline Diff";
+                inlineDiffSummary.textContent = rollbackToken ? `rollback token: ${rollbackToken}` : "可接受、拒绝或回滚。";
+                inlineDiffBody.textContent = inlineDiff.added_text || inlineDiff.after_text || "";
             }
+
+            const mascotState = appState.mascot_state || "peek";
+            const asset = activeAgentMode === "assistant" || ["fly_out", "working", "warning"].includes(mascotState)
+                ? (appState.mascot_assets || {}).assistant_active
+                : (appState.mascot_assets || {}).reminder_idle;
+            buddyImage.src = assetUrl(asset || "docs/ref/logo2.png");
+            floatingBuddy.className = `floating-buddy ${escapeHtml(mascotState)}`;
+            buddyModeTag.textContent = activeAgentMode;
+            buddyEmotionTag.textContent = appState.emotion_state || "calm";
+            buddyGreeting.textContent = activeAgentMode === "assistant"
+                ? "Assistant Mode：我会飞到字里行间，帮你补齐、改写、评审和回滚。"
+                : "Reminder Mode：我先在鸟屋里待命，只在关键节点轻提醒。";
+            reminderModeBtn.classList.toggle("active", activeAgentMode === "reminder");
+            assistantModeBtn.classList.toggle("active", activeAgentMode === "assistant");
         }
 
-        async function exportBinary(action, filename, errorPrefix) {
-            if (!latestSessionId) {
+        async function loadDemo(demoId) {
+            const payload = await postJson("load_prd_demo", { demo_id: demoId });
+            editor.value = payload.document_text || "";
+            reviewSummary.textContent = payload.assistant_message || "已加载 Demo。";
+            setState(payload);
+        }
+
+        async function refreshSuggestion() {
+            const payload = await postJson("next_edit_suggest", {
+                current_text: editor.value,
+                cursor_position: editor.selectionStart,
+                persona: selectedPersona,
+            });
+            reviewSummary.textContent = payload.next_edit_label || "Next Edit 已生成。";
+            setState(payload);
+        }
+
+        function acceptGhost() {
+            if (!ghostText) {
                 return;
             }
-            const formData = new FormData();
-            formData.append("action", action);
-            formData.append("session_id", latestSessionId);
-            const response = await fetch("/workspace", { method: "POST", body: formData });
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const before = editor.value.slice(0, start);
+            const after = editor.value.slice(end);
+            editor.value = before + ghostText + after;
+            const nextPos = start + ghostText.length;
+            editor.setSelectionRange(nextPos, nextPos);
+            ghostText = "";
+            renderDynamic();
+            reviewCurrent(false);
+        }
+
+        async function rewriteSelected() {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selected = editor.value.slice(start, end);
+            const payload = await postJson("rewrite_selection", {
+                current_text: editor.value,
+                selected_text: selected,
+                mode: rewriteMode.value,
+            });
+            const replacement = payload.replacement_text || "";
+            if (selected) {
+                editor.value = editor.value.slice(0, start) + replacement + editor.value.slice(end);
+                const nextPos = start + replacement.length;
+                editor.setSelectionRange(nextPos, nextPos);
+            } else {
+                editor.value += "\n\n" + replacement;
+            }
+            reviewSummary.textContent = "已按选定模式完成改写。";
+            setState(payload);
+        }
+
+        async function reviewCurrent(updateSummary = true) {
+            const payload = await postJson("review_prd", { current_text: editor.value });
+            if (updateSummary) {
+                reviewSummary.textContent = payload.review_summary || "评审完成。";
+            }
+            setState(payload);
+        }
+
+        async function generatePlan() {
+            const payload = await postJson("generate_delivery_plan", { current_text: editor.value });
+            const plan = payload.delivery_plan || { phases: [] };
+            deliveryPlan.textContent = (plan.phases || []).map((phase) => {
+                const tasks = (phase.tasks || []).map((task) => `- ${task}`).join("\n");
+                return `${phase.name}（${phase.owner}）\n${tasks}\n检查点：${phase.checkpoint}`;
+            }).join("\n\n");
+            reviewSummary.textContent = payload.review_summary || "交付计划已生成。";
+            setState(payload);
+        }
+
+        async function exportPRD() {
+            const response = await fetch("/workspace", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "export_prd", current_text: editor.value }),
+            });
             if (!response.ok) {
-                try {
-                    await readJsonError(response);
-                } catch (error) {
-                    addMessage("assistant", `${errorPrefix}：${error.message}`);
-                    return;
-                }
+                const payload = await response.json().catch(() => ({}));
+                reviewSummary.textContent = payload.error || "导出失败。";
+                return;
             }
             const blob = await response.blob();
             const url = URL.createObjectURL(blob);
             const anchor = document.createElement("a");
             anchor.href = url;
-            anchor.download = filename;
+            anchor.download = "prd-ide-export.md";
             anchor.click();
             URL.revokeObjectURL(url);
         }
 
-        async function exportReport() {
-            await exportBinary("generate_report", "competition-report.docx", "导出报告失败");
+        async function switchAgentMode(mode) {
+            const payload = await postJson("switch_agent_mode", { agent_mode: mode });
+            reviewSummary.textContent = payload.assistant_message || "模式已切换。";
+            setState(payload);
         }
 
-        async function exportOutline() {
-            await exportBinary("export_outline", "competition-outline.md", "导出大纲失败");
+        async function runAssistantCommand() {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selected = editor.value.slice(start, end);
+            const payload = await postJson("assistant_command", {
+                command: assistantCommand.value,
+                current_text: editor.value,
+                selected_text: selected,
+                persona: selectedPersona,
+            });
+            reviewSummary.textContent = payload.assistant_message || "Assistant command 已执行。";
+            setState(payload);
         }
 
-        async function sendMessage() {
-            const message = chatInput.value.trim();
-            const hasFile = pdfInput.files.length > 0;
-            if (!message && !hasFile) {
+        async function applyPersonaRewrite() {
+            const start = editor.selectionStart;
+            const end = editor.selectionEnd;
+            const selected = editor.value.slice(start, end);
+            const payload = await postJson("apply_persona_rewrite", {
+                persona: selectedPersona,
+                selected_text: selected,
+                current_text: editor.value,
+            });
+            reviewSummary.textContent = `已生成 ${payload.persona_profile?.display_label || selectedPersona} 风格 diff。`;
+            setState(payload);
+        }
+
+        async function inlineReview() {
+            const payload = await postJson("inline_review", { current_text: editor.value });
+            reviewSummary.textContent = payload.review_summary || "Inline review 已生成。";
+            setState(payload);
+        }
+
+        function acceptInlineDiff() {
+            if (!inlineDiff || !inlineDiff.after_text) {
                 return;
             }
+            editor.value = inlineDiff.after_text;
+            inlineDiff = null;
+            appState.inline_diff = null;
+            renderDynamic();
+            reviewCurrent(false);
+        }
 
-            if (message) {
-                addMessage("user", message);
-            } else if (hasFile) {
-                addMessage("user", `上传文件：${pdfInput.files[0].name}`);
-            }
+        function rejectInlineDiff() {
+            inlineDiff = null;
+            appState.inline_diff = null;
+            renderDynamic();
+        }
 
-            const replyBubble = addMessage("assistant", "<thought>处理中...</thought>");
-            const formData = new FormData();
-            formData.append("action", "chat");
-            formData.append("message", message);
-            formData.append("active_module", activeModule);
-            if (hasFile) {
-                formData.append("pdf_file", pdfInput.files[0]);
-            }
-
-            chatInput.value = "";
-            pdfInput.value = "";
-
-            const response = await fetch("/workspace", { method: "POST", body: formData });
-            if (!response.ok) {
-                try {
-                    await readJsonError(response);
-                } catch (error) {
-                    replyBubble.innerHTML = formatMarkdown(`请求失败：${error.message}`);
-                    return;
-                }
-            }
-
-            if (!response.body) {
-                replyBubble.innerHTML = formatMarkdown("当前浏览器未返回可读取的流式响应。");
+        async function rollbackSuggestion() {
+            if (!rollbackToken) {
+                reviewSummary.textContent = "当前没有可回滚 token。";
                 return;
             }
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let buffer = "";
-            let fullText = "";
-            let latestMetrics = null;
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) {
-                    break;
-                }
-
-                buffer += decoder.decode(value, { stream: true });
-                const lines = buffer.split("\n");
-                buffer = lines.pop();
-
-                for (const rawLine of lines) {
-                    const line = rawLine.trim();
-                    if (!line.startsWith("data: ")) {
-                        continue;
-                    }
-                    const payload = JSON.parse(line.slice(6));
-                    if (payload.session_id) {
-                        latestSessionId = payload.session_id;
-                        appState.latest_session_id = latestSessionId;
-                    }
-                    if (payload.trace_summary) {
-                        appState.trace_summary = payload.trace_summary;
-                    }
-                    if (payload.quality_metrics) {
-                        appState.quality_metrics = payload.quality_metrics;
-                    }
-                    if (payload.comparison) {
-                        appState.comparison = payload.comparison;
-                    }
-                    if (payload.metrics) {
-                        latestMetrics = payload.metrics;
-                    }
-                    fullText += payload.content || "";
-                    const clean = fullText.replace(/<thought>[\s\S]*?<\/thought>/g, "").trim();
-                    const metricsHtml = latestMetrics
-                        ? `<div class="metrics">思考 ${latestMetrics.think_time}s · 生成 ${latestMetrics.gen_time}s</div>`
-                        : "";
-                    replyBubble.innerHTML = formatMarkdown(clean || "处理中...") + metricsHtml;
-                    chatFeed.scrollTop = chatFeed.scrollHeight;
-                }
+            const payload = await postJson("rollback_suggestion", {
+                rollback_token: rollbackToken,
+                current_text: editor.value,
+            });
+            if (payload.restored_text !== undefined) {
+                editor.value = payload.restored_text;
             }
-            renderAll();
+            reviewSummary.textContent = payload.assistant_message || "回滚完成。";
+            setState(payload);
         }
 
-        function renderAll() {
-            renderChrome();
-            renderWarnings();
-            renderHero();
-            renderSummary();
-            renderPipeline();
-            renderWhyMatters();
-            renderDiagnostics();
-            renderResearchOverview();
-            renderImpactPath();
-            renderLoadedCase();
-            renderDemoCases();
-            renderQuality();
-            renderComparison();
-            renderTrace();
-            renderProducts();
-            renderSignals();
-            renderHistory();
-            renderModules();
-            setExportState();
-            ensureChatSeed();
+        async function refreshReminder(idleSeconds = 0) {
+            const payload = await postJson("reminder_snapshot", {
+                current_text: editor.value,
+                idle_seconds: idleSeconds,
+            });
+            setState(payload);
         }
 
-        refreshBtn.addEventListener("click", refreshWorkspace);
-        toggleBtn.addEventListener("click", toggleSimulation);
-        reportBtn.addEventListener("click", openDailyReport);
-        exportBtn.addEventListener("click", exportReport);
-        outlineBtn.addEventListener("click", exportOutline);
-        sendBtn.addEventListener("click", sendMessage);
-        closeModalBtn.addEventListener("click", () => {
-            dailyReportModal.style.display = "none";
+        function scheduleSuggest() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                refreshSuggestion().catch((error) => {
+                    reviewSummary.textContent = `联想失败：${error.message}`;
+                });
+            }, 650);
+        }
+
+        document.getElementById("refresh-btn").addEventListener("click", async () => {
+            const payload = await postJson("refresh");
+            editor.value = payload.document_text || editor.value;
+            setState(payload);
         });
-        dailyReportModal.addEventListener("click", (event) => {
-            if (event.target === dailyReportModal) {
-                dailyReportModal.style.display = "none";
+        document.getElementById("suggest-btn").addEventListener("click", refreshSuggestion);
+        document.getElementById("accept-btn").addEventListener("click", acceptGhost);
+        document.getElementById("review-btn").addEventListener("click", () => reviewCurrent(true));
+        document.getElementById("rewrite-btn").addEventListener("click", rewriteSelected);
+        document.getElementById("plan-btn").addEventListener("click", generatePlan);
+        document.getElementById("export-btn").addEventListener("click", exportPRD);
+        document.getElementById("command-btn").addEventListener("click", runAssistantCommand);
+        document.getElementById("accept-diff-btn").addEventListener("click", acceptInlineDiff);
+        document.getElementById("reject-diff-btn").addEventListener("click", rejectInlineDiff);
+        document.getElementById("rollback-btn").addEventListener("click", rollbackSuggestion);
+        reminderModeBtn.addEventListener("click", () => switchAgentMode("reminder"));
+        assistantModeBtn.addEventListener("click", () => switchAgentMode("assistant"));
+        floatingBuddy.addEventListener("click", () => switchAgentMode(activeAgentMode === "assistant" ? "reminder" : "assistant"));
+
+        editor.addEventListener("input", () => {
+            renderDynamic();
+            scheduleSuggest();
+            refreshReminder(0).catch(() => {});
+        });
+
+        editor.addEventListener("keydown", (event) => {
+            if (event.key === "Tab" && ghostText) {
+                event.preventDefault();
+                acceptGhost();
             }
-        });
-        chatInput.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+                ghostText = "";
+                renderDynamic();
+            }
+            if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+                event.preventDefault();
+                rewriteSelected();
+            }
             if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
-                sendMessage();
+                event.preventDefault();
+                inlineReview();
             }
         });
 
-        renderAll();
+        renderStatic();
+        renderDynamic();
     </script>
 </body>
 </html>

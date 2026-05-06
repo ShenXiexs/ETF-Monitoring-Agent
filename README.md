@@ -1,197 +1,188 @@
-<h1 align="center">ASSET WORKBENCH: 资管产品洞察协作台</h1>
+<h1 align="center">Flash of Insights：PRD IDE 需求交付引擎</h1>
 
 <p align="center">
-  资管研究与政策研判工作台
+  让PM跟工程师一样用上能够信息补全和自动联想的办公效率产品（跟用 IDE 一样）
 </p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+">
-  <img src="https://img.shields.io/badge/Platform-macOS%20%7C%20Windows%20%7C%20Linux-1f2937?style=for-the-badge" alt="Cross platform">
-  <img src="https://img.shields.io/badge/Mode-External%20Data%20%7C%20Demo%20Mode-0f766e?style=for-the-badge" alt="External and demo modes">
-  <img src="https://img.shields.io/badge/API-Single%20Workspace%20Endpoint-b45309?style=for-the-badge" alt="Single workspace endpoint">
+  <img src="https://img.shields.io/badge/Product-Work%20Buddy%20%2B%20PRD%20IDE-d8612a?style=for-the-badge" alt="Work Buddy + PRD IDE">
+  <img src="https://img.shields.io/badge/Core-Tab%20%7C%20Assistant%20%7C%20Reminder%20%7C%20Rollback-17212b?style=for-the-badge" alt="AI requirement workflow">
+  <img src="https://img.shields.io/badge/Demo-Seeded%20PRD%20Knowledge%20Pack-0f766e?style=for-the-badge" alt="Seeded PRD knowledge pack">
 </p>
 
-`•` 提供市场快照、政策目录、历史信号和文档上传的统一入口
+这是一个面向 AI 产品挑战赛的独立 Demo：核心 insight 不是再做一个整篇文档生成器，而是把 PRD 写作过程 IDE 化。用户自己写下半成品需求时，系统像 VS Code / Cursor / Windsurf 一样给出 `Tab` completion、Next Edit、rephrase diff、评审、回滚和交付追踪。
 
-`•` 支持结构化处理、检索增强、技能编排、报告导出和答辩大纲导出
+产品形态不是 Feishu 插件，也不是普通 chatbot。它保留三栏 PRD IDE，并用右下角鸟屋 Work Buddy 承载 `AssistantMode` / `ReminderMode`、MBTI 写作人格、inline diff 和 rollback，让评委直接看到“写需求像写代码”的中间态。
 
-`•` 提供结果对比、报告 Trace 和质量评分卡
+## Flash Insight
 
-`•` 未配置外部数据时可切换到内置脱敏演示数据
+完整文档生成是多数办公效率产品都会考虑的终局能力，但 PM/BD 的高频痛点发生在写作过程中：下一段该写什么、这句话如何写成团队风格、缺了哪些验收条件、如何把半成品 file 重整成可交付 working docs。
 
-`•` 通过 `DATA_SOURCE_DIR` + `DATA_PROFILE_PATH` 适配不同数据任务
+本项目的切入点是过程补全：先让用户在 PRD/MRD 写作时获得 AI completion、Next Edit、inline rephrase 和可回滚 diff，再逐步扩展到跨系统 agentic delivery。
 
-[快速开始](#快速开始) · [使用流程](#使用流程) · [实际示例](docs/examples/README.md) · [架构](#系统架构) · [平台运行](docs/platform_guide.md) · [数据接入](docs/data_contract.md) · [Data Profiles](docs/data_profiles.md) · [技能配置](docs/financial_skills.md) · [安全策略](SECURITY.md)
+## Product Shape
 
-## 项目概览
+- `NextEditSuggestion`：同一次建议返回 `ghost_text`、`rewrite_hint`、`cursor_target`、`suggestion_kind`、`inline_diff` 和 `rollback_token`。
+- `ReminderMode`：默认低打扰鸟屋浮窗，监控空白页、停留时间、缺失章节、长段落和交付风险，只在关键节点提示。
+- `AssistantMode`：小鸟从鸟屋展开，主动参与写作，支持 `Tab` 补全、Next Edit、选区改写、`/assistant` 指令、`@mbti` 人格风格和 `@review` inline review。
+- `MBTI Personas`：内置 `INTJ_ARCHITECT`、`ENTJ_COMMANDER`、`INFJ_ADVOCATE`、`ENFP_CAMPAIGNER` 四个英文 canonical persona key，中文只作为 UI 展示。
+- `Inline Diff + Rollback`：AI 建议以可接受、可拒绝、可回滚的 diff 展示，避免一次性覆盖用户草稿。
+- `Seeded PRD Knowledge Pack`：用内置 PRD/MRD、MRD 市场判断、复盘结论、验收样例、风格规则和交付模式模拟跨页面知识库。
+- `Explainable Trace`：每次补全、改写、评审和提醒都会返回 evidence refs，说明来源于哪个样例、术语或交付规则。
 
-项目面向资管研究与政策研判场景，用于统一接入市场快照、政策目录、历史信号和上传文档，并输出摘要、报告和导出文件。系统提供预置案例、报告 Trace、结果对比、质量评分卡和答辩大纲，便于查看处理过程和导出结果。
+## User Journey
 
-当前界面包含以下内容：
+1. 用户创建或打开 PRD 页面。
+2. 右下角出现鸟屋 floating buddy，默认进入 `ReminderMode`。
+3. 用户写下第一行后，小鸟探头提示是否进入 `AssistantMode`。
+4. 进入 Assistant 后，用户按 `Tab` 接受文内补全；同一条 Next Edit 建议还会给出当前句 rephrase diff，可接受、拒绝或回滚。
+5. AI 输出建议时展示来源、人格、风险和可回滚 diff。
+6. Work Buddy 评审 PRD 完整度，生成交付计划，并导出 Markdown 结果物。
 
-- `预置案例`：政策冲击型、市场波动型、产品策略型三类固定场景
-- `报告 Trace`：展示分析步骤、技能卡片和纳入报告的观察项
-- `结果对比`：对比 Baseline 与 Enhanced 两种输出
-- `质量评分卡`：展示事实覆盖度、证据引用率、风险提示完整度、结构完整度
-- `答辩大纲`：导出一页式摘要
+## Shortcuts
 
-## 技术方案
+- `Tab`：接受当前 ghost suggestion。
+- `Esc`：取消当前 ghost suggestion。
+- `Cmd/Ctrl + K`：改写选区。
+- `Cmd/Ctrl + Enter`：触发 Work Buddy inline review。
 
-项目采用 **结构化数据处理 + 大模型生成 + RAG 检索增强 + 技能编排** 的组合方案。
-
-- `结构化数据处理`：先从市场快照、产品数据和政策目录中提取可验证事实
-- `RAG 检索增强`：利用 embedding 和历史信号召回，为模型补充上下文
-- `技能编排`：将政策解读、市场影响、产品策略、风险合规、报告编审等视角纳入同一条工作流
-- `结构化报告生成`：最终输出摘要、正式报告、答辩大纲三类结果物
-
-默认模型接入路径为 DashScope-compatible + Qwen + embedding，不额外引入复杂多服务部署。
-
-## 使用流程
-
-典型使用步骤如下：
-
-1. 打开首页，查看研究流水线、系统诊断和质量卡
-2. 选择一个预置案例，例如“政策冲击型”
-3. 查看系统如何整合市场快照、政策目录、历史信号和文档信息
-4. 查看 `Baseline vs Enhanced` 对比和报告 Trace
-5. 导出正式报告和答辩大纲
-
-## 实际示例
-
-仓库已附带一组真实运行生成的示例文件，见 [docs/examples/README.md](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/docs/examples/README.md)。
-
-- `policy_shock_demo_summary.json`：展示真实接口返回的关键字段
-- `policy_shock_outline.md`：展示答辩大纲原文
-- `policy_shock_report_excerpt.txt`：展示 Word 报告抽取文本
-- `policy_shock_report.docx`：展示实际导出的报告文件
-
-## 功能范围
-
-- `4` 个岗位化模块：产品研究、市场监测、内容策略、政策解析
-- `8` 个技能视角：产品结构分析、资金与成交信号、宏观与市场影响、政策解读、产品策略建议、风险与合规、报告编审、内容叙事设计
-- `3` 类核心输出：正式报告、质量评分卡、答辩大纲
-- `4` 类证据来源：市场快照、政策目录、历史信号、上传文档
-
-## 系统架构
+## Architecture
 
 ```mermaid
 flowchart LR
-    A[市场快照 / 政策目录 / 上传文档] --> B[数据标准化与规则信号]
-    B --> C[RAG 检索与意图识别]
-    C --> D[技能编排]
-    D --> E[结构化结论]
-    E --> F[正式报告 / 质量卡 / 答辩大纲]
+    A[Seeded PRD Knowledge Pack] --> B[PRDDeliveryEngine]
+    B --> C[Next Edit Suggestion]
+    B --> D[Rephrase Diff + PersonaStylist]
+    B --> E[Inline Review + RollbackManager]
+    B --> F[ReminderPlanner]
+    B --> G[Delivery Plan]
+    C --> H[Three-panel PRD IDE]
+    D --> H
+    E --> H
+    F --> I[Floating Birdhouse Buddy]
+    G --> H
 ```
 
-核心接口保持简单：
+核心代码：
 
-- `GET /`：返回完整工作台页面与首屏 bootstrap 数据
-- `POST /workspace`：统一内部工作入口
-- `GET /_internal/health`：仅用于探活
+- [src/prd_engine.py](/Users/samxie/Research/Agent-Promotion/ai-driven-end-to-end-demand-delivery-engine/src/prd_engine.py)：`PRDDeliveryEngine`，负责补全、改写、review、persona、reminder、rollback、delivery plan 和 export。
+- [src/prd_skills.py](/Users/samxie/Research/Agent-Promotion/ai-driven-end-to-end-demand-delivery-engine/src/prd_skills.py)：English canonical skill registry，包括 `StyleProfiler`、`RequirementCompleter`、`RewriteEditor`、`PersonaStylist`、`ReminderPlanner`、`RollbackManager`。
+- [data/prd_knowledge_pack.json](/Users/samxie/Research/Agent-Promotion/ai-driven-end-to-end-demand-delivery-engine/data/prd_knowledge_pack.json)：Seeded PRD/MRD knowledge pack。
+- [templates/dashboard.html](/Users/samxie/Research/Agent-Promotion/ai-driven-end-to-end-demand-delivery-engine/templates/dashboard.html)：三栏 PRD IDE、右下角鸟屋浮窗、persona selector 和 inline diff UI。
+- [docs/ref](/Users/samxie/Research/Agent-Promotion/ai-driven-end-to-end-demand-delivery-engine/docs/ref)：`logo1.png`、`logo2.png`、`logo3.png`、`MBTI.png` 和需求 PDF 参考资源。
 
-当前 `/workspace` 支持：
+## API
 
-- `chat`
+所有产品动作通过 `POST /workspace` 进入。`GET /` 保持单页 App，`GET /assets/ref/<filename>` 用于本地参考素材。
+
+保留动作：
+
 - `refresh`
-- `toggle_simulation`
-- `daily_report`
-- `generate_report`
-- `load_demo_case`
-- `report_trace`
+- `load_prd_demo`
+- `inline_suggest`
+- `next_edit_suggest`
+- `rewrite_selection`
+- `review_prd`
+- `generate_delivery_plan`
 - `quality_snapshot`
-- `export_outline`
+- `export_prd`
 
-## 快速开始
+v2 新增动作：
 
-### 1. 安装依赖
+- `switch_agent_mode`
+- `assistant_command`
+- `apply_persona_rewrite`
+- `inline_review`
+- `rollback_suggestion`
+- `reminder_snapshot`
+
+示例：
+
+```json
+{"action":"switch_agent_mode","agent_mode":"assistant"}
+```
+
+```json
+{"action":"next_edit_suggest","persona":"ENTJ_COMMANDER","current_text":"# PRD\n\n## 背景\n我们希望提升 PRD 写作效率"}
+```
+
+```json
+{"action":"assistant_command","command":"@review 请检查验收标准","current_text":"# PRD\n\n## 背景\n..."}
+```
+
+```json
+{"action":"apply_persona_rewrite","persona":"INTJ_ARCHITECT","selected_text":"提升 PRD 写作效率","current_text":"# PRD\n\n提升 PRD 写作效率"}
+```
+
+响应中会按场景返回：`ghost_text`、`suggestion_kind`、`rewrite_hint`、`cursor_target`、`replacement_text`、`inline_diff`、`rollback_token`、`agent_mode`、`mascot_state`、`persona_profile`、`reminder_cards`、`emotion_state`、`evidence_refs`、`delivery_trace`、`quality_metrics`、`missing_sections`、`risk_flags`。
+
+## Knowledge Pack Contract
+
+`data/prd_knowledge_pack.json` 使用英文稳定 key，中文只用于 UI 文案和生成内容。v2 必备 top-level keys：
+
+- `workspace`
+- `challenge_story`
+- `flash_insight`
+- `market_landscape`
+- `style_fingerprints`
+- `glossary`
+- `delivery_rules`
+- `section_templates`
+- `demo_documents`
+- `rewrite_modes`
+- `next_edit_patterns`
+- `cross_page_assets`
+- `writing_journey_states`
+- `agent_modes`
+- `mascot_assets`
+- `persona_profiles`
+- `assistant_commands`
+- `reminder_rules`
+- `rollback_policy`
+
+## Assets
+
+- `docs/ref/logo2.png`：默认 `ReminderMode` / idle floating birdhouse。
+- `docs/ref/logo3.png`：`AssistantMode` 展开态 mascot。
+- `docs/ref/logo1.png`：landing hero / brand card。
+- `docs/ref/MBTI.png`：persona selector 视觉参考，不做强依赖切片。
+
+## Quick Start
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+python -m src.app
 ```
 
-Windows PowerShell:
-
-```powershell
-py -3 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r requirements.txt
-```
-
-### 2. 配置环境变量
-
-复制 `.env.example`，常用变量如下：
-
-```bash
-DATA_SOURCE_DIR=/absolute/path/to/data
-DATA_PROFILE_PATH=/absolute/path/to/profile.json
-ENABLE_DEMO_MODE=1
-LLM_API_KEY=your_key
-EMBEDDING_API_KEY=your_key
-HOST=127.0.0.1
-PORT=5000
-```
-
-说明：
-
-- `DATA_SOURCE_DIR` 可选，不配时会优先进入内置演示模式
-- `DATA_PROFILE_PATH` 可选，不配时使用默认 profile
-- `ENABLE_DEMO_MODE=0` 时，可强制关闭内置演示数据
-- `LLM_API_KEY` 未配置时，系统会退回离线摘要与离线报告模板
-
-### 3. 启动服务
-
-macOS / Linux:
+也可以使用脚本：
 
 ```bash
 ./start_server.sh
 ```
 
-Windows PowerShell:
+默认地址为 `http://127.0.0.1:5000`。
 
-```powershell
-.\start_server.ps1
-```
+## Configuration
 
-或直接运行：
+`.env.example` 中最常用配置：
 
 ```bash
-python -m src.app
+PRD_KNOWLEDGE_PACK_PATH=
+HOST=127.0.0.1
+PORT=5000
 ```
 
-## Data Profile 配置
+未配置 `PRD_KNOWLEDGE_PACK_PATH` 时，系统使用仓库内置 [data/prd_knowledge_pack.json](/Users/samxie/Research/Agent-Promotion/ai-driven-end-to-end-demand-delivery-engine/data/prd_knowledge_pack.json)。
 
-项目将界面文案和数据字段映射拆到 profile 配置中。对于“记录快照 + 文档目录 + 信号/日报”这类工作流，通常不需要修改核心代码，只需要：
+## Validation
 
-1. 在 `DATA_SOURCE_DIR` 中准备数据文件
-2. 在 `DATA_PROFILE_PATH` 中配置文件名、字段映射和界面文案
-3. 按需覆盖模块名称、案例文案、质量阈值和系统 prompt
+```bash
+pytest -q
+python -m pytest -q
+python3 -m src.preprocess data/prd_knowledge_pack.json
+```
 
-模板见 [config/profile_template.json](/Users/samxie/Research/Agent-Promotion/asset-intel-workbench/config/profile_template.json)。
-
-## 运行模式与跨平台支持
-
-`•` 默认优先绑定 `127.0.0.1`
-
-`•` 提供 `start_server.sh` 和 `start_server.ps1`，同时兼容 macOS / Linux / Windows
-
-`•` 没有真实数据时可切换到内置演示模式
-
-`•` `src/preprocess.py` 提供 profile-aware 数据校验能力，方便快速排查字段或目录问题
-
-更多说明见 [docs/platform_guide.md](docs/platform_guide.md)、[docs/data_contract.md](docs/data_contract.md) 和 [docs/data_profiles.md](docs/data_profiles.md)。
-
-## 安全与可用性
-
-`•` 默认只监听 `127.0.0.1`
-
-`•` 上传仅接受 PDF，并受 `MAX_UPLOAD_MB` 限制
-
-`•` 文档会话按 `DOCUMENT_SESSION_TTL_SECONDS` 自动过期
-
-`•` 聊天历史按 `MAX_CHAT_HISTORY` 截断，避免上下文无限增长
-
-`•` LLM 缓存落在系统临时目录，不写回仓库
-
-更多说明见 [SECURITY.md](SECURITY.md) 和 [INCIDENT_RESPONSE.md](INCIDENT_RESPONSE.md)。
+当前实现保持离线 deterministic fallback，不依赖模型 key 或 live Feishu / Notion / Slack / DingTalk 集成。企业集成、权限和真实跨文档索引属于 v3 范围。

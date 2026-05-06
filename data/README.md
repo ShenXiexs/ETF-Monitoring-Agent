@@ -1,12 +1,25 @@
-# Data Directory
+# PRD Knowledge Data
 
-仓库不内置真实业务数据，但内置了一份**脱敏演示数据**用于比赛展示：
+The challenge demo uses a deterministic seeded context pack:
 
-- `demo_workspace.json`
+- `prd_knowledge_pack.json`
 
-运行时优先读取 `DATA_SOURCE_DIR` 指向的外部目录，并按 profile 约定加载：
+The pack contains:
 
-- `market_snapshot.json`
-- `policy_catalog.xlsx`
+- PRD/MRD style fingerprints
+- glossary entries
+- delivery rules
+- PRD section templates
+- demo documents
+- rewrite modes
+- next edit patterns
+- cross-page PRD/MRD assets
+- market landscape and Flash insight
+- `AssistantMode` and `ReminderMode` definitions
+- birdhouse mascot asset mapping
+- MBTI persona profiles
+- assistant command definitions
+- reminder rules
+- rollback policy
 
-如果未提供外部目录，且 `ENABLE_DEMO_MODE` 未关闭，工作台会自动切换到内置演示模式，保证现场 Demo 可稳定运行。
+Set `PRD_KNOWLEDGE_PACK_PATH` to point at a custom pack. If it is unset, the app uses the bundled file above.

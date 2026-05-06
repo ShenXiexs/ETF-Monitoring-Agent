@@ -1,29 +1,27 @@
 # Security Policy
 
-这个项目默认面向本机运行和受控演示环境，安全边界按“单机工作台”设计。
+This project is designed for local demos and controlled challenge environments.
 
-## 默认安全策略
+## Defaults
 
-- 服务默认绑定 `127.0.0.1`，避免未配置时直接暴露到局域网。
-- 前端不暴露公开资源式 API，只保留 `POST /workspace` 单入口和内部健康检查。
-- 上传文件默认只接受 PDF，且受 `MAX_UPLOAD_MB` 限制。
-- 文档解析会话保存在内存并按 `DOCUMENT_SESSION_TTL_SECONDS` 自动过期。
-- LLM 缓存写入系统临时目录，不写回仓库。
+- The server binds to `127.0.0.1` by default.
+- The frontend uses one product endpoint: `POST /workspace`.
+- The app does not require external document permissions for v1.
+- The seeded PRD knowledge pack is local JSON and should not contain secrets.
+- Exported PRD Markdown is generated from the current editor content and deterministic review output.
 
-## 安全使用建议
+## Guidance
 
-- 不要把真实密钥写入仓库、脚本或 profile 文件。
-- 比赛演示优先使用测试数据或脱敏数据。
-- 若要局域网共享演示，请自行增加反向代理、鉴权和 TLS，而不是直接暴露开发服务。
-- 若接入外部文档，请把生成内容视为草稿，正式对外前仍需人工复核。
+- Do not commit real company PRDs, credentials, private tokens, or customer data.
+- Use synthetic or sanitized PRD/MRD samples for demos.
+- If you set `HOST=0.0.0.0`, add your own network controls, authentication, and TLS.
+- Treat generated PRD content as a draft. Human review remains required before delivery.
 
-## 报告方式
+## Reporting
 
-如果你发现了安全问题，请附上以下信息：
+If you find a security issue, include:
 
-1. 影响范围
-2. 复现步骤
-3. 受影响文件或接口
-4. 修复建议
-
-当前仓库没有公开漏洞奖励流程，建议直接通过私有沟通渠道处理。
+1. Affected interface or file
+2. Reproduction steps
+3. Expected impact
+4. Suggested remediation

@@ -1,1 +1,1 @@
-"""Asset Intel Workbench package."""
+"""PRD IDE requirement delivery engine package."""

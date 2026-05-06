@@ -25,6 +25,9 @@ REQUIRED_TOP_LEVEL_KEYS = [
     "mascot_assets",
     "assistant_commands",
     "reminder_rules",
+    "pet_state_catalog",
+    "writing_radar_rules",
+    "pet_design_refs",
     "rollback_policy",
 ]
 

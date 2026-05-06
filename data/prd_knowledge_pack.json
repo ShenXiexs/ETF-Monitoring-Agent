@@ -410,12 +410,13 @@
       "key": "desktop_pet",
       "display_label": "桌宠 / 人格化助手",
       "players": [
-        "Clicky-style desktop pet",
-        "floating companion",
-        "personalized assistant"
+        "Codex Pets",
+        "Clawd on Desk",
+        "Clicky",
+        "floating companion"
       ],
-      "what_they_do_well": "低打扰陪伴、状态感、人格化形象和轻量提醒。",
-      "unserved_gap": "通常没有团队知识库、PRD 结构规则、验收标准和交付追踪能力。"
+      "what_they_do_well": "低打扰陪伴、状态感、人格化形象、迷你模式、工作进程可视化和轻量提醒。",
+      "unserved_gap": "通常没有团队知识库、PRD 结构规则、验收标准完善、inline diff 回滚和交付追踪能力。"
     },
     {
       "key": "our_wedge",
@@ -521,6 +522,13 @@
       "message": "要切到 Assistant Mode，让我开始补齐和改写吗？"
     },
     {
+      "key": "WRITING_RADAR",
+      "display_label": "写作雷达扫描",
+      "trigger": "radar_cards_present",
+      "mascot_state": "working",
+      "message": "这段缺证据、指标或验收口径，我先用低打扰雷达提示你。"
+    },
+    {
       "key": "NEXT_EDIT_WORKING",
       "display_label": "文内猛猛干活",
       "trigger": "next_edit_suggest",
@@ -540,6 +548,162 @@
       "trigger": "readiness >= 70",
       "mascot_state": "celebrate",
       "message": "可以导出 working docs，并进入交付计划。"
+    }
+  ],
+  "pet_state_catalog": [
+    {
+      "key": "IDLE_BIRDHOUSE",
+      "display_label": "鸟屋待命",
+      "trigger": "reminder_mode_idle",
+      "mascot_state": "peek",
+      "emotion_state": "calm",
+      "motion": "soft_breathing",
+      "bubble": "我先在鸟屋里待命，看到关键缺口再轻轻提醒。"
+    },
+    {
+      "key": "PEEK_GREETING",
+      "display_label": "探头问候",
+      "trigger": "hover_or_first_focus",
+      "mascot_state": "peek",
+      "emotion_state": "curious",
+      "motion": "peek_on_hover",
+      "bubble": "你可以先写一句模糊想法，我会判断下一步该补齐还是改写。"
+    },
+    {
+      "key": "FIRST_LINE_NUDGE",
+      "display_label": "第一行后邀请",
+      "trigger": "first_meaningful_line",
+      "mascot_state": "fly_out",
+      "emotion_state": "ready",
+      "motion": "hop_out",
+      "bubble": "这已经像一个需求开头了，要切到 Assistant Mode 让我飞到字里行间吗？"
+    },
+    {
+      "key": "WRITING_RADAR",
+      "display_label": "写作雷达扫描",
+      "trigger": "radar_cards_present",
+      "mascot_state": "working",
+      "emotion_state": "scanning",
+      "motion": "radar_pulse",
+      "bubble": "我在当前 cell 旁边扫到了几个 PRD 缺口，可以先补证据、指标或验收。"
+    },
+    {
+      "key": "NEXT_EDIT_WORKING",
+      "display_label": "文内猛猛干活",
+      "trigger": "next_edit_suggest",
+      "mascot_state": "working",
+      "emotion_state": "focused",
+      "motion": "inline_working",
+      "bubble": "我正在生成下一段 ghost completion，同时准备当前句 rephrase diff。"
+    },
+    {
+      "key": "REVIEW_WARNING",
+      "display_label": "评审风险警戒",
+      "trigger": "risk_flags_present",
+      "mascot_state": "warning",
+      "emotion_state": "alert",
+      "motion": "warning_shake",
+      "bubble": "这里有评审返工风险：优先补验收、范围或指标。"
+    },
+    {
+      "key": "RESULT_READY",
+      "display_label": "结果就绪提醒",
+      "trigger": "readiness_above_threshold",
+      "mascot_state": "celebrate",
+      "emotion_state": "happy",
+      "motion": "celebrate_pop",
+      "bubble": "这版 working docs 已经接近可交付，可以导出并生成交付计划。"
+    },
+    {
+      "key": "SLEEPING",
+      "display_label": "低打扰休眠",
+      "trigger": "long_idle_without_critical_risk",
+      "mascot_state": "peek",
+      "emotion_state": "sleepy",
+      "motion": "sleep_breathing",
+      "bubble": "我先不打扰你，等你继续写或出现关键风险再提醒。"
+    }
+  ],
+  "writing_radar_rules": [
+    {
+      "key": "missing_user_evidence",
+      "display_label": "缺用户证据",
+      "trigger": "user_evidence_absent",
+      "message": "这段需求还缺用户证据，建议补充访谈、反馈、数据来源或典型场景。",
+      "suggested_action": "补一行“证据来源：...”或把背景改成问题 + 证据。",
+      "severity": "medium",
+      "mascot_state": "working",
+      "evidence_ref": "style-brief-first"
+    },
+    {
+      "key": "missing_metric_baseline",
+      "display_label": "指标缺当前值/目标值",
+      "trigger": "metric_without_baseline_or_target",
+      "message": "这里像在讲目标或指标，但还没有当前值、目标值或口径。",
+      "suggested_action": "补充“当前值 / 目标值 / 统计窗口”。",
+      "severity": "medium",
+      "mascot_state": "working",
+      "evidence_ref": "style-delivery-ready"
+    },
+    {
+      "key": "solution_before_problem",
+      "display_label": "方案先于问题",
+      "trigger": "solution_terms_before_problem_context",
+      "message": "这里已经进入 solution，但 problem/context 还不够清楚。",
+      "suggested_action": "先补“为什么现在要做”和“哪些用户被影响”。",
+      "severity": "medium",
+      "mascot_state": "peek",
+      "evidence_ref": "rule-owner-scope"
+    },
+    {
+      "key": "acceptance_candidate",
+      "display_label": "可拆成验收标准",
+      "trigger": "requirement_without_acceptance",
+      "message": "这条需求可以拆成 Given/When/Then 或检查项，避免评审时反复确认。",
+      "suggested_action": "选中文本后运行 @review，或按 Tab 补“验收标准”。",
+      "severity": "high",
+      "mascot_state": "warning",
+      "evidence_ref": "rule-observable-criteria"
+    },
+    {
+      "key": "owner_missing",
+      "display_label": "缺 owner / 协作对象",
+      "trigger": "owner_absent",
+      "message": "当前表达还没有说明谁负责决策、实现、测试或验收。",
+      "suggested_action": "补充 PM / Design / Engineering / QA 的 owner 或检查点。",
+      "severity": "low",
+      "mascot_state": "peek",
+      "evidence_ref": "rule-owner-scope"
+    },
+    {
+      "key": "vague_outcome",
+      "display_label": "结果表述偏模糊",
+      "trigger": "vague_outcome_without_boundary",
+      "message": "“提升、优化、自动化、更好”这类表述需要补对象、触发条件、边界和验收口径。",
+      "suggested_action": "接受 next edit rephrase diff，把愿景句改成 working-doc 表达。",
+      "severity": "medium",
+      "mascot_state": "working",
+      "evidence_ref": "rule-next-edit-before-generation"
+    }
+  ],
+  "pet_design_refs": [
+    {
+      "key": "codex_pets",
+      "display_label": "Codex Pets",
+      "url": "https://codex-pets.net/#/?kind=animal",
+      "lesson": "把工作状态做成可见、轻量、可爱的陪伴层，而不是只放一个静态按钮。"
+    },
+    {
+      "key": "clawd_on_desk",
+      "display_label": "Clawd on Desk",
+      "url": "https://github.com/rullerzhou-afk/clawd-on-desk",
+      "lesson": "用实时状态映射表达 thinking、working、warning、celebrate、sleeping 等 agent 过程。"
+    },
+    {
+      "key": "clicky",
+      "display_label": "Clicky",
+      "url": "https://github.com/farzaa/clicky",
+      "lesson": "把 assistant 放在用户当前工作位置附近，强调陪伴、指向和即时反馈。"
     }
   ]
 }

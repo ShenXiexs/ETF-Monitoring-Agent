@@ -28,6 +28,8 @@ def test_root_renders_prd_ide(client):
     assert "Competitive Gap Matrix" in body
     assert "MBTI Persona" in body
     assert "Next Edit Suggestion" in body
+    assert "Pet Status Layer 灵宠状态层" in body
+    assert "Writing Radar 写作雷达" in body
     assert "/workspace" in body
     assert "/api/" not in body
 
@@ -62,6 +64,14 @@ def test_refresh_payload_contains_challenge_fields(client):
     assert len(payload["market_landscape"]) == 4
     assert len(payload["cross_page_assets"]) >= 4
     assert payload["knowledge_pack"]["next_edit_pattern_count"] >= 4
+    assert payload["knowledge_pack"]["pet_state_count"] >= 8
+    assert payload["knowledge_pack"]["radar_rule_count"] >= 6
+    assert payload["pet_state"]
+    assert payload["active_journey_state"]
+    assert payload["pet_profile"]["key"] == payload["pet_state"]
+    assert payload["pet_bubble"]
+    assert "radar_cards" in payload
+    assert payload["milestone_cards"]
     assert payload["ghost_text"]
     assert payload["suggestion_kind"]
     assert payload["quality_metrics"]
@@ -92,6 +102,19 @@ def test_persona_and_mode_keys_are_english_while_ui_copy_is_chinese(client):
     assert all(key.isascii() and key.upper() == key for key in persona_keys + mode_keys)
     assert any(not label.isascii() for label in persona_labels)
     assert not payload["agent_modes"][0]["description"].isascii()
+
+
+def test_pet_and_radar_keys_are_english_canonical_while_copy_is_chinese(client):
+    response = client.post("/workspace", json={"action": "refresh"})
+    payload = response.get_json()
+    pet_keys = [item["key"] for item in payload["pet_state_catalog"]]
+    radar_keys = [item["key"] for item in payload["writing_radar_rules"]]
+    assert "IDLE_BIRDHOUSE" in pet_keys
+    assert "WRITING_RADAR" in pet_keys
+    assert "acceptance_candidate" in radar_keys
+    assert all(key.isascii() for key in pet_keys + radar_keys)
+    assert any(not item["display_label"].isascii() for item in payload["pet_state_catalog"])
+    assert any(not item["message"].isascii() for item in payload["writing_radar_rules"])
 
 
 def test_direct_skill_cards_are_english_canonical():
@@ -285,12 +308,29 @@ def test_inline_review_and_rollback(client):
 
 
 def test_reminder_snapshot(client):
-    response = client.post("/workspace", json={"action": "reminder_snapshot", "current_text": "# PRD", "idle_seconds": 120})
+    draft = "# PRD\n\n## 背景\n我们需要提升 PRD 写作效率，系统需要支持自动联想、内容重整和评审提醒。"
+    response = client.post("/workspace", json={"action": "reminder_snapshot", "current_text": draft, "idle_seconds": 120})
     payload = response.get_json()
     assert response.status_code == 200
     assert payload["agent_mode"] == "reminder"
     assert payload["reminder_cards"]
+    assert payload["pet_state"] in {"REVIEW_WARNING", "WRITING_RADAR", "SLEEPING"}
+    assert payload["pet_bubble"]
+    assert payload["radar_cards"]
+    assert payload["milestone_cards"]
     assert any(item["trigger"] in {"idle", "missing_acceptance", "empty_page"} for item in payload["reminder_cards"])
+    assert any(item["key"] == "acceptance_candidate" for item in payload["radar_cards"])
+
+
+def test_writing_radar_flags_current_cell_gaps(client):
+    draft = "# PRD\n\n## 背景\n团队希望更好地帮助 PM 自动完善需求，系统需要支持方案生成和效率提升。"
+    response = client.post("/workspace", json={"action": "reminder_snapshot", "current_text": draft, "idle_seconds": 0})
+    payload = response.get_json()
+    radar_keys = {item["key"] for item in payload["radar_cards"]}
+    assert response.status_code == 200
+    assert "missing_metric_baseline" in radar_keys
+    assert "acceptance_candidate" in radar_keys
+    assert all(item["source"] == "WritingRadar" for item in payload["radar_cards"])
 
 
 def test_ref_assets_route(client):

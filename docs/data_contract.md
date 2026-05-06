@@ -1,4 +1,4 @@
-# PRD Knowledge Pack Contract v2
+# PRD Knowledge Pack Contract v2.1
 
 The app runs without external integrations by loading a seeded PRD knowledge pack. A custom pack can be supplied with `PRD_KNOWLEDGE_PACK_PATH`.
 
@@ -12,7 +12,7 @@ Internal keys must stay English and stable. Chinese should be used only for user
 - `market_landscape`: competitive matrix across productivity SaaS, AI IDE, desktop pet products, and our wedge.
 - `style_fingerprints`: reusable PRD/MRD writing patterns.
 - `glossary`: product and delivery terms.
-- `delivery_rules`: rules used by suggestion, review, reminder, and task planning.
+- `delivery_rules`: rules used by suggestion, review, reminder, radar, and task planning.
 - `section_templates`: PRD section templates used for ghost suggestions.
 - `demo_documents`: deterministic demo drafts.
 - `rewrite_modes`: supported rewrite modes.
@@ -24,7 +24,35 @@ Internal keys must stay English and stable. Chinese should be used only for user
 - `persona_profiles`: MBTI writing persona definitions with English canonical keys.
 - `assistant_commands`: command palette entries such as `/assistant`, `@mbti`, `@review`, and `@expand`.
 - `reminder_rules`: low-noise reminder triggers and mascot states.
+- `pet_state_catalog`: English canonical desktop-pet states, user-facing bubble copy, mascot state, emotion state, and motion hint.
+- `writing_radar_rules`: current-cell diagnostic rules used by Writing Radar.
+- `pet_design_refs`: reference products and product lessons used for the pet status layer.
 - `rollback_policy`: deterministic rollback constraints and retention policy.
+
+## Pet State Catalog
+
+Each `pet_state_catalog` item should include:
+
+- `key`: English canonical key, e.g. `IDLE_BIRDHOUSE`, `WRITING_RADAR`, `REVIEW_WARNING`.
+- `display_label`: Chinese UI label.
+- `trigger`: English canonical trigger or condition name.
+- `mascot_state`: `peek`, `fly_out`, `working`, `warning`, or `celebrate`.
+- `emotion_state`: English state such as `calm`, `ready`, `scanning`, `focused`, `alert`, `happy`, or `sleepy`.
+- `motion`: English UI motion hint such as `soft_breathing`, `radar_pulse`, or `warning_shake`.
+- `bubble`: Chinese low-noise status copy.
+
+## Writing Radar Rules
+
+Each `writing_radar_rules` item should include:
+
+- `key`: English canonical key, e.g. `missing_user_evidence`.
+- `display_label`: Chinese UI label.
+- `trigger`: English canonical trigger condition.
+- `message`: Chinese user-facing hint.
+- `suggested_action`: Chinese recommended next action.
+- `severity`: `low`, `medium`, or `high`.
+- `mascot_state`: mascot state shown when the card is active.
+- `evidence_ref`: source rule or style id.
 
 ## Next Edit Patterns
 
@@ -56,7 +84,7 @@ Each `persona_profiles` item should include:
 - `risk_bias`: how strongly the persona surfaces risk.
 - `sample_prompt`: optional Chinese prompt example shown in the UI.
 
-The v2 demo ships four high-signal personas: `INTJ_ARCHITECT`, `ENTJ_COMMANDER`, `INFJ_ADVOCATE`, and `ENFP_CAMPAIGNER`.
+The v2.1 demo ships four high-signal personas: `INTJ_ARCHITECT`, `ENTJ_COMMANDER`, `INFJ_ADVOCATE`, and `ENFP_CAMPAIGNER`.
 
 ## Reminder Rules
 
@@ -66,7 +94,7 @@ Each `reminder_rules` item should include:
 - `threshold`: numeric threshold or condition string.
 - `message`: Chinese user-facing hint.
 - `mascot_state`: `peek`, `fly_out`, `working`, `warning`, or `celebrate`.
-- `severity`: low-noise priority such as `info`, `warning`, or `critical`.
+- `severity`: low-noise priority such as `low`, `medium`, or `high`.
 
 ## Section Templates
 
@@ -87,7 +115,7 @@ Each item in `section_templates` should use a stable English key:
 Each template needs:
 
 - `title`: user-facing Chinese section title.
-- `ghost_text`: Markdown text returned by `inline_suggest`.
+- `ghost_text`: Markdown text returned by `inline_suggest` and `next_edit_suggest`.
 
 ## Evidence Refs
 
@@ -95,4 +123,4 @@ Every `style_fingerprints`, `glossary`, and `delivery_rules` item must include a
 
 ## Compatibility
 
-v2 intentionally avoids live Feishu, Notion, Slack, or DingTalk integrations. Those sources can later be converted into the same pack shape after permission, indexing, and access-control work is designed.
+v2.1 intentionally avoids live Feishu, Notion, Slack, or DingTalk integrations. Those sources can later be converted into the same pack shape after permission, indexing, and access-control work is designed.

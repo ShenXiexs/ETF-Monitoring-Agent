@@ -402,7 +402,10 @@
         .persona-panel,
         .command-panel,
         .inline-diff,
-        .reminder-panel {
+        .reminder-panel,
+        .pet-panel,
+        .radar-panel,
+        .milestone-panel {
             margin-top: 14px;
         }
 
@@ -577,6 +580,117 @@
             margin-top: 12px;
         }
 
+        .process-strip .card.active,
+        .pet-panel.active {
+            border-color: rgba(216, 97, 42, 0.5);
+            background: linear-gradient(135deg, rgba(216, 97, 42, 0.12), rgba(255, 255, 255, 0.88));
+        }
+
+        .pet-state-card {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pet-state-card::after {
+            content: "";
+            position: absolute;
+            right: -42px;
+            top: -42px;
+            width: 130px;
+            height: 130px;
+            border-radius: 999px;
+            background: radial-gradient(circle, rgba(216, 97, 42, 0.18), transparent 70%);
+            pointer-events: none;
+        }
+
+        .radar-card {
+            border-left: 4px solid rgba(31, 79, 143, 0.62);
+        }
+
+        .radar-card.high {
+            border-left-color: var(--weak);
+        }
+
+        .radar-card.medium {
+            border-left-color: var(--watch);
+        }
+
+        .floating-buddy {
+            overflow: visible;
+        }
+
+        .pet-aura {
+            position: absolute;
+            inset: -8px;
+            border-radius: 34px;
+            background: radial-gradient(circle at 50% 10%, rgba(216, 97, 42, 0.22), transparent 58%);
+            opacity: 0.55;
+            z-index: -1;
+            animation: auraPulse 2.8s ease-in-out infinite;
+        }
+
+        .pet-bubble {
+            position: absolute;
+            right: 10px;
+            bottom: calc(100% + 10px);
+            width: 260px;
+            border: 1px solid rgba(23, 33, 43, 0.12);
+            border-radius: 18px 18px 6px 18px;
+            padding: 12px 14px;
+            background: rgba(255, 253, 247, 0.98);
+            color: var(--ink);
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+            font-size: 12px;
+            line-height: 1.55;
+            transform: translateY(8px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .floating-buddy:hover .pet-bubble,
+        .floating-buddy.warning .pet-bubble,
+        .floating-buddy.working .pet-bubble {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .pet-signal {
+            position: absolute;
+            right: 22px;
+            top: 22px;
+            width: 13px;
+            height: 13px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.4);
+            animation: signalPulse 1.8s infinite;
+        }
+
+        .floating-buddy.pet-state-REVIEW_WARNING .pet-signal {
+            background: var(--weak);
+            box-shadow: 0 0 0 0 rgba(159, 18, 57, 0.36);
+        }
+
+        .floating-buddy.pet-state-RESULT_READY .pet-signal {
+            background: var(--accent);
+        }
+
+        .floating-buddy.pet-state-SLEEPING {
+            opacity: 0.86;
+        }
+
+        @keyframes auraPulse {
+            0%, 100% { opacity: 0.42; transform: scale(0.98); }
+            50% { opacity: 0.75; transform: scale(1.02); }
+        }
+
+        @keyframes signalPulse {
+            0% { box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.35); }
+            70% { box-shadow: 0 0 0 12px rgba(15, 118, 110, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(15, 118, 110, 0); }
+        }
+
         @keyframes bob {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-5px); }
@@ -724,6 +838,31 @@
 
                 <div class="process-strip" id="process-strip"></div>
 
+                <div class="pet-panel pet-state-card card active" id="pet-state-card">
+                    <strong>Pet Status Layer 灵宠状态层</strong>
+                    <div class="detail" id="pet-state-detail" style="margin-top:8px;"></div>
+                    <div class="tag-row">
+                        <span class="tag strong" id="pet-state-main-tag">IDLE_BIRDHOUSE</span>
+                        <span class="tag" id="pet-motion-tag">soft_breathing</span>
+                    </div>
+                </div>
+
+                <div class="radar-panel">
+                    <div class="panel-header">
+                        <h2>Writing Radar 写作雷达</h2>
+                        <small>当前 cell 的低打扰联想提醒</small>
+                    </div>
+                    <div class="list" id="radar-list"></div>
+                </div>
+
+                <div class="milestone-panel">
+                    <div class="panel-header">
+                        <h2>Milestone / Result</h2>
+                        <small>进程与结果提醒</small>
+                    </div>
+                    <div class="list" id="milestone-list"></div>
+                </div>
+
                 <div class="persona-panel">
                     <div class="panel-header">
                         <h2>MBTI Persona</h2>
@@ -795,6 +934,9 @@
     </main>
 
     <div class="floating-buddy" id="floating-buddy">
+        <div class="pet-aura"></div>
+        <div class="pet-signal" aria-hidden="true"></div>
+        <div class="pet-bubble" id="pet-bubble">我先在鸟屋里待命，看到关键缺口再轻轻提醒。</div>
         <img id="buddy-image" src="/assets/ref/logo2.png" alt="Birdhouse Work Buddy">
         <div class="buddy-greeting" id="buddy-greeting">我先在鸟屋里待命。写下第一行后，可以切到 Assistant Mode。</div>
         <div class="buddy-status">
@@ -812,6 +954,7 @@
         let rollbackToken = appState.rollback_token || null;
         let inlineDiff = appState.inline_diff || null;
         let activeAgentMode = appState.agent_mode || "reminder";
+        let lastInputAt = Date.now();
 
         const editor = document.getElementById("prd-editor");
         const ghostTextEl = document.getElementById("ghost-text");
@@ -832,12 +975,19 @@
         const personaGrid = document.getElementById("persona-grid");
         const assistantCommand = document.getElementById("assistant-command");
         const reminderList = document.getElementById("reminder-list");
+        const radarList = document.getElementById("radar-list");
+        const milestoneList = document.getElementById("milestone-list");
+        const petStateCard = document.getElementById("pet-state-card");
+        const petStateDetail = document.getElementById("pet-state-detail");
+        const petStateMainTag = document.getElementById("pet-state-main-tag");
+        const petMotionTag = document.getElementById("pet-motion-tag");
         const inlineDiffCard = document.getElementById("inline-diff-card");
         const inlineDiffTitle = document.getElementById("inline-diff-title");
         const inlineDiffSummary = document.getElementById("inline-diff-summary");
         const inlineDiffBody = document.getElementById("inline-diff-body");
         const floatingBuddy = document.getElementById("floating-buddy");
         const buddyImage = document.getElementById("buddy-image");
+        const petBubble = document.getElementById("pet-bubble");
         const buddyGreeting = document.getElementById("buddy-greeting");
         const buddyModeTag = document.getElementById("buddy-mode-tag");
         const buddyEmotionTag = document.getElementById("buddy-emotion-tag");
@@ -911,6 +1061,8 @@
                 ["Rules", appState.knowledge_pack.rule_count],
                 ["Assets", appState.knowledge_pack.asset_count],
                 ["NextEdits", appState.knowledge_pack.next_edit_pattern_count],
+                ["PetStates", appState.knowledge_pack.pet_state_count],
+                ["RadarRules", appState.knowledge_pack.radar_rule_count],
             ].map(([label, value]) => `
                 <div class="stat"><div class="label">${label}</div><div class="value">${escapeHtml(value)}</div></div>
             `).join("");
@@ -1029,12 +1181,45 @@
                 card.classList.toggle("active", card.getAttribute("data-persona") === selectedPersona);
             });
 
+            const activeJourneyState = appState.active_journey_state || appState.journey_state || "EMPTY_PAGE";
             processStrip.innerHTML = (appState.writing_journey_states || []).map((item) => `
-                <div class="card">
+                <div class="card ${item.key === activeJourneyState ? "active" : ""}">
                     <strong>${escapeHtml(item.display_label)}</strong>
                     <div class="detail">${escapeHtml(item.message)} · ${escapeHtml(item.mascot_state)}</div>
                 </div>
             `).join("");
+
+            const petProfile = appState.pet_profile || {};
+            const petState = appState.pet_state || petProfile.key || activeJourneyState || "IDLE_BIRDHOUSE";
+            petStateCard.classList.toggle("active", true);
+            petStateDetail.textContent = `${petProfile.display_label || petState}：${appState.pet_bubble || petProfile.bubble || "小鸟正在低打扰待命。"}`;
+            petStateMainTag.textContent = petState;
+            petMotionTag.textContent = petProfile.motion || "soft_breathing";
+
+            radarList.innerHTML = (appState.radar_cards || []).length
+                ? (appState.radar_cards || []).map((item) => `
+                    <div class="card radar-card ${escapeHtml(item.severity)}">
+                        <div style="display:flex;justify-content:space-between;gap:8px;">
+                            <strong>${escapeHtml(item.display_label)}</strong>
+                            <span class="tag ${escapeHtml(item.severity)}">${escapeHtml(item.source || "WritingRadar")}</span>
+                        </div>
+                        <div class="detail">${escapeHtml(item.message)}</div>
+                        <div class="detail" style="margin-top:6px;">建议：${escapeHtml(item.suggested_action)}</div>
+                    </div>
+                `).join("")
+                : '<div class="empty">当前 cell 暂无高价值雷达提醒。</div>';
+
+            milestoneList.innerHTML = (appState.milestone_cards || []).length
+                ? (appState.milestone_cards || []).map((item) => `
+                    <div class="card">
+                        <div style="display:flex;justify-content:space-between;gap:8px;">
+                            <strong>${escapeHtml(item.display_label)}</strong>
+                            <span class="tag ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span>
+                        </div>
+                        <div class="detail">${escapeHtml(item.message)}</div>
+                    </div>
+                `).join("")
+                : '<div class="empty">暂无进程提醒。</div>';
 
             reminderList.innerHTML = (appState.reminder_cards || []).length
                 ? (appState.reminder_cards || []).map((item) => `
@@ -1056,16 +1241,18 @@
             }
 
             const mascotState = appState.mascot_state || "peek";
+            const petStateClass = String(petState || "IDLE_BIRDHOUSE").replace(/[^a-zA-Z0-9_-]/g, "-");
             const asset = activeAgentMode === "assistant" || ["fly_out", "working", "warning"].includes(mascotState)
                 ? (appState.mascot_assets || {}).assistant_active
                 : (appState.mascot_assets || {}).reminder_idle;
             buddyImage.src = assetUrl(asset || "docs/ref/logo2.png");
-            floatingBuddy.className = `floating-buddy ${escapeHtml(mascotState)}`;
+            floatingBuddy.className = `floating-buddy ${mascotState} pet-state-${petStateClass}`;
             buddyModeTag.textContent = activeAgentMode;
-            buddyEmotionTag.textContent = appState.emotion_state || "calm";
+            buddyEmotionTag.textContent = appState.emotion_state || petProfile.emotion_state || "calm";
+            petBubble.textContent = appState.pet_bubble || petProfile.bubble || "我先在鸟屋里待命。";
             buddyGreeting.textContent = activeAgentMode === "assistant"
-                ? "Assistant Mode：我会飞到字里行间，帮你补齐、改写、评审和回滚。"
-                : "Reminder Mode：我先在鸟屋里待命，只在关键节点轻提醒。";
+                ? `${petProfile.display_label || "Assistant Mode"}：我会飞到字里行间，帮你补齐、改写、评审和回滚。`
+                : `${petProfile.display_label || "Reminder Mode"}：我先在鸟屋里待命，只在关键节点轻提醒。`;
             reminderModeBtn.classList.toggle("active", activeAgentMode === "reminder");
             assistantModeBtn.classList.toggle("active", activeAgentMode === "assistant");
         }
@@ -1272,6 +1459,7 @@
         floatingBuddy.addEventListener("click", () => switchAgentMode(activeAgentMode === "assistant" ? "reminder" : "assistant"));
 
         editor.addEventListener("input", () => {
+            lastInputAt = Date.now();
             renderDynamic();
             scheduleSuggest();
             refreshReminder(0).catch(() => {});
@@ -1295,6 +1483,13 @@
                 inlineReview();
             }
         });
+
+        setInterval(() => {
+            if (activeAgentMode === "reminder") {
+                const idleSeconds = Math.round((Date.now() - lastInputAt) / 1000);
+                refreshReminder(idleSeconds).catch(() => {});
+            }
+        }, 30000);
 
         renderStatic();
         renderDynamic();

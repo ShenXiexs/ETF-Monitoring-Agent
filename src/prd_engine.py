@@ -97,6 +97,9 @@ class PRDDeliveryEngine:
             "next_edit_patterns": self.pack.get("next_edit_patterns", []),
             "cross_page_assets": self.pack.get("cross_page_assets", []),
             "writing_journey_states": self.pack.get("writing_journey_states", []),
+            "pet_state_catalog": self.pack.get("pet_state_catalog", []),
+            "writing_radar_rules": self.pack.get("writing_radar_rules", []),
+            "pet_design_refs": self.pack.get("pet_design_refs", []),
             "skills": self.skills,
             "skillbook": build_skillbook(),
             "knowledge_pack": self.knowledge_pack_summary(),
@@ -112,6 +115,12 @@ class PRDDeliveryEngine:
             "persona_profile": self.get_persona_profile("INTJ_ARCHITECT"),
             "emotion_state": reminder["emotion_state"],
             "reminder_cards": reminder["reminder_cards"],
+            "pet_state": reminder["pet_state"],
+            "active_journey_state": reminder["active_journey_state"],
+            "pet_profile": reminder["pet_profile"],
+            "pet_bubble": reminder["pet_bubble"],
+            "radar_cards": reminder["radar_cards"],
+            "milestone_cards": reminder["milestone_cards"],
             "active_document": demo,
             "document_text": demo["seed_text"],
             "ghost_text": suggestion["ghost_text"],
@@ -144,6 +153,8 @@ class PRDDeliveryEngine:
             "market_category_count": len(self.pack.get("market_landscape", [])),
             "asset_count": len(self.pack.get("cross_page_assets", [])),
             "next_edit_pattern_count": len(self.pack.get("next_edit_patterns", [])),
+            "pet_state_count": len(self.pack.get("pet_state_catalog", [])),
+            "radar_rule_count": len(self.pack.get("writing_radar_rules", [])),
             "styles": self.pack.get("style_fingerprints", []),
             "glossary": self.pack.get("glossary", []),
             "delivery_rules": self.pack.get("delivery_rules", []),
@@ -174,6 +185,12 @@ class PRDDeliveryEngine:
             "reminder_cards": reminder["reminder_cards"],
             "mascot_state": reminder["mascot_state"],
             "emotion_state": reminder["emotion_state"],
+            "pet_state": reminder["pet_state"],
+            "active_journey_state": reminder["active_journey_state"],
+            "pet_profile": reminder["pet_profile"],
+            "pet_bubble": reminder["pet_bubble"],
+            "radar_cards": reminder["radar_cards"],
+            "milestone_cards": reminder["milestone_cards"],
             "suggestion_kind": suggestion.get("suggestion_kind"),
             "rewrite_hint": suggestion.get("rewrite_hint"),
             "cursor_target": suggestion.get("cursor_target"),
@@ -186,12 +203,18 @@ class PRDDeliveryEngine:
 
     def switch_agent_mode(self, agent_mode: str = "reminder") -> dict:
         mode_key = self._normalize_agent_mode(agent_mode)
-        mascot_state = "fly_out" if mode_key == "ASSISTANT" else "peek"
+        pet_state = "FIRST_LINE_NUDGE" if mode_key == "ASSISTANT" else "IDLE_BIRDHOUSE"
+        pet_profile = self._pet_profile(pet_state)
+        mascot_state = pet_profile.get("mascot_state", "fly_out" if mode_key == "ASSISTANT" else "peek")
         return {
             "agent_mode": mode_key.lower(),
             "mode_key": mode_key,
             "mascot_state": mascot_state,
-            "emotion_state": "ready" if mode_key == "ASSISTANT" else "calm",
+            "emotion_state": pet_profile.get("emotion_state", "ready" if mode_key == "ASSISTANT" else "calm"),
+            "pet_state": pet_state,
+            "active_journey_state": self._active_journey_state(pet_state),
+            "pet_profile": pet_profile,
+            "pet_bubble": pet_profile.get("bubble", ""),
             "assistant_message": "Assistant Mode 已开启，小鸟会主动飞到字里行间帮你补齐、评审和改写。" if mode_key == "ASSISTANT" else "Reminder Mode 已开启，小鸟会停在鸟屋里，只在关键节点轻提醒。",
         }
 
@@ -232,6 +255,12 @@ class PRDDeliveryEngine:
             "mascot_state": "working",
             "emotion_state": "focused",
             "journey_state": "NEXT_EDIT_WORKING",
+            "pet_state": "NEXT_EDIT_WORKING",
+            "active_journey_state": "NEXT_EDIT_WORKING",
+            "pet_profile": self._pet_profile("NEXT_EDIT_WORKING"),
+            "pet_bubble": self._pet_profile("NEXT_EDIT_WORKING").get("bubble", ""),
+            "radar_cards": self.writing_radar_cards(source_text),
+            "milestone_cards": self._milestone_cards(source_text, 0),
             "delivery_trace": self._next_edit_trace(action, suggestion_kind, bool(inline_diff), evidence_refs),
             "missing_sections": self.missing_sections(source_text),
             "risk_flags": self.risk_flags(source_text),
@@ -271,6 +300,10 @@ class PRDDeliveryEngine:
             "agent_mode": "assistant",
             "mascot_state": "working",
             "emotion_state": "focused",
+            "pet_state": "NEXT_EDIT_WORKING",
+            "active_journey_state": "NEXT_EDIT_WORKING",
+            "pet_profile": self._pet_profile("NEXT_EDIT_WORKING"),
+            "pet_bubble": f"正在按 {profile['display_label']} 写作人格生成可回滚 diff。",
             "evidence_refs": evidence_refs,
             "delivery_trace": self.delivery_trace("apply_persona_rewrite", "PersonaStylist", "人格风格", f"使用 {profile['key']} 写作人格调整选区语气、结构和风险偏好。", evidence_refs),
             "quality_metrics": self.quality_metrics(after_text),
@@ -308,13 +341,21 @@ class PRDDeliveryEngine:
         after_text = (current_text.rstrip() + "\n" + "\n".join(patch_lines)).strip()
         token = self._store_rollback(current_text, after_text, "inline_review")
         evidence_refs = self._default_evidence_refs(["rule-observable-criteria", "rule-risk-boundary", "rule-delivery-checkpoints"])
+        pet_state = "REVIEW_WARNING" if review["risk_flags"] else "NEXT_EDIT_WORKING"
+        pet_profile = self._pet_profile(pet_state)
         return {
             **review,
             "inline_diff": self._build_inline_diff(current_text, after_text, "inline_review", "Work Buddy Inline Review"),
             "rollback_token": token,
             "agent_mode": "assistant",
-            "mascot_state": "warning" if review["risk_flags"] else "working",
-            "emotion_state": "alert" if review["risk_flags"] else "focused",
+            "mascot_state": pet_profile.get("mascot_state", "warning" if review["risk_flags"] else "working"),
+            "emotion_state": pet_profile.get("emotion_state", "alert" if review["risk_flags"] else "focused"),
+            "pet_state": pet_state,
+            "active_journey_state": self._active_journey_state(pet_state),
+            "pet_profile": pet_profile,
+            "pet_bubble": pet_profile.get("bubble", ""),
+            "radar_cards": self.writing_radar_cards(current_text),
+            "milestone_cards": self._milestone_cards(current_text, 0),
             "evidence_refs": evidence_refs,
             "delivery_trace": self.delivery_trace("inline_review", "RiskReviewer", "风险评审", "生成可接受、可拒绝、可回滚的 inline review diff。", evidence_refs),
         }
@@ -329,6 +370,10 @@ class PRDDeliveryEngine:
                 "assistant_message": "没有找到可回滚状态，当前内容保持不变。",
                 "mascot_state": "warning",
                 "emotion_state": "alert",
+                "pet_state": "REVIEW_WARNING",
+                "active_journey_state": "REVIEW_WARNING",
+                "pet_profile": self._pet_profile("REVIEW_WARNING"),
+                "pet_bubble": "没有找到可回滚状态，建议先保留当前版本。",
             }
         restored_text = entry["before_text"]
         return {
@@ -342,6 +387,10 @@ class PRDDeliveryEngine:
             "risk_flags": self.risk_flags(restored_text),
             "mascot_state": "celebrate",
             "emotion_state": "relieved",
+            "pet_state": "RESULT_READY",
+            "active_journey_state": "DELIVER_READY",
+            "pet_profile": self._pet_profile("RESULT_READY"),
+            "pet_bubble": "已经回滚到 AI 建议前版本，当前状态安全。",
         }
 
     def reminder_snapshot(self, current_text: str, idle_seconds: int | float = 0) -> dict:
@@ -359,13 +408,24 @@ class PRDDeliveryEngine:
         if not cards and self.build_artifact_preview(current_text)["readiness"] >= 70:
             cards.append(self._reminder_card(rules.get("deadline"), "deadline"))
         cards = cards[:3]
-        mascot_state = self._highest_mascot_state(cards) if cards else "peek"
+        radar_cards = self.writing_radar_cards(current_text)
+        milestone_cards = self._milestone_cards(current_text, idle_seconds)
+        pet_state = self._resolve_pet_state(stripped, idle_seconds, cards, radar_cards)
+        pet_profile = self._pet_profile(pet_state)
+        mascot_state = pet_profile.get("mascot_state") or (self._highest_mascot_state(cards) if cards else "peek")
+        pet_bubble = self._pet_bubble(pet_profile, cards, radar_cards, milestone_cards)
         return {
             "reminder_cards": cards,
+            "radar_cards": radar_cards,
+            "milestone_cards": milestone_cards,
             "agent_mode": "reminder",
             "mascot_state": mascot_state,
-            "emotion_state": self._emotion_for_mascot(mascot_state),
-            "delivery_trace": self.delivery_trace("reminder_snapshot", "ReminderPlanner", "提醒规划", "根据空白页、停留时间、缺失章节和长段落生成低打扰提醒。", self._default_evidence_refs(["rule-observable-criteria", "rule-owner-scope"])),
+            "emotion_state": pet_profile.get("emotion_state", self._emotion_for_mascot(mascot_state)),
+            "pet_state": pet_state,
+            "active_journey_state": self._active_journey_state(pet_state),
+            "pet_profile": pet_profile,
+            "pet_bubble": pet_bubble,
+            "delivery_trace": self.delivery_trace("reminder_snapshot", "ReminderPlanner", "提醒规划", "根据空白页、停留时间、缺失章节、写作雷达和交付里程碑生成低打扰桌宠提醒。", self._default_evidence_refs(["rule-observable-criteria", "rule-owner-scope"])),
         }
 
     def review_prd(self, current_text: str) -> dict:
@@ -600,12 +660,123 @@ class PRDDeliveryEngine:
             lookup[item["id"]] = {"id": item["id"], "source_type": "glossary", "title": item.get("term", ""), "detail": item.get("definition", "")}
         return [lookup[item_id] for item_id in ids if item_id in lookup]
 
+    def writing_radar_cards(self, current_text: str) -> List[dict]:
+        text = current_text or ""
+        stripped = text.strip()
+        if not stripped:
+            return []
+        missing = {item["key"] for item in self.missing_sections(text)}
+        rule_lookup = {item.get("key"): item for item in self.pack.get("writing_radar_rules", [])}
+        cards: List[dict] = []
+        evidence_hits = self._keyword_hits(text, ["访谈", "调研", "用户反馈", "数据来源", "证据", "客服", "工单", "复盘"])
+        if evidence_hits == 0 and len(stripped) > 80:
+            cards.append(self._radar_card(rule_lookup.get("missing_user_evidence"), "missing_user_evidence"))
+        has_number = bool(re.search(r"\d+|%|分钟|小时|天|周|月|当前值|目标值", text))
+        if "metrics" in missing or ("指标" in text and not has_number):
+            cards.append(self._radar_card(rule_lookup.get("missing_metric_baseline"), "missing_metric_baseline"))
+        solution_hits = self._keyword_hits(text, ["方案", "实现", "系统需要", "功能", "能力", "支持"])
+        if solution_hits > 0 and {"background", "goal"}.intersection(missing):
+            cards.append(self._radar_card(rule_lookup.get("solution_before_problem"), "solution_before_problem"))
+        requirement_hits = self._keyword_hits(text, ["需求", "系统需要", "功能", "能力", "支持", "用户可以"])
+        if "acceptance" in missing and requirement_hits > 0:
+            cards.append(self._radar_card(rule_lookup.get("acceptance_candidate"), "acceptance_candidate"))
+        owner_hits = self._keyword_hits(text, ["owner", "负责人", "PM", "产品", "设计", "研发", "测试", "QA", "Engineering", "Design"])
+        if owner_hits == 0 and len(stripped) > 140:
+            cards.append(self._radar_card(rule_lookup.get("owner_missing"), "owner_missing"))
+        vague_hits = self._keyword_hits(text, ["提升", "优化", "更好", "智能", "自动", "效率", "快速", "完善", "重整"])
+        concrete_hits = self._keyword_hits(text, ["验收", "指标", "范围", "非目标", "触发", "边界", "Given", "When", "Then"])
+        if vague_hits >= 2 and concrete_hits < 3:
+            cards.append(self._radar_card(rule_lookup.get("vague_outcome"), "vague_outcome"))
+        return cards[:4]
+
+    def _radar_card(self, rule: Optional[dict], fallback_key: str) -> dict:
+        rule = rule or {
+            "key": fallback_key,
+            "display_label": "写作雷达",
+            "message": "当前段落有一个可补齐点。",
+            "suggested_action": "补充对象、触发条件、边界或验收口径。",
+            "severity": "low",
+            "mascot_state": "peek",
+            "evidence_ref": "rule-observable-criteria",
+        }
+        return {
+            "key": rule.get("key", fallback_key),
+            "display_label": rule.get("display_label", "写作雷达"),
+            "message": rule.get("message", ""),
+            "suggested_action": rule.get("suggested_action", ""),
+            "severity": rule.get("severity", "low"),
+            "mascot_state": rule.get("mascot_state", "peek"),
+            "evidence_ref": rule.get("evidence_ref", ""),
+            "source": "WritingRadar",
+        }
+
+    def _milestone_cards(self, current_text: str, idle_seconds: int | float) -> List[dict]:
+        stripped = (current_text or "").strip()
+        preview = self.build_artifact_preview(current_text)
+        risk_flags = self.risk_flags(current_text)
+        cards: List[dict] = []
+        if not stripped:
+            cards.append({"key": "page_start", "display_label": "页面刚创建", "message": "先写一句问题背景，系统就能开始做 next edit 联想。", "status": "idle"})
+            return cards
+        cards.append({"key": "readiness", "display_label": "交付就绪度", "message": f"已覆盖 {preview['section_count']}/{preview['required_section_count']} 个核心章节，当前就绪度 {preview['readiness']}%。", "status": "working"})
+        if float(idle_seconds or 0) >= 90:
+            cards.append({"key": "idle_watch", "display_label": "停留时间提醒", "message": "页面停留较久，小鸟保持低打扰，只提示最关键的下一步。", "status": "watch"})
+        if preview["readiness"] >= 70 and not any(item.get("severity") == "high" for item in risk_flags):
+            cards.append({"key": "result_ready", "display_label": "结果接近可交付", "message": "建议导出 Markdown 并生成交付计划。", "status": "ready"})
+        elif risk_flags:
+            cards.append({"key": "review_risk", "display_label": "评审风险未清", "message": risk_flags[0]["detail"], "status": "warning"})
+        return cards[:3]
+
+    def _resolve_pet_state(self, stripped: str, idle_seconds: int | float, cards: List[dict], radar_cards: List[dict]) -> str:
+        if not stripped or len(stripped) < 20:
+            return "IDLE_BIRDHOUSE"
+        readiness = self.build_artifact_preview(stripped)["readiness"]
+        high_radar = any(item.get("severity") == "high" for item in radar_cards)
+        high_reminder = any(item.get("severity") == "high" for item in cards)
+        if high_radar or high_reminder:
+            return "REVIEW_WARNING"
+        if readiness >= 70:
+            return "RESULT_READY"
+        if float(idle_seconds or 0) >= 180:
+            return "SLEEPING"
+        if radar_cards:
+            return "WRITING_RADAR"
+        if len(stripped) < 160:
+            return "FIRST_LINE_NUDGE"
+        return "IDLE_BIRDHOUSE"
+
+    def _pet_profile(self, pet_state: str) -> dict:
+        catalog = self.pack.get("pet_state_catalog", [])
+        fallback = {"key": pet_state, "display_label": pet_state, "mascot_state": "peek", "emotion_state": "calm", "bubble": "小鸟正在低打扰待命。", "motion": "soft_breathing"}
+        return next((item for item in catalog if item.get("key") == pet_state), fallback)
+
+    def _pet_bubble(self, pet_profile: dict, reminder_cards: List[dict], radar_cards: List[dict], milestone_cards: List[dict]) -> str:
+        if radar_cards:
+            return radar_cards[0].get("message", pet_profile.get("bubble", ""))
+        if reminder_cards:
+            return reminder_cards[0].get("message", pet_profile.get("bubble", ""))
+        if milestone_cards and milestone_cards[0].get("key") != "readiness":
+            return milestone_cards[0].get("message", pet_profile.get("bubble", ""))
+        return pet_profile.get("bubble", "")
+
+    def _active_journey_state(self, pet_state: str) -> str:
+        return {
+            "IDLE_BIRDHOUSE": "EMPTY_PAGE",
+            "PEEK_GREETING": "EMPTY_PAGE",
+            "FIRST_LINE_NUDGE": "FIRST_LINE",
+            "WRITING_RADAR": "WRITING_RADAR",
+            "NEXT_EDIT_WORKING": "NEXT_EDIT_WORKING",
+            "REVIEW_WARNING": "REVIEW_WARNING",
+            "RESULT_READY": "DELIVER_READY",
+            "SLEEPING": "EMPTY_PAGE",
+        }.get(pet_state, "EMPTY_PAGE")
+
     def _reminder_card(self, rule: Optional[dict], fallback_trigger: str) -> dict:
         rule = rule or {"trigger": fallback_trigger, "message": "当前 PRD 有一个可优化点。", "mascot_state": "peek", "severity": "low"}
         return {"trigger": rule.get("trigger", fallback_trigger), "message": rule.get("message", ""), "mascot_state": rule.get("mascot_state", "peek"), "severity": rule.get("severity", "low")}
 
     def _highest_mascot_state(self, cards: List[dict]) -> str:
-        rank = {"warning": 4, "working": 3, "fly_out": 2, "peek": 1, "celebrate": 0}
+        rank = {"warning": 5, "working": 4, "celebrate": 3, "fly_out": 2, "peek": 1}
         return max(cards, key=lambda item: rank.get(item.get("mascot_state", "peek"), 1)).get("mascot_state", "peek")
 
     def _emotion_for_mascot(self, mascot_state: str) -> str:

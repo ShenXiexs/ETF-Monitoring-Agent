@@ -20,6 +20,11 @@ The pack contains:
 - MBTI persona profiles
 - assistant command definitions
 - reminder rules
+- pet state catalog
+- writing radar rules
+- desktop-pet design references
 - rollback policy
+
+Internal keys are English canonical. Chinese appears only in UI copy, assistant messages, generated PRD content, and exported reports.
 
 Set `PRD_KNOWLEDGE_PACK_PATH` to point at a custom pack. If it is unset, the app uses the bundled file above.

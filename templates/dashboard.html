@@ -6,19 +6,25 @@
     <title>{{ bootstrap.app_name }}</title>
     <style>
         :root {
-            --bg: #101820;
-            --panel: rgba(251, 247, 239, 0.96);
-            --paper: #fffdf7;
-            --ink: #17212b;
-            --muted: #66717c;
-            --line: rgba(23, 33, 43, 0.12);
-            --accent: #d8612a;
-            --accent-dark: #9f3f18;
-            --green: #0f766e;
-            --blue: #1f4f8f;
-            --weak: #9f1239;
-            --watch: #a16207;
-            --shadow: 0 28px 80px rgba(0, 0, 0, 0.22);
+            --bg: #f5f7fb;
+            --chrome: #ffffff;
+            --paper: #ffffff;
+            --ink: #1f2329;
+            --muted: #646a73;
+            --subtle: #8f959e;
+            --line: #dee0e3;
+            --line-soft: #eff0f1;
+            --primary: #3370ff;
+            --primary-soft: #e8f0ff;
+            --green: #2ea66f;
+            --green-soft: #e9f7ef;
+            --orange: #d97008;
+            --orange-soft: #fff3e0;
+            --red: #d83931;
+            --red-soft: #fdebec;
+            --violet: #7a5cff;
+            --shadow: 0 16px 48px rgba(31, 35, 41, 0.12);
+            --shadow-soft: 0 8px 28px rgba(31, 35, 41, 0.08);
         }
 
         * { box-sizing: border-box; }
@@ -27,454 +33,607 @@
             margin: 0;
             min-height: 100vh;
             color: var(--ink);
-            font-family: "Avenir Next", "PingFang SC", "Microsoft YaHei", sans-serif;
-            background:
-                radial-gradient(circle at 12% 5%, rgba(216, 97, 42, 0.34), transparent 28%),
-                radial-gradient(circle at 88% 12%, rgba(31, 79, 143, 0.38), transparent 30%),
-                linear-gradient(135deg, #101820 0%, #1a242f 42%, #2b211a 100%);
+            background: var(--bg);
+            font-family: Inter, "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
         }
 
         button,
         textarea,
-        select,
-        input {
+        input,
+        select {
             font: inherit;
         }
 
         button {
             border: 0;
-            border-radius: 999px;
-            padding: 11px 15px;
             cursor: pointer;
-            transition: transform 0.16s ease, opacity 0.16s ease, background 0.16s ease;
+            color: inherit;
+            background: transparent;
         }
 
-        button:hover:not(:disabled) { transform: translateY(-1px); }
-        button:disabled { opacity: 0.45; cursor: not-allowed; }
-
-        .shell {
-            width: min(1680px, calc(100% - 28px));
-            margin: 18px auto;
+        button:disabled {
+            cursor: not-allowed;
+            opacity: 0.48;
         }
 
-        .hero {
+        .doc-shell {
+            min-height: 100vh;
             display: grid;
-            grid-template-columns: 1.5fr 1fr;
-            gap: 16px;
-            margin-bottom: 16px;
+            grid-template-rows: auto 1fr;
+            background:
+                linear-gradient(180deg, rgba(51, 112, 255, 0.05), transparent 220px),
+                var(--bg);
         }
 
-        .hero-card,
-        .panel,
-        .editor-wrap {
-            border: 1px solid rgba(255, 255, 255, 0.22);
-            background: var(--panel);
-            border-radius: 28px;
-            box-shadow: var(--shadow);
+        .doc-topbar {
+            position: sticky;
+            top: 0;
+            z-index: 12;
+            min-height: 64px;
+            display: grid;
+            grid-template-columns: minmax(260px, 1fr) auto;
+            align-items: center;
+            gap: 18px;
+            padding: 10px 22px;
+            background: rgba(255, 255, 255, 0.94);
+            border-bottom: 1px solid var(--line-soft);
+            backdrop-filter: blur(18px);
         }
 
-        .hero-card {
-            position: relative;
+        .doc-title-wrap {
+            display: flex;
+            align-items: center;
+            min-width: 0;
+            gap: 12px;
+        }
+
+        .doc-icon {
+            width: 34px;
+            height: 34px;
+            display: inline-grid;
+            place-items: center;
+            border-radius: 9px;
+            color: #fff;
+            font-weight: 800;
+            background: linear-gradient(135deg, #3370ff, #7a5cff);
+            box-shadow: 0 8px 18px rgba(51, 112, 255, 0.25);
+        }
+
+        .doc-title {
+            min-width: 0;
+        }
+
+        .doc-title strong {
+            display: block;
             overflow: hidden;
-            padding: 28px;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 15px;
         }
 
-        .hero-card::after {
-            content: "";
-            position: absolute;
-            right: -80px;
-            bottom: -120px;
-            width: 280px;
-            height: 280px;
+        .doc-title span {
+            display: block;
+            margin-top: 3px;
+            color: var(--subtle);
+            font-size: 12px;
+        }
+
+        .top-actions,
+        .toolbar,
+        .tag-row,
+        .mode-tabs,
+        .command-row,
+        .mini-actions,
+        .avatar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .top-actions {
+            justify-content: flex-end;
+        }
+
+        .btn,
+        .btn-primary,
+        .btn-quiet,
+        .btn-icon {
+            min-height: 34px;
+            border-radius: 8px;
+            padding: 8px 12px;
+            font-size: 13px;
+            transition: background 0.16s ease, color 0.16s ease, transform 0.16s ease;
+        }
+
+        .btn:hover,
+        .btn-primary:hover,
+        .btn-quiet:hover,
+        .btn-icon:hover {
+            transform: translateY(-1px);
+        }
+
+        .btn {
+            border: 1px solid var(--line);
+            background: #fff;
+        }
+
+        .btn-primary {
+            color: #fff;
+            background: var(--primary);
+            box-shadow: 0 8px 18px rgba(51, 112, 255, 0.2);
+        }
+
+        .btn-quiet {
+            color: var(--muted);
+            background: #f5f6f7;
+        }
+
+        .btn-icon {
+            width: 34px;
+            padding: 0;
+            justify-content: center;
+            border: 1px solid var(--line-soft);
+            background: #fff;
+        }
+
+        .share-btn {
+            color: #fff;
+            background: var(--primary);
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            display: inline-grid;
+            place-items: center;
+            border: 2px solid #fff;
             border-radius: 50%;
-            background: radial-gradient(circle, rgba(216, 97, 42, 0.18), transparent 70%);
+            color: #fff;
+            font-size: 11px;
+            font-weight: 800;
+            background: var(--green);
+            box-shadow: 0 4px 12px rgba(31, 35, 41, 0.12);
         }
 
-        .eyebrow {
+        .avatar:nth-child(2) { margin-left: -12px; background: var(--orange); }
+        .avatar:nth-child(3) { margin-left: -12px; background: var(--violet); }
+
+        .workspace {
+            display: grid;
+            grid-template-columns: 244px minmax(0, 1fr);
+            min-height: calc(100vh - 64px);
+        }
+
+        .outline {
+            position: sticky;
+            top: 64px;
+            align-self: start;
+            height: calc(100vh - 64px);
+            padding: 22px 14px;
+            overflow: auto;
+            border-right: 1px solid var(--line-soft);
+            background: #fbfcff;
+        }
+
+        .outline-title {
+            margin: 0 8px 12px;
+            color: var(--subtle);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .outline-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 2px 0;
+            padding: 8px 10px;
+            border-radius: 8px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .outline-item.active {
+            color: var(--primary);
+            background: var(--primary-soft);
+            font-weight: 700;
+        }
+
+        .outline-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.72;
+        }
+
+        .ide-note {
+            margin-top: 22px;
+            padding: 12px;
+            border: 1px solid #d9e5ff;
+            border-radius: 12px;
+            background: #f4f8ff;
+            color: #2452b3;
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .doc-main {
+            min-width: 0;
+            padding: 18px 32px 96px;
+        }
+
+        .mode-tabs {
+            position: sticky;
+            top: 78px;
+            z-index: 9;
+            justify-content: space-between;
+            margin: 0 auto 18px;
+            max-width: 1120px;
+            padding: 10px 12px;
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.86);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(18px);
+        }
+
+        .mode-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 999px;
+            padding: 6px 10px;
+            color: #2452b3;
+            background: var(--primary-soft);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 0 5px rgba(46, 166, 111, 0.12);
+        }
+
+        .doc-stage {
+            position: relative;
+            max-width: 1120px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: minmax(0, 820px) 260px;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .doc-paper {
+            position: relative;
+            min-height: 960px;
+            padding: 72px 78px 86px;
+            border: 1px solid var(--line-soft);
+            border-radius: 4px;
+            background: var(--paper);
+            box-shadow: 0 12px 40px rgba(31, 35, 41, 0.1);
+        }
+
+        .doc-paper::before {
+            content: "Feishu Docs";
+            position: absolute;
+            top: 24px;
+            right: 32px;
+            color: #b8bdc6;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+        }
+
+        .doc-heading {
+            margin-bottom: 18px;
+        }
+
+        .doc-heading .eyebrow {
             display: inline-flex;
             align-items: center;
             gap: 8px;
             border-radius: 999px;
-            padding: 7px 12px;
-            background: rgba(23, 33, 43, 0.07);
-            color: var(--muted);
+            padding: 6px 10px;
+            color: var(--primary);
+            background: var(--primary-soft);
             font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        h1,
-        h2,
-        h3 {
-            margin: 0;
-            font-family: "Iowan Old Style", "Palatino Linotype", "Noto Serif SC", serif;
-            line-height: 1.08;
-        }
-
-        h1 {
-            margin-top: 16px;
-            max-width: 940px;
-            font-size: clamp(36px, 4.7vw, 72px);
-        }
-
-        .slogan {
-            margin-top: 12px;
-            color: var(--accent-dark);
-            font-size: 22px;
             font-weight: 800;
         }
 
-        .hero-copy {
-            margin-top: 14px;
-            max-width: 900px;
+        .doc-heading h1 {
+            margin: 16px 0 10px;
+            font-size: 34px;
+            line-height: 1.18;
+            letter-spacing: 0;
+        }
+
+        .doc-heading p {
+            margin: 0;
+            max-width: 680px;
             color: var(--muted);
-            font-size: 15px;
-            line-height: 1.75;
+            font-size: 14px;
+            line-height: 1.7;
         }
 
-        .shortcut-grid,
-        .stat-grid,
-        .app-grid,
-        .list,
-        .metric-grid,
-        .trace-list,
-        .toolbar,
-        .button-row {
-            display: grid;
+        .doc-toolbar {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             gap: 12px;
+            margin: 18px 0 14px;
+            padding: 10px;
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            background: #fbfcff;
         }
 
-        .shortcut-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
+        .toolbar {
+            gap: 6px;
+        }
+
+        .toolbar .btn,
+        .toolbar .btn-primary,
+        .toolbar .btn-quiet {
+            min-height: 32px;
+            padding: 7px 10px;
+        }
+
+        .doc-editor-wrap {
+            position: relative;
+        }
+
+        textarea.doc-editor {
+            width: 100%;
+            min-height: 590px;
+            resize: vertical;
+            padding: 0;
+            border: 0;
+            outline: 0;
+            color: var(--ink);
+            background: transparent;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+            font-size: 16px;
+            line-height: 1.92;
+        }
+
+        textarea.doc-editor:focus {
+            box-shadow: none;
+        }
+
+        .line-assistant {
+            position: absolute;
+            right: -42px;
+            top: 132px;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border: 1px solid #d9e5ff;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 8px 20px rgba(51, 112, 255, 0.18);
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .line-assistant.working {
+            transform: translateY(-6px);
+            animation: hoverLine 1.8s ease-in-out infinite;
+        }
+
+        .line-assistant img {
+            width: 26px;
+            height: 26px;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .ghost-card {
+            display: none;
+            margin-top: 18px;
+            border: 1px solid #c9dcff;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #f7faff, #fff);
+            box-shadow: 0 10px 24px rgba(51, 112, 255, 0.12);
+            overflow: hidden;
+        }
+
+        .ghost-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2ebff;
+            color: #2452b3;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .ghost-text {
+            padding: 14px 16px;
+            white-space: pre-wrap;
+            color: #4f5f76;
+            border-left: 4px solid var(--primary);
+            font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .next-edit-meta {
+            display: grid;
+            gap: 8px;
+            padding: 0 14px 12px;
+        }
+
+        .meta-row {
+            padding: 9px 10px;
+            border-radius: 9px;
+            background: #f4f8ff;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .evidence-tags {
+            padding: 0 14px 14px;
+        }
+
+        .doc-radar-stack {
+            display: grid;
+            gap: 10px;
             margin-top: 18px;
         }
 
-        .shortcut {
-            padding: 14px;
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.72);
-        }
-
-        .shortcut kbd {
-            display: inline-block;
-            min-width: 42px;
-            margin-bottom: 8px;
-            padding: 5px 8px;
-            border-radius: 8px;
-            background: #17212b;
-            color: #fffdf7;
-            font-weight: 700;
-            font-size: 12px;
-        }
-
-        .stat-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .stat {
-            padding: 18px;
-            border-radius: 20px;
-            background: rgba(255, 255, 255, 0.78);
-            border: 1px solid var(--line);
-        }
-
-        .stat .label,
-        .metric .label {
-            color: var(--muted);
-            font-size: 12px;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-        }
-
-        .stat .value,
-        .metric .value {
-            margin-top: 8px;
-            font-size: 30px;
-            font-weight: 800;
-        }
-
-        .app-grid {
-            grid-template-columns: 0.86fr minmax(520px, 1.45fr) 0.98fr;
-            align-items: start;
-        }
-
-        .panel,
-        .editor-wrap {
-            padding: 18px;
-            min-height: 220px;
-        }
-
-        .panel-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-            margin-bottom: 14px;
-        }
-
-        .panel-header small,
-        .detail,
-        .muted {
-            color: var(--muted);
+        .radar-card {
+            position: relative;
+            padding: 12px 14px 12px 36px;
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            background: #fbfcff;
             font-size: 13px;
             line-height: 1.55;
         }
 
-        .card,
-        .metric,
-        .trace,
-        .ghost-card,
-        .buddy-card {
-            border: 1px solid var(--line);
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.82);
-            padding: 14px;
+        .radar-card::before {
+            content: "";
+            position: absolute;
+            left: 14px;
+            top: 17px;
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: var(--primary);
         }
 
-        .card strong,
-        .trace strong {
+        .radar-card.high::before { background: var(--red); }
+        .radar-card.medium::before { background: var(--orange); }
+
+        .radar-card strong {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
         }
 
-        .tag-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 10px;
+        .side-rail {
+            position: sticky;
+            top: 148px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .rail-card {
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.92);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .rail-card h3 {
+            margin: 0 0 8px;
+            font-size: 14px;
+        }
+
+        .rail-card p,
+        .detail,
+        .muted {
+            margin: 0;
+            color: var(--muted);
+            font-size: 12px;
+            line-height: 1.55;
+        }
+
+        .pet-state-card {
+            border-color: #d9e5ff;
+            background: #f7faff;
         }
 
         .tag {
             display: inline-flex;
             align-items: center;
+            gap: 5px;
             border-radius: 999px;
-            padding: 6px 9px;
-            background: rgba(23, 33, 43, 0.08);
+            padding: 5px 8px;
             color: var(--muted);
-            font-size: 12px;
+            background: #f2f3f5;
+            font-size: 11px;
             font-weight: 700;
         }
 
-        .tag.strong {
-            background: rgba(15, 118, 110, 0.12);
-            color: var(--green);
+        .tag.strong,
+        .tag.good {
+            color: #256b4f;
+            background: var(--green-soft);
         }
 
-        .tag.watch {
-            background: rgba(161, 98, 7, 0.12);
-            color: var(--watch);
+        .tag.watch,
+        .tag.medium {
+            color: #8f4e00;
+            background: var(--orange-soft);
         }
 
         .tag.weak,
         .tag.high {
-            background: rgba(159, 18, 57, 0.1);
-            color: var(--weak);
+            color: #a8201a;
+            background: var(--red-soft);
         }
 
-        .tag.medium {
-            background: rgba(161, 98, 7, 0.12);
-            color: var(--watch);
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-        }
-
-        .btn-dark {
-            background: var(--ink);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: rgba(23, 33, 43, 0.08);
-            color: var(--ink);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 1px solid var(--line);
-            color: var(--ink);
-        }
-
-        .toolbar {
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            margin-bottom: 12px;
-        }
-
-        .button-row {
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            margin-top: 12px;
-        }
-
-        select {
-            width: 100%;
-            padding: 11px 13px;
-            border-radius: 999px;
-            border: 1px solid var(--line);
-            background: white;
-            color: var(--ink);
-        }
-
-        .editor-meta {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 10px;
-        }
-
-        textarea {
-            width: 100%;
-            min-height: 620px;
-            resize: vertical;
-            padding: 22px;
-            border: 1px solid rgba(23, 33, 43, 0.16);
-            border-radius: 22px;
-            outline: none;
-            background: #fffdf8;
-            color: var(--ink);
-            font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
-            font-size: 14px;
-            line-height: 1.74;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
-        }
-
-        textarea:focus {
-            border-color: rgba(216, 97, 42, 0.6);
-            box-shadow: 0 0 0 4px rgba(216, 97, 42, 0.12);
-        }
-
-        .ghost-card {
-            margin-top: 12px;
-            border-color: rgba(216, 97, 42, 0.28);
-            background:
-                linear-gradient(135deg, rgba(216, 97, 42, 0.11), rgba(255, 255, 255, 0.88));
-        }
-
-        .ghost-text {
+        .mini-actions {
             margin-top: 10px;
-            white-space: pre-wrap;
-            color: rgba(23, 33, 43, 0.72);
-            font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
-            line-height: 1.65;
-        }
-
-        .metric-grid {
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
-        .metric .value {
-            color: var(--blue);
-        }
-
-        .scroll {
-            max-height: 470px;
-            overflow: auto;
-            padding-right: 4px;
-        }
-
-        .delivery-plan {
-            white-space: pre-wrap;
-        }
-
-        .empty {
-            border: 1px dashed rgba(23, 33, 43, 0.18);
-            border-radius: 18px;
-            padding: 18px;
-            color: var(--muted);
-            text-align: center;
-        }
-
-
-        .brand-art {
-            position: absolute;
-            right: 18px;
-            bottom: 12px;
-            width: 190px;
-            max-width: 36%;
-            opacity: 0.94;
-            filter: drop-shadow(0 18px 28px rgba(23, 33, 43, 0.18));
-        }
-
-        .mode-switch,
-        .persona-panel,
-        .command-panel,
-        .inline-diff,
-        .reminder-panel,
-        .pet-panel,
-        .radar-panel,
-        .milestone-panel {
-            margin-top: 14px;
-        }
-
-        .mode-switch {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-        }
-
-        .mode-switch button.active {
-            background: var(--ink);
-            color: white;
-        }
-
-        .persona-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .persona-card {
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.78);
-            cursor: pointer;
-        }
-
-        .persona-card.active {
-            border-color: rgba(216, 97, 42, 0.55);
-            background: rgba(216, 97, 42, 0.1);
-        }
-
-        .persona-preview {
-            width: 100%;
-            margin-top: 10px;
-            border-radius: 18px;
-            border: 1px solid var(--line);
-            display: block;
         }
 
         .command-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 10px;
+            align-items: stretch;
             margin-top: 10px;
+        }
+
+        .command-row input,
+        select {
+            min-height: 34px;
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: #fff;
+            color: var(--ink);
+            font-size: 13px;
         }
 
         .command-row input {
-            width: 100%;
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            padding: 12px 14px;
-            background: white;
+            flex: 1;
+            min-width: 0;
         }
 
         .inline-diff {
-            border-color: rgba(31, 79, 143, 0.28);
-            background: linear-gradient(135deg, rgba(31, 79, 143, 0.08), rgba(255, 255, 255, 0.88));
             display: none;
+            margin-top: 12px;
+            border: 1px solid #d9e5ff;
+            border-radius: 12px;
+            padding: 12px;
+            background: #f7faff;
         }
 
         .diff-body {
-            margin-top: 10px;
-            white-space: pre-wrap;
-            max-height: 220px;
+            max-height: 160px;
             overflow: auto;
-            color: var(--muted);
+            margin-top: 8px;
+            white-space: pre-wrap;
+            color: #4f5f76;
             font-family: "SF Mono", "Menlo", "Consolas", "PingFang SC", monospace;
             font-size: 12px;
             line-height: 1.55;
@@ -484,28 +643,89 @@
             position: fixed;
             right: 24px;
             bottom: 24px;
-            width: 220px;
-            z-index: 20;
-            border-radius: 28px;
-            background: rgba(255, 253, 247, 0.94);
-            border: 1px solid rgba(23, 33, 43, 0.12);
-            box-shadow: 0 22px 70px rgba(0, 0, 0, 0.24);
-            padding: 14px;
+            z-index: 30;
+            width: 196px;
+            padding: 12px;
+            border: 1px solid var(--line-soft);
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.94);
+            box-shadow: var(--shadow);
             backdrop-filter: blur(18px);
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .floating-buddy.working,
+        .floating-buddy.fly_out {
+            transform: translate(-210px, -132px) scale(0.82);
+            border-color: #c9dcff;
+            animation: buddyWork 2s ease-in-out infinite;
+        }
+
+        .floating-buddy.warning {
+            border-color: #ffd2d5;
+            box-shadow: 0 18px 48px rgba(216, 57, 49, 0.18);
         }
 
         .floating-buddy img {
             width: 100%;
             display: block;
-            border-radius: 22px;
-            background: white;
+            border-radius: 16px;
+            background: #fff;
+        }
+
+        .pet-signal {
+            position: absolute;
+            right: 17px;
+            top: 17px;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 0 0 rgba(46, 166, 111, 0.32);
+            animation: signalPulse 1.8s infinite;
+        }
+
+        .floating-buddy.pet-state-REVIEW_WARNING .pet-signal {
+            background: var(--red);
+        }
+
+        .floating-buddy.pet-state-RESULT_READY .pet-signal {
+            background: var(--primary);
+        }
+
+        .pet-bubble {
+            position: absolute;
+            right: 8px;
+            bottom: calc(100% + 10px);
+            width: 280px;
+            padding: 12px 14px;
+            border: 1px solid var(--line-soft);
+            border-radius: 16px 16px 4px 16px;
+            background: #fff;
+            color: var(--ink);
+            box-shadow: var(--shadow-soft);
+            font-size: 12px;
+            line-height: 1.55;
+            opacity: 0;
+            transform: translateY(8px);
+            pointer-events: none;
+            transition: opacity 0.18s ease, transform 0.18s ease;
+        }
+
+        .floating-buddy:hover .pet-bubble,
+        .floating-buddy.working .pet-bubble,
+        .floating-buddy.fly_out .pet-bubble,
+        .floating-buddy.warning .pet-bubble {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .buddy-greeting {
-            margin-top: 10px;
+            margin-top: 9px;
             color: var(--muted);
             font-size: 12px;
-            line-height: 1.5;
+            line-height: 1.45;
         }
 
         .buddy-status {
@@ -516,434 +736,410 @@
             margin-top: 10px;
         }
 
-        .floating-buddy.working {
-            animation: bob 1.8s ease-in-out infinite;
+        .debug-drawer {
+            position: fixed;
+            top: 0;
+            right: 0;
+            z-index: 40;
+            width: min(520px, 100vw);
+            height: 100vh;
+            padding: 18px;
+            overflow: auto;
+            background: #fff;
+            border-left: 1px solid var(--line);
+            box-shadow: -20px 0 60px rgba(31, 35, 41, 0.16);
+            transform: translateX(100%);
+            transition: transform 0.22s ease;
         }
 
-        .floating-buddy.warning {
-            border-color: rgba(159, 18, 57, 0.28);
-            box-shadow: 0 22px 70px rgba(159, 18, 57, 0.18);
+        body.debug-open .debug-drawer {
+            transform: translateX(0);
         }
 
-        .flash-copy {
-            margin-top: 12px;
+        .debug-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 35;
+            background: rgba(31, 35, 41, 0.18);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.22s ease;
+        }
+
+        body.debug-open .debug-backdrop {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .debug-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 14px;
+        }
+
+        .debug-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .debug-section {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--line-soft);
+        }
+
+        .debug-section h3 {
+            margin: 0 0 10px;
+            font-size: 14px;
+        }
+
+        .list,
+        .metric-grid,
+        .trace-list,
+        .shortcut-grid,
+        .stat-grid {
             display: grid;
             gap: 10px;
         }
 
-        .flash-copy .thesis {
-            border-left: 4px solid var(--accent);
-            padding-left: 12px;
-            font-size: 17px;
-            line-height: 1.65;
-            color: var(--ink);
-            font-weight: 800;
+        .metric-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
         }
 
-        .market-section {
-            margin-bottom: 16px;
+        .card,
+        .metric,
+        .trace {
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            padding: 12px;
+            background: #fbfcff;
         }
 
-        .market-grid {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 12px;
-        }
-
-        .market-card {
-            min-height: 190px;
-        }
-
-        .market-card .players {
-            margin: 8px 0;
-            color: var(--accent-dark);
-            font-weight: 800;
-            line-height: 1.45;
-        }
-
-        .next-edit-meta {
-            margin-top: 10px;
-            display: grid;
-            gap: 8px;
-        }
-
-        .next-edit-meta .meta-row {
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 10px;
-            background: rgba(255, 255, 255, 0.72);
-        }
-
-        .process-strip {
-            display: grid;
-            gap: 8px;
-            margin-top: 12px;
-        }
-
-        .process-strip .card.active,
-        .pet-panel.active {
-            border-color: rgba(216, 97, 42, 0.5);
-            background: linear-gradient(135deg, rgba(216, 97, 42, 0.12), rgba(255, 255, 255, 0.88));
-        }
-
-        .pet-state-card {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .pet-state-card::after {
-            content: "";
-            position: absolute;
-            right: -42px;
-            top: -42px;
-            width: 130px;
-            height: 130px;
-            border-radius: 999px;
-            background: radial-gradient(circle, rgba(216, 97, 42, 0.18), transparent 70%);
-            pointer-events: none;
-        }
-
-        .radar-card {
-            border-left: 4px solid rgba(31, 79, 143, 0.62);
-        }
-
-        .radar-card.high {
-            border-left-color: var(--weak);
-        }
-
-        .radar-card.medium {
-            border-left-color: var(--watch);
-        }
-
-        .floating-buddy {
-            overflow: visible;
-        }
-
-        .pet-aura {
-            position: absolute;
-            inset: -8px;
-            border-radius: 34px;
-            background: radial-gradient(circle at 50% 10%, rgba(216, 97, 42, 0.22), transparent 58%);
-            opacity: 0.55;
-            z-index: -1;
-            animation: auraPulse 2.8s ease-in-out infinite;
-        }
-
-        .pet-bubble {
-            position: absolute;
-            right: 10px;
-            bottom: calc(100% + 10px);
-            width: 260px;
-            border: 1px solid rgba(23, 33, 43, 0.12);
-            border-radius: 18px 18px 6px 18px;
-            padding: 12px 14px;
-            background: rgba(255, 253, 247, 0.98);
-            color: var(--ink);
-            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.18);
+        .metric .label {
+            color: var(--muted);
             font-size: 12px;
-            line-height: 1.55;
-            transform: translateY(8px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.18s ease, transform 0.18s ease;
         }
 
-        .floating-buddy:hover .pet-bubble,
-        .floating-buddy.warning .pet-bubble,
-        .floating-buddy.working .pet-bubble {
-            opacity: 1;
-            transform: translateY(0);
+        .metric .value {
+            margin-top: 6px;
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: 800;
         }
 
-        .pet-signal {
-            position: absolute;
-            right: 22px;
-            top: 22px;
-            width: 13px;
-            height: 13px;
-            border-radius: 50%;
-            background: var(--green);
-            box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.4);
-            animation: signalPulse 1.8s infinite;
+        .trace strong,
+        .card strong {
+            display: block;
+            margin-bottom: 6px;
         }
 
-        .floating-buddy.pet-state-REVIEW_WARNING .pet-signal {
-            background: var(--weak);
-            box-shadow: 0 0 0 0 rgba(159, 18, 57, 0.36);
+        .delivery-plan {
+            white-space: pre-wrap;
         }
 
-        .floating-buddy.pet-state-RESULT_READY .pet-signal {
-            background: var(--accent);
-        }
-
-        .floating-buddy.pet-state-SLEEPING {
-            opacity: 0.86;
-        }
-
-        @keyframes auraPulse {
-            0%, 100% { opacity: 0.42; transform: scale(0.98); }
-            50% { opacity: 0.75; transform: scale(1.02); }
+        .empty {
+            padding: 14px;
+            border: 1px dashed var(--line);
+            border-radius: 12px;
+            color: var(--muted);
+            text-align: center;
+            font-size: 12px;
         }
 
         @keyframes signalPulse {
-            0% { box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.35); }
-            70% { box-shadow: 0 0 0 12px rgba(15, 118, 110, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(15, 118, 110, 0); }
+            0% { box-shadow: 0 0 0 0 rgba(46, 166, 111, 0.28); }
+            70% { box-shadow: 0 0 0 12px rgba(46, 166, 111, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(46, 166, 111, 0); }
         }
 
-        @keyframes bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
+        @keyframes hoverLine {
+            0%, 100% { transform: translateY(-6px); }
+            50% { transform: translateY(-12px); }
         }
 
-        @media (max-width: 1320px) {
-            .hero,
-            .app-grid,
-            .market-grid,
-            .toolbar,
-            .button-row,
-            .stat-grid,
-            .shortcut-grid,
-            .metric-grid {
+        @keyframes buddyWork {
+            0%, 100% { transform: translate(-210px, -132px) scale(0.82); }
+            50% { transform: translate(-210px, -142px) scale(0.82); }
+        }
+
+        @media (max-width: 1180px) {
+            .workspace {
                 grid-template-columns: 1fr;
             }
 
-            textarea {
-                min-height: 460px;
+            .outline {
+                display: none;
+            }
+
+            .doc-main {
+                padding: 16px 16px 96px;
+            }
+
+            .doc-stage {
+                grid-template-columns: 1fr;
+            }
+
+            .side-rail {
+                position: static;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .doc-paper {
+                padding: 54px 32px 68px;
+            }
+        }
+
+        @media (max-width: 720px) {
+            .doc-topbar {
+                grid-template-columns: 1fr;
+            }
+
+            .top-actions {
+                justify-content: flex-start;
+            }
+
+            .mode-tabs,
+            .doc-toolbar,
+            .side-rail {
+                grid-template-columns: 1fr;
+                display: grid;
+            }
+
+            .floating-buddy {
+                width: 160px;
+                right: 12px;
+                bottom: 12px;
+            }
+
+            .floating-buddy.working,
+            .floating-buddy.fly_out {
+                transform: translateY(-140px) scale(0.86);
+            }
+
+            .pet-bubble {
+                width: 240px;
             }
         }
     </style>
 </head>
 <body>
-    <main class="shell">
-        <section class="hero">
-            <div class="hero-card">
-                <div class="eyebrow" id="eyebrow">{{ bootstrap.workspace.eyebrow }}</div>
-                <h1 id="headline">{{ bootstrap.challenge_story.headline }}</h1>
-                <div class="slogan" id="slogan">{{ bootstrap.workspace.slogan }}</div>
-                <div class="hero-copy" id="hero-copy">{{ bootstrap.challenge_story.subheadline }}</div>
-                <img class="brand-art" id="brand-art" src="/assets/ref/logo1.png" alt="Work Buddy mascot">
-                <div class="shortcut-grid" id="shortcut-grid"></div>
-            </div>
-            <div class="hero-card">
-                <div class="panel-header">
-                    <div>
-                        <div class="eyebrow">Flash Insight</div>
-                        <h2 style="margin-top:12px;">过程补全 > 整篇代写</h2>
-                    </div>
-                    <button class="btn-outline" id="refresh-btn" type="button">刷新</button>
-                </div>
-                <div class="flash-copy" id="flash-insight"></div>
-                <div class="stat-grid" id="pack-stats" style="margin-top:16px;"></div>
-            </div>
-        </section>
-
-        <section class="panel market-section">
-            <div class="panel-header">
-                <div>
-                    <div class="eyebrow">Competitive Gap Matrix</div>
-                    <h2 style="margin-top:10px;">效率 SaaS × AI IDE × 桌宠助手的中间态</h2>
+    <div class="doc-shell">
+        <header class="doc-topbar">
+            <div class="doc-title-wrap">
+                <div class="doc-icon">D</div>
+                <div class="doc-title">
+                    <strong>PRD 自动补齐工作文档</strong>
+                    <span>Feishu Docs as IDE · PM/BD 写作过程增强</span>
                 </div>
             </div>
-            <div class="market-grid" id="market-matrix"></div>
-        </section>
-
-        <section class="app-grid">
-            <aside class="panel">
-                <div class="panel-header">
-                    <div>
-                        <h2>Context Pack</h2>
-                        <small>团队 PRD/MRD 风格、术语和交付规则</small>
-                    </div>
+            <div class="top-actions">
+                <div class="avatar-row" aria-label="Collaborators">
+                    <span class="avatar">PM</span>
+                    <span class="avatar">BD</span>
+                    <span class="avatar">RD</span>
                 </div>
-                <div class="list" id="demo-list"></div>
+                <button class="btn-quiet" id="docs-mode-btn" type="button">Docs Mode</button>
+                <button class="btn" id="debug-toggle" type="button">Debug Drawer</button>
+                <button class="btn share-btn" type="button">分享</button>
+            </div>
+        </header>
 
-                <div class="panel-header" style="margin-top:18px;">
-                    <div>
-                        <h2>English Skills</h2>
-                        <small>内部能力名英文，展示标签中文</small>
-                    </div>
+        <div class="workspace">
+            <aside class="outline">
+                <div class="outline-title">文档目录</div>
+                <div class="outline-item active"><span class="outline-dot"></span>背景与问题</div>
+                <div class="outline-item"><span class="outline-dot"></span>目标用户</div>
+                <div class="outline-item"><span class="outline-dot"></span>解决方案</div>
+                <div class="outline-item"><span class="outline-dot"></span>验收标准</div>
+                <div class="outline-item"><span class="outline-dot"></span>指标与风险</div>
+                <div class="ide-note">
+                    这个 MVP 不替代飞书 Docs，而是让原本的 Docs 具备类似 IDE 的 Tab Completion、Next Edit、Rephrase Diff 和 Review 能力。
                 </div>
-                <div class="list" id="skill-list"></div>
-
-                <div class="panel-header" style="margin-top:18px;">
-                    <div>
-                        <h2>Delivery Rules</h2>
-                        <small>AI 联想依据</small>
-                    </div>
-                </div>
-                <div class="list scroll" id="rule-list"></div>
             </aside>
 
-            <section class="editor-wrap">
-                <div class="panel-header">
-                    <div>
-                        <div class="eyebrow">PRD Editor</div>
-                        <h2 style="margin-top:10px;" id="doc-title">PRD 草稿</h2>
+            <main class="doc-main">
+                <div class="mode-tabs">
+                    <div class="mode-label">
+                        <span class="status-pill"><span class="status-dot"></span>Docs as IDE</span>
+                        <span>在飞书 Docs 原有写作流里，桌宠负责状态透出与字里行间的 AI 操作层。</span>
                     </div>
-                    <div class="tag-row">
-                        <span class="tag strong">Next Edit</span>
-                        <span class="tag">Tab Completion</span>
-                        <span class="tag">Rephrase Diff</span>
-                        <span class="tag">Review</span>
+                    <div class="mini-actions">
+                        <button class="btn" id="reminder-mode-btn" type="button">Reminder Mode</button>
+                        <button class="btn-primary" id="assistant-mode-btn" type="button">Assistant Mode</button>
                     </div>
                 </div>
 
-                <div class="toolbar">
-                    <button class="btn-primary" id="suggest-btn" type="button">Next Edit 联想</button>
-                    <button class="btn-dark" id="accept-btn" type="button">Tab 接受补齐</button>
-                    <button class="btn-secondary" id="review-btn" type="button">Work Buddy 评审</button>
-                    <button class="btn-secondary" id="export-btn" type="button">导出 PRD</button>
-                </div>
+                <section class="doc-stage">
+                    <article class="doc-paper">
+                        <div class="doc-heading">
+                            <span class="eyebrow">Feishu Docs · AI Requirement Delivery Engine</span>
+                            <h1 id="doc-title">PRD 草稿</h1>
+                            <p id="review-summary">桌宠先在鸟舍里低打扰观察文档结构。开始写作后，它会在光标附近给出联想、改写、评审和回滚。</p>
+                        </div>
 
-                <div class="editor-meta">
-                    <div class="muted" id="editor-count">0 words</div>
-                    <div class="muted">快捷键：Tab 接受 · Esc 取消 · Cmd/Ctrl+K 改写 · Cmd/Ctrl+Enter 评审</div>
-                </div>
+                        <div class="doc-toolbar">
+                            <div class="toolbar">
+                                <button class="btn-primary" id="suggest-btn" type="button">Next Edit 联想</button>
+                                <button class="btn" id="accept-btn" type="button">Tab 接受</button>
+                                <button class="btn" id="rewrite-btn" type="button">Rephrase 选区</button>
+                                <button class="btn" id="review-btn" type="button">@review</button>
+                                <button class="btn" id="plan-btn" type="button">交付检查</button>
+                            </div>
+                            <div class="muted" id="editor-count">0 tokens</div>
+                        </div>
 
-                <textarea id="prd-editor" spellcheck="false"></textarea>
+                        <div class="doc-editor-wrap">
+                            <textarea id="prd-editor" class="doc-editor" spellcheck="false"></textarea>
+                            <div class="line-assistant" id="line-assistant" title="Bird Buddy working beside the current paragraph">
+                                <img id="line-buddy-image" src="/assets/ref/logo3.png" alt="Line Buddy">
+                            </div>
+                        </div>
 
-                <div class="ghost-card" id="ghost-card">
-                    <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;">
-                        <strong>Next Edit Suggestion</strong>
-                        <span class="tag strong">Tab 接受补齐 · 右侧接受 rephrase diff</span>
-                    </div>
-                    <div class="next-edit-meta" id="next-edit-meta"></div>
-                    <div class="ghost-text" id="ghost-text"></div>
-                    <div class="tag-row" id="evidence-tags"></div>
-                </div>
+                        <div class="ghost-card" id="ghost-card">
+                            <div class="ghost-card-header">
+                                <span>Next Edit Suggestion</span>
+                                <span class="tag strong">Tab Completion · Rephrase Diff</span>
+                            </div>
+                            <div class="ghost-text" id="ghost-text"></div>
+                            <div class="next-edit-meta" id="next-edit-meta"></div>
+                            <div class="tag-row evidence-tags" id="evidence-tags"></div>
+                        </div>
 
-                <div class="button-row">
-                    <select id="rewrite-mode"></select>
-                    <button class="btn-secondary" id="rewrite-btn" type="button">Cmd/Ctrl+K 改写选区</button>
-                    <button class="btn-secondary" id="plan-btn" type="button">生成交付计划</button>
-                </div>
-            </section>
+                        <div class="inline-diff" id="inline-diff-card">
+                            <strong id="inline-diff-title">Inline Diff</strong>
+                            <div class="detail" id="inline-diff-summary"></div>
+                            <div class="diff-body" id="inline-diff-body"></div>
+                            <div class="mini-actions">
+                                <button class="btn-primary" id="accept-diff-btn" type="button">接受 diff</button>
+                                <button class="btn" id="reject-diff-btn" type="button">拒绝</button>
+                                <button class="btn" id="rollback-btn" type="button">回滚</button>
+                            </div>
+                        </div>
 
-            <aside class="panel">
-                <div class="panel-header">
-                    <div>
-                        <h2>AI Work Buddy</h2>
-                        <small>质量评分、缺口、风险和 trace</small>
-                    </div>
-                </div>
-                <div class="buddy-card">
-                    <strong id="review-summary">等待评审</strong>
-                    <div class="detail" id="style-match" style="margin-top:8px;"></div>
-                    <div class="mode-switch">
-                        <button class="btn-outline" id="reminder-mode-btn" type="button">Reminder</button>
-                        <button class="btn-outline" id="assistant-mode-btn" type="button">Assistant</button>
-                    </div>
-                </div>
+                        <div class="doc-radar-stack" id="doc-radar-stack"></div>
+                    </article>
 
-                <div class="process-strip" id="process-strip"></div>
+                    <aside class="side-rail">
+                        <div class="rail-card pet-state-card" id="pet-state-card">
+                            <h3>Pet Status Layer</h3>
+                            <p id="pet-state-detail">IDLE_BIRDHOUSE · soft_breathing</p>
+                            <div class="tag-row">
+                                <span class="tag strong" id="pet-state-main-tag">IDLE_BIRDHOUSE</span>
+                                <span class="tag" id="pet-motion-tag">soft_breathing</span>
+                            </div>
+                        </div>
 
-                <div class="pet-panel pet-state-card card active" id="pet-state-card">
-                    <strong>Pet Status Layer 灵宠状态层</strong>
-                    <div class="detail" id="pet-state-detail" style="margin-top:8px;"></div>
-                    <div class="tag-row">
-                        <span class="tag strong" id="pet-state-main-tag">IDLE_BIRDHOUSE</span>
-                        <span class="tag" id="pet-motion-tag">soft_breathing</span>
-                    </div>
-                </div>
+                        <div class="rail-card">
+                            <h3>Writing Radar</h3>
+                            <div class="list" id="radar-list"></div>
+                        </div>
 
-                <div class="radar-panel">
-                    <div class="panel-header">
-                        <h2>Writing Radar 写作雷达</h2>
-                        <small>当前 cell 的低打扰联想提醒</small>
-                    </div>
-                    <div class="list" id="radar-list"></div>
-                </div>
+                        <div class="rail-card">
+                            <h3>Assistant Command</h3>
+                            <p>支持 @review、@mbti、/assistant。真实产品中这些动作会绑定飞书 Docs 当前选区与光标。</p>
+                            <div class="command-row">
+                                <input id="assistant-command" value="@review 请检查验收标准" aria-label="Assistant command">
+                                <button class="btn-primary" id="command-btn" type="button">运行</button>
+                            </div>
+                        </div>
 
-                <div class="milestone-panel">
-                    <div class="panel-header">
-                        <h2>Milestone / Result</h2>
-                        <small>进程与结果提醒</small>
-                    </div>
-                    <div class="list" id="milestone-list"></div>
-                </div>
-
-                <div class="persona-panel">
-                    <div class="panel-header">
-                        <h2>MBTI Persona</h2>
-                        <small>@mbti 写作人格</small>
-                    </div>
-                    <div class="persona-grid" id="persona-grid"></div>
-                    <img class="persona-preview" src="/assets/ref/MBTI.png" alt="MBTI bird persona reference">
-                </div>
-
-                <div class="command-panel card">
-                    <strong>Assistant Command</strong>
-                    <div class="detail">支持 /assistant、@mbti、@review、@expand</div>
-                    <div class="command-row">
-                        <input id="assistant-command" value="@review 请检查验收标准" aria-label="Assistant command">
-                        <button class="btn-dark" id="command-btn" type="button">运行</button>
-                    </div>
-                </div>
-
-                <div class="inline-diff card" id="inline-diff-card">
-                    <strong id="inline-diff-title">Inline Diff</strong>
-                    <div class="detail" id="inline-diff-summary"></div>
-                    <div class="diff-body" id="inline-diff-body"></div>
-                    <div class="tag-row">
-                        <button class="btn-primary" id="accept-diff-btn" type="button">接受 diff</button>
-                        <button class="btn-secondary" id="reject-diff-btn" type="button">拒绝</button>
-                        <button class="btn-outline" id="rollback-btn" type="button">回滚</button>
-                    </div>
-                </div>
-
-                <div class="reminder-panel">
-                    <div class="panel-header">
-                        <h2>Reminder Cards</h2>
-                        <small>低打扰提醒</small>
-                    </div>
-                    <div class="list" id="reminder-list"></div>
-                </div>
-
-                <div class="panel-header" style="margin-top:18px;">
-                    <h2>Quality</h2>
-                    <small>Delivery readiness</small>
-                </div>
-                <div class="metric-grid" id="quality-grid"></div>
-
-                <div class="panel-header" style="margin-top:18px;">
-                    <h2>Missing Sections</h2>
-                    <small>PRD diagnostics</small>
-                </div>
-                <div class="list" id="missing-list"></div>
-
-                <div class="panel-header" style="margin-top:18px;">
-                    <h2>Risk Flags</h2>
-                    <small>Review warnings</small>
-                </div>
-                <div class="list" id="risk-list"></div>
-
-                <div class="panel-header" style="margin-top:18px;">
-                    <h2>Why This Suggestion</h2>
-                    <small>Evidence trace</small>
-                </div>
-                <div class="trace-list" id="trace-list"></div>
-
-                <div class="panel-header" style="margin-top:18px;">
-                    <h2>Delivery Plan</h2>
-                    <small>Generated tasks</small>
-                </div>
-                <div class="card delivery-plan" id="delivery-plan">点击“生成交付计划”后展示。</div>
-            </aside>
-        </section>
-    </main>
+                        <div class="rail-card">
+                            <h3>MBTI Persona</h3>
+                            <select id="rewrite-mode"></select>
+                            <div class="list" id="persona-grid" style="margin-top:10px;"></div>
+                        </div>
+                    </aside>
+                </section>
+            </main>
+        </div>
+    </div>
 
     <div class="floating-buddy" id="floating-buddy">
-        <div class="pet-aura"></div>
         <div class="pet-signal" aria-hidden="true"></div>
-        <div class="pet-bubble" id="pet-bubble">我先在鸟屋里待命，看到关键缺口再轻轻提醒。</div>
+        <div class="pet-bubble" id="pet-bubble">我先在鸟舍里待命，看到关键缺口再轻提醒。</div>
         <img id="buddy-image" src="/assets/ref/logo2.png" alt="Birdhouse Work Buddy">
-        <div class="buddy-greeting" id="buddy-greeting">我先在鸟屋里待命。写下第一行后，可以切到 Assistant Mode。</div>
+        <div class="buddy-greeting" id="buddy-greeting">Reminder Mode：低打扰观察文档，必要时把状态透出给 PM/BD。</div>
         <div class="buddy-status">
             <span class="tag" id="buddy-mode-tag">reminder</span>
             <span class="tag" id="buddy-emotion-tag">calm</span>
         </div>
     </div>
+
+    <div class="debug-backdrop" id="debug-backdrop"></div>
+    <aside class="debug-drawer" id="debug-drawer" aria-label="Debug Drawer">
+        <div class="debug-header">
+            <div>
+                <h2>Debug Drawer</h2>
+                <p class="detail">保留现有 engine 解释面板，默认不进入用户主视野。</p>
+            </div>
+            <button class="btn" id="debug-close" type="button">关闭</button>
+        </div>
+
+        <section class="debug-section">
+            <h3>Integration Notes</h3>
+            <div class="card">
+                <strong>Future Lark Integration</strong>
+                <p class="detail">
+                    当前 MVP 不调用 larksuite/cli。后续真实落地时，可把 document_text、selected_text、cursor_position、
+                    ghost_text、inline_diff 和 rollback_token 映射到飞书 Docs API 或 larksuite/cli 的文档读写、选区定位、
+                    评论/批注与权限认证流程。
+                </p>
+            </div>
+        </section>
+
+        <section class="debug-section">
+            <h3>Context Pack</h3>
+            <div class="list" id="demo-list"></div>
+        </section>
+
+        <section class="debug-section">
+            <h3>English Skills</h3>
+            <div class="list" id="skill-list"></div>
+        </section>
+
+        <section class="debug-section">
+            <h3>Delivery Rules</h3>
+            <div class="list" id="rule-list"></div>
+        </section>
+
+        <section class="debug-section">
+            <h3>Quality</h3>
+            <div class="metric-grid" id="quality-grid"></div>
+        </section>
+
+        <section class="debug-section">
+            <h3>Missing Sections</h3>
+            <div class="list" id="missing-list"></div>
+        </section>
+
+        <section class="debug-section">
+            <h3>Risk Flags</h3>
+            <div class="list" id="risk-list"></div>
+        </section>
+
+        <section class="debug-section">
+            <h3>Milestone / Reminder</h3>
+            <div class="list" id="milestone-list"></div>
+            <div class="list" id="reminder-list" style="margin-top:10px;"></div>
+        </section>
+
+        <section class="debug-section">
+            <h3>Why This Suggestion</h3>
+            <div class="trace-list" id="trace-list"></div>
+        </section>
+
+        <section class="debug-section">
+            <h3>Delivery Plan</h3>
+            <div class="card delivery-plan" id="delivery-plan">点击“交付检查”后展示。</div>
+        </section>
+
+        <section class="debug-section">
+            <button class="btn" id="refresh-btn" type="button">Refresh Workspace</button>
+            <button class="btn" id="export-btn" type="button">Export PRD</button>
+        </section>
+    </aside>
 
     <script>
         const BOOTSTRAP = {{ bootstrap|tojson }};
@@ -961,7 +1157,6 @@
         const ghostCard = document.getElementById("ghost-card");
         const evidenceTags = document.getElementById("evidence-tags");
         const nextEditMeta = document.getElementById("next-edit-meta");
-        const processStrip = document.getElementById("process-strip");
         const docTitle = document.getElementById("doc-title");
         const editorCount = document.getElementById("editor-count");
         const qualityGrid = document.getElementById("quality-grid");
@@ -969,46 +1164,53 @@
         const riskList = document.getElementById("risk-list");
         const traceList = document.getElementById("trace-list");
         const reviewSummary = document.getElementById("review-summary");
-        const styleMatch = document.getElementById("style-match");
         const deliveryPlan = document.getElementById("delivery-plan");
         const rewriteMode = document.getElementById("rewrite-mode");
         const personaGrid = document.getElementById("persona-grid");
         const assistantCommand = document.getElementById("assistant-command");
         const reminderList = document.getElementById("reminder-list");
         const radarList = document.getElementById("radar-list");
+        const docRadarStack = document.getElementById("doc-radar-stack");
         const milestoneList = document.getElementById("milestone-list");
-        const petStateCard = document.getElementById("pet-state-card");
         const petStateDetail = document.getElementById("pet-state-detail");
         const petStateMainTag = document.getElementById("pet-state-main-tag");
         const petMotionTag = document.getElementById("pet-motion-tag");
+        const buddyImage = document.getElementById("buddy-image");
+        const lineBuddyImage = document.getElementById("line-buddy-image");
+        const floatingBuddy = document.getElementById("floating-buddy");
+        const lineAssistant = document.getElementById("line-assistant");
+        const buddyModeTag = document.getElementById("buddy-mode-tag");
+        const buddyEmotionTag = document.getElementById("buddy-emotion-tag");
+        const petBubble = document.getElementById("pet-bubble");
+        const buddyGreeting = document.getElementById("buddy-greeting");
+        const reminderModeBtn = document.getElementById("reminder-mode-btn");
+        const assistantModeBtn = document.getElementById("assistant-mode-btn");
         const inlineDiffCard = document.getElementById("inline-diff-card");
         const inlineDiffTitle = document.getElementById("inline-diff-title");
         const inlineDiffSummary = document.getElementById("inline-diff-summary");
         const inlineDiffBody = document.getElementById("inline-diff-body");
-        const floatingBuddy = document.getElementById("floating-buddy");
-        const buddyImage = document.getElementById("buddy-image");
-        const petBubble = document.getElementById("pet-bubble");
-        const buddyGreeting = document.getElementById("buddy-greeting");
-        const buddyModeTag = document.getElementById("buddy-mode-tag");
-        const buddyEmotionTag = document.getElementById("buddy-emotion-tag");
-        const reminderModeBtn = document.getElementById("reminder-mode-btn");
-        const assistantModeBtn = document.getElementById("assistant-mode-btn");
 
-        function escapeHtml(text) {
-            return String(text || "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;");
-        }
-
-        function wordCount(text) {
-            const matches = String(text || "").match(/[\w\u4e00-\u9fff]+/g);
-            return matches ? matches.length : 0;
+        function escapeHtml(value) {
+            return String(value ?? "")
+                .replaceAll("&", "&amp;")
+                .replaceAll("<", "&lt;")
+                .replaceAll(">", "&gt;")
+                .replaceAll('"', "&quot;")
+                .replaceAll("'", "&#039;");
         }
 
         function assetUrl(path) {
-            const name = String(path || "").split("/").pop();
-            return `/assets/ref/${name}`;
+            if (!path) {
+                return "/assets/ref/logo2.png";
+            }
+            if (path.startsWith("/")) {
+                return path;
+            }
+            return "/" + path.replace(/^docs\/ref\//, "assets/ref/");
+        }
+
+        function wordCount(text) {
+            return (text || "").trim().split(/\s+/).filter(Boolean).length;
         }
 
         async function postJson(action, extra = {}) {
@@ -1017,71 +1219,29 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ action, ...extra }),
             });
+            const payload = await response.json();
             if (!response.ok) {
-                const payload = await response.json().catch(() => ({}));
-                throw new Error(payload.error || `请求失败 (${response.status})`);
+                throw new Error(payload.error || "Workspace request failed");
             }
-            return response.json();
+            return payload;
         }
 
         function setState(payload) {
             appState = { ...appState, ...payload };
-            if (payload.ghost_text !== undefined) {
-                ghostText = payload.ghost_text || "";
-            }
-            if (payload.persona_profile) {
-                selectedPersona = payload.persona_profile.key || selectedPersona;
-            }
-            if (payload.rollback_token !== undefined) {
-                rollbackToken = payload.rollback_token || rollbackToken;
-            }
-            if (payload.inline_diff !== undefined) {
-                inlineDiff = payload.inline_diff || null;
-            }
-            if (payload.agent_mode) {
-                activeAgentMode = payload.agent_mode;
-            }
+            ghostText = appState.ghost_text || "";
+            rollbackToken = appState.rollback_token || rollbackToken;
+            inlineDiff = appState.inline_diff || null;
+            activeAgentMode = appState.agent_mode || activeAgentMode;
             renderDynamic();
         }
 
         function renderStatic() {
-            document.getElementById("shortcut-grid").innerHTML = (appState.workspace.shortcuts || []).map((item) => `
-                <div class="shortcut"><kbd>${escapeHtml(item.key)}</kbd><div>${escapeHtml(item.label)}</div></div>
-            `).join("");
-
-            const insight = appState.flash_insight || {};
-            document.getElementById("flash-insight").innerHTML = `
-                <div class="thesis">${escapeHtml(insight.headline || "Flash of Insight")}</div>
-                <div class="detail">${escapeHtml(insight.middle_state || "")}</div>
-                <div class="detail">${escapeHtml(insight.product_thesis || "")}</div>
-            `;
-
-            document.getElementById("pack-stats").innerHTML = [
-                ["Styles", appState.knowledge_pack.style_count],
-                ["Rules", appState.knowledge_pack.rule_count],
-                ["Assets", appState.knowledge_pack.asset_count],
-                ["NextEdits", appState.knowledge_pack.next_edit_pattern_count],
-                ["PetStates", appState.knowledge_pack.pet_state_count],
-                ["RadarRules", appState.knowledge_pack.radar_rule_count],
-            ].map(([label, value]) => `
-                <div class="stat"><div class="label">${label}</div><div class="value">${escapeHtml(value)}</div></div>
-            `).join("");
-
-            document.getElementById("market-matrix").innerHTML = (appState.market_landscape || []).map((item) => `
-                <div class="card market-card">
-                    <strong>${escapeHtml(item.display_label)}</strong>
-                    <div class="players">${escapeHtml((item.players || []).join(" · "))}</div>
-                    <div class="detail">强项：${escapeHtml(item.what_they_do_well)}</div>
-                    <div class="detail" style="margin-top:8px;">缺口：${escapeHtml(item.unserved_gap)}</div>
-                </div>
-            `).join("");
-
             document.getElementById("demo-list").innerHTML = (appState.demo_documents || []).map((item) => `
                 <div class="card">
                     <strong>${escapeHtml(item.title)}</strong>
                     <div class="detail">${escapeHtml(item.summary)}</div>
                     <div class="tag-row"><span class="tag strong">${escapeHtml(item.category)}</span></div>
-                    <button class="btn-outline" style="margin-top:12px;width:100%;" type="button" data-demo-id="${escapeHtml(item.id)}">加载 Demo</button>
+                    <button class="btn" style="margin-top:10px;width:100%;" type="button" data-demo-id="${escapeHtml(item.id)}">加载 Demo</button>
                 </div>
             `).join("");
             document.querySelectorAll("[data-demo-id]").forEach((button) => {
@@ -1107,7 +1267,7 @@
             `).join("");
 
             personaGrid.innerHTML = (appState.persona_profiles || []).map((item) => `
-                <div class="persona-card" data-persona="${escapeHtml(item.key)}">
+                <div class="card persona-card" data-persona="${escapeHtml(item.key)}">
                     <strong>${escapeHtml(item.display_label)}</strong>
                     <div class="detail">${escapeHtml(item.tone)} · risk ${escapeHtml(item.risk_bias)}</div>
                 </div>
@@ -1128,10 +1288,11 @@
             const title = (appState.artifact_preview || {}).title || "PRD 草稿";
             docTitle.textContent = title;
             editorCount.textContent = `${wordCount(text)} tokens · ${text.length} chars`;
+
             ghostCard.style.display = ghostText ? "block" : "none";
             nextEditMeta.innerHTML = `
-                <div class="meta-row"><strong>${escapeHtml(appState.next_edit_label || "Next Edit")}</strong><div class="detail">${escapeHtml(appState.rewrite_hint || "")}</div></div>
-                <div class="meta-row"><span class="tag strong">${escapeHtml(appState.suggestion_kind || "section_completion")}</span><div class="detail">${escapeHtml((appState.cursor_target || {}).instruction || "按 Tab 接受建议。")}</div></div>
+                <div class="meta-row"><strong>${escapeHtml(appState.next_edit_label || "Next Edit")}</strong><div>${escapeHtml(appState.rewrite_hint || "")}</div></div>
+                <div class="meta-row"><span class="tag strong">${escapeHtml(appState.suggestion_kind || "section_completion")}</span> ${escapeHtml((appState.cursor_target || {}).instruction || "按 Tab 接受建议。")}</div>
             `;
             ghostTextEl.textContent = ghostText || "";
             evidenceTags.innerHTML = (appState.evidence_refs || []).map((item) => `
@@ -1140,10 +1301,7 @@
 
             qualityGrid.innerHTML = (appState.quality_metrics || []).map((item) => `
                 <div class="metric">
-                    <div style="display:flex;justify-content:space-between;gap:8px;align-items:center;">
-                        <div class="label">${escapeHtml(item.label)}</div>
-                        <span class="tag ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span>
-                    </div>
+                    <div class="label">${escapeHtml(item.label)}</div>
                     <div class="value">${escapeHtml(item.score)}</div>
                     <div class="detail">${escapeHtml(item.rationale)}</div>
                 </div>
@@ -1156,10 +1314,7 @@
             riskList.innerHTML = (appState.risk_flags || []).length
                 ? (appState.risk_flags || []).map((item) => `
                     <div class="card">
-                        <div style="display:flex;justify-content:space-between;gap:8px;">
-                            <strong>${escapeHtml(item.title)}</strong>
-                            <span class="tag ${escapeHtml(item.severity)}">${escapeHtml(item.severity)}</span>
-                        </div>
+                        <div class="tag-row" style="justify-content:space-between;"><strong>${escapeHtml(item.title)}</strong><span class="tag ${escapeHtml(item.severity)}">${escapeHtml(item.severity)}</span></div>
                         <div class="detail">${escapeHtml(item.detail)}</div>
                     </div>
                 `).join("")
@@ -1174,64 +1329,40 @@
                 </div>
             `).join("");
 
-            const match = appState.style_match || {};
-            styleMatch.textContent = match.summary ? `${match.label || "Style Match"}：${match.score} 分。${match.summary}` : "";
-
             personaGrid.querySelectorAll("[data-persona]").forEach((card) => {
                 card.classList.toggle("active", card.getAttribute("data-persona") === selectedPersona);
             });
 
-            const activeJourneyState = appState.active_journey_state || appState.journey_state || "EMPTY_PAGE";
-            processStrip.innerHTML = (appState.writing_journey_states || []).map((item) => `
-                <div class="card ${item.key === activeJourneyState ? "active" : ""}">
-                    <strong>${escapeHtml(item.display_label)}</strong>
-                    <div class="detail">${escapeHtml(item.message)} · ${escapeHtml(item.mascot_state)}</div>
-                </div>
-            `).join("");
-
             const petProfile = appState.pet_profile || {};
-            const petState = appState.pet_state || petProfile.key || activeJourneyState || "IDLE_BIRDHOUSE";
-            petStateCard.classList.toggle("active", true);
-            petStateDetail.textContent = `${petProfile.display_label || petState}：${appState.pet_bubble || petProfile.bubble || "小鸟正在低打扰待命。"}`;
+            const petState = appState.pet_state || petProfile.key || "IDLE_BIRDHOUSE";
+            petStateDetail.textContent = `${petProfile.display_label || petState} · ${appState.pet_bubble || petProfile.bubble || "桌宠正在低打扰观察文档。"}`;
             petStateMainTag.textContent = petState;
             petMotionTag.textContent = petProfile.motion || "soft_breathing";
 
-            radarList.innerHTML = (appState.radar_cards || []).length
-                ? (appState.radar_cards || []).map((item) => `
-                    <div class="card radar-card ${escapeHtml(item.severity)}">
-                        <div style="display:flex;justify-content:space-between;gap:8px;">
-                            <strong>${escapeHtml(item.display_label)}</strong>
-                            <span class="tag ${escapeHtml(item.severity)}">${escapeHtml(item.source || "WritingRadar")}</span>
-                        </div>
-                        <div class="detail">${escapeHtml(item.message)}</div>
-                        <div class="detail" style="margin-top:6px;">建议：${escapeHtml(item.suggested_action)}</div>
+            const radarCards = appState.radar_cards || [];
+            const radarHtml = radarCards.length
+                ? radarCards.map((item) => `
+                    <div class="radar-card ${escapeHtml(item.severity)}">
+                        <strong>${escapeHtml(item.display_label)}</strong>
+                        <div>${escapeHtml(item.message)}</div>
+                        <div class="detail" style="margin-top:4px;">建议：${escapeHtml(item.suggested_action)}</div>
                     </div>
                 `).join("")
-                : '<div class="empty">当前 cell 暂无高价值雷达提醒。</div>';
+                : '<div class="empty">当前段落暂无高价值提醒。</div>';
+            radarList.innerHTML = radarHtml;
+            docRadarStack.innerHTML = radarHtml;
 
             milestoneList.innerHTML = (appState.milestone_cards || []).length
                 ? (appState.milestone_cards || []).map((item) => `
-                    <div class="card">
-                        <div style="display:flex;justify-content:space-between;gap:8px;">
-                            <strong>${escapeHtml(item.display_label)}</strong>
-                            <span class="tag ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span>
-                        </div>
-                        <div class="detail">${escapeHtml(item.message)}</div>
-                    </div>
+                    <div class="card"><strong>${escapeHtml(item.display_label)}</strong><div class="detail">${escapeHtml(item.message)}</div><span class="tag ${escapeHtml(item.status)}">${escapeHtml(item.status)}</span></div>
                 `).join("")
                 : '<div class="empty">暂无进程提醒。</div>';
 
             reminderList.innerHTML = (appState.reminder_cards || []).length
                 ? (appState.reminder_cards || []).map((item) => `
-                    <div class="card">
-                        <div style="display:flex;justify-content:space-between;gap:8px;">
-                            <strong>${escapeHtml(item.trigger)}</strong>
-                            <span class="tag ${escapeHtml(item.severity)}">${escapeHtml(item.mascot_state)}</span>
-                        </div>
-                        <div class="detail">${escapeHtml(item.message)}</div>
-                    </div>
+                    <div class="card"><strong>${escapeHtml(item.trigger)}</strong><div class="detail">${escapeHtml(item.message)}</div><span class="tag ${escapeHtml(item.severity)}">${escapeHtml(item.mascot_state)}</span></div>
                 `).join("")
-                : '<div class="empty">小鸟暂时不打扰。</div>';
+                : '<div class="empty">桌宠暂时不打扰。</div>';
 
             inlineDiffCard.style.display = inlineDiff ? "block" : "none";
             if (inlineDiff) {
@@ -1242,19 +1373,20 @@
 
             const mascotState = appState.mascot_state || "peek";
             const petStateClass = String(petState || "IDLE_BIRDHOUSE").replace(/[^a-zA-Z0-9_-]/g, "-");
-            const asset = activeAgentMode === "assistant" || ["fly_out", "working", "warning"].includes(mascotState)
-                ? (appState.mascot_assets || {}).assistant_active
-                : (appState.mascot_assets || {}).reminder_idle;
+            const isWorking = activeAgentMode === "assistant" || Boolean(ghostText) || Boolean(inlineDiff) || ["fly_out", "working", "warning"].includes(mascotState);
+            const asset = isWorking ? (appState.mascot_assets || {}).assistant_active : (appState.mascot_assets || {}).reminder_idle;
             buddyImage.src = assetUrl(asset || "docs/ref/logo2.png");
-            floatingBuddy.className = `floating-buddy ${mascotState} pet-state-${petStateClass}`;
+            lineBuddyImage.src = assetUrl((appState.mascot_assets || {}).assistant_active || "docs/ref/logo3.png");
+            floatingBuddy.className = `floating-buddy ${isWorking ? "working" : mascotState} pet-state-${petStateClass}`;
+            lineAssistant.classList.toggle("working", isWorking);
             buddyModeTag.textContent = activeAgentMode;
             buddyEmotionTag.textContent = appState.emotion_state || petProfile.emotion_state || "calm";
-            petBubble.textContent = appState.pet_bubble || petProfile.bubble || "我先在鸟屋里待命。";
+            petBubble.textContent = appState.pet_bubble || petProfile.bubble || "我先在鸟舍里待命。";
             buddyGreeting.textContent = activeAgentMode === "assistant"
-                ? `${petProfile.display_label || "Assistant Mode"}：我会飞到字里行间，帮你补齐、改写、评审和回滚。`
-                : `${petProfile.display_label || "Reminder Mode"}：我先在鸟屋里待命，只在关键节点轻提醒。`;
-            reminderModeBtn.classList.toggle("active", activeAgentMode === "reminder");
-            assistantModeBtn.classList.toggle("active", activeAgentMode === "assistant");
+                ? `${petProfile.display_label || "Assistant Mode"}：小鸟正在贴近当前段落工作，支持补齐、改写、评审和回滚。`
+                : `${petProfile.display_label || "Reminder Mode"}：鸟舍低打扰透出 agent 状态，只在关键节点提醒。`;
+            reminderModeBtn.classList.toggle("btn-primary", activeAgentMode === "reminder");
+            assistantModeBtn.classList.toggle("btn-primary", activeAgentMode === "assistant");
         }
 
         async function loadDemo(demoId) {
@@ -1271,6 +1403,7 @@
                 persona: selectedPersona,
             });
             reviewSummary.textContent = payload.next_edit_label || "Next Edit 已生成。";
+            activeAgentMode = "assistant";
             setState(payload);
         }
 
@@ -1280,9 +1413,7 @@
             }
             const start = editor.selectionStart;
             const end = editor.selectionEnd;
-            const before = editor.value.slice(0, start);
-            const after = editor.value.slice(end);
-            editor.value = before + ghostText + after;
+            editor.value = editor.value.slice(0, start) + ghostText + editor.value.slice(end);
             const nextPos = start + ghostText.length;
             editor.setSelectionRange(nextPos, nextPos);
             ghostText = "";
@@ -1307,7 +1438,8 @@
             } else {
                 editor.value += "\n\n" + replacement;
             }
-            reviewSummary.textContent = "已按选定模式完成改写。";
+            reviewSummary.textContent = "已在文档选区内完成 Rephrase。";
+            activeAgentMode = "assistant";
             setState(payload);
         }
 
@@ -1324,9 +1456,9 @@
             const plan = payload.delivery_plan || { phases: [] };
             deliveryPlan.textContent = (plan.phases || []).map((phase) => {
                 const tasks = (phase.tasks || []).map((task) => `- ${task}`).join("\n");
-                return `${phase.name}（${phase.owner}）\n${tasks}\n检查点：${phase.checkpoint}`;
+                return `${phase.name}：${phase.owner}\n${tasks}\n检查点：${phase.checkpoint}`;
             }).join("\n\n");
-            reviewSummary.textContent = payload.review_summary || "交付计划已生成。";
+            reviewSummary.textContent = payload.review_summary || "交付检查已生成。";
             setState(payload);
         }
 
@@ -1352,6 +1484,7 @@
 
         async function switchAgentMode(mode) {
             const payload = await postJson("switch_agent_mode", { agent_mode: mode });
+            activeAgentMode = payload.agent_mode || mode;
             reviewSummary.textContent = payload.assistant_message || "模式已切换。";
             setState(payload);
         }
@@ -1366,6 +1499,7 @@
                 selected_text: selected,
                 persona: selectedPersona,
             });
+            activeAgentMode = "assistant";
             reviewSummary.textContent = payload.assistant_message || "Assistant command 已执行。";
             setState(payload);
         }
@@ -1379,13 +1513,8 @@
                 selected_text: selected,
                 current_text: editor.value,
             });
+            activeAgentMode = "assistant";
             reviewSummary.textContent = `已生成 ${payload.persona_profile?.display_label || selectedPersona} 风格 diff。`;
-            setState(payload);
-        }
-
-        async function inlineReview() {
-            const payload = await postJson("inline_review", { current_text: editor.value });
-            reviewSummary.textContent = payload.review_summary || "Inline review 已生成。";
             setState(payload);
         }
 
@@ -1439,6 +1568,10 @@
             }, 650);
         }
 
+        document.getElementById("debug-toggle").addEventListener("click", () => document.body.classList.add("debug-open"));
+        document.getElementById("debug-close").addEventListener("click", () => document.body.classList.remove("debug-open"));
+        document.getElementById("debug-backdrop").addEventListener("click", () => document.body.classList.remove("debug-open"));
+        document.getElementById("docs-mode-btn").addEventListener("click", () => document.body.classList.remove("debug-open"));
         document.getElementById("refresh-btn").addEventListener("click", async () => {
             const payload = await postJson("refresh");
             editor.value = payload.document_text || editor.value;
@@ -1480,7 +1613,7 @@
             }
             if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
                 event.preventDefault();
-                inlineReview();
+                runAssistantCommand();
             }
         });
 

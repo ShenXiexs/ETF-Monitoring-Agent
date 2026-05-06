@@ -23,13 +23,18 @@ def test_root_renders_prd_ide(client):
     body = response.get_data(as_text=True)
     assert response.status_code == 200
     assert "Flash of Insights：PRD IDE 需求交付引擎" in body
-    assert "让PM跟工程师一样用上能够信息补全和自动联想的办公效率产品（跟用 IDE 一样）" in body
+    assert "Feishu Docs" in body
+    assert "Docs as IDE" in body
+    assert "PM/BD 写作过程增强" in body
     assert "floating-buddy" in body
-    assert "Competitive Gap Matrix" in body
-    assert "MBTI Persona" in body
+    assert "Debug Drawer" in body
+    assert "Integration Notes" in body
+    assert "larksuite/cli" in body
     assert "Next Edit Suggestion" in body
-    assert "Pet Status Layer 灵宠状态层" in body
-    assert "Writing Radar 写作雷达" in body
+    assert "Pet Status Layer" in body
+    assert "Writing Radar" in body
+    assert "Tab Completion" in body
+    assert "Rephrase Diff" in body
     assert "/workspace" in body
     assert "/api/" not in body
 

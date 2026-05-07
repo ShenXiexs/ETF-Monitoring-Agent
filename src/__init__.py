@@ -1,1 +1,1 @@
-"""PRD IDE requirement delivery engine package."""
+"""doc-as-IDE requirement delivery engine package."""

@@ -1,194 +1,125 @@
-<h1 align="center">Flash of Insights：飞书 Docs as IDE 需求写作助手</h1>
+<h1 align="center">doc-as-IDE：AI 文档过程补全工作台</h1>
 
 <p align="center">
-  让 PM/BD 在飞书 Docs 中写需求时，像工程师在 IDE 中写代码一样获得补全、改写、评审、提醒和回滚。
+  让 PM 跟工程师一样用上能够信息补全和自动联想的办公效率产品（跟用 IDE 一样）
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python 3.10+">
-  <img src="https://img.shields.io/badge/Product-Feishu%20Docs%20as%20IDE-3370ff?style=for-the-badge" alt="Feishu Docs as IDE">
-  <img src="https://img.shields.io/badge/UI-Birdhouse%20Work%20Buddy-d8612a?style=for-the-badge" alt="Birdhouse Work Buddy">
-  <img src="https://img.shields.io/badge/Core-Tab%20Completion%20%7C%20Rephrase%20Diff%20%7C%20Writing%20Radar-17212b?style=for-the-badge" alt="AI requirement workflow">
+  <img src="https://img.shields.io/badge/Product-doc--as--IDE-3370ff?style=for-the-badge" alt="doc-as-IDE">
+  <img src="https://img.shields.io/badge/MVP-Offline%20Deterministic-2ea66f?style=for-the-badge" alt="Offline MVP">
+  <img src="https://img.shields.io/badge/Skills-English%20Canonical-1f2329?style=for-the-badge" alt="English Canonical Skills">
 </p>
 
-## 一句话定位
+## 项目定位
 
-本项目展示的是一个面向 PM/BD 需求写作过程的 AI 助手：用户仍然在飞书 Docs 里写 PRD/MRD，鸟舍桌宠作为低打扰的状态层和入口，让原本的文档页面具备类似 IDE 的 `Tab Completion`、`Next Edit`、`Rephrase Diff`、`Writing Radar`、`Review Warning` 和 rollback 能力。
+doc-as-IDE 是一个面向 B 端企业协作文档场景的 AI 写作过程引擎。它的核心不是“再做一个文档编辑器”，也不是“一键生成整篇 PRD”，而是把工程师已经熟悉的 IDE 工作方式迁移到 PM、BD、运营、交付团队的日常文档流里：Tab 补齐、Next Edit、选区 rephrase、inline review、diff 接受/拒绝/回滚、工作状态透出和交付检查。
 
-它不是一个新的独立文档编辑器，也不是整篇 PRD 代写器。核心目标是改变 PM/BD 在飞书 Docs 中写需求、补需求、评审需求的过程体验，让半成品需求在写作过程中持续被补齐、改写和检查，而不是等文档写完后再做一次总结或流转。
+当前 MVP 以 Feishu Docs 风格页面承载演示，因为飞书是典型的企业协作入口。但产品定义不绑定飞书插件。更大的路径是让 coding 的逻辑和工作模式普惠到所有主流办公效率协作 SaaS，包括 Notion、飞书、钉钉、Teams、Google Docs、Slack、Amazon Quick Suite 等。
 
-## 核心产品定义
+## 为什么不是整篇文档生成
 
-当前产品设想基于三个判断：
+主流办公效率 SaaS 已经在做知识库问答、摘要、翻译、会议纪要、工作流和整篇文档生成。但 PRD/MRD/BD 方案写作的高频卡点，通常发生在“过程”中：下一段该写什么，这句话怎么变成团队标准表达，指标有没有当前值和目标值，验收标准能不能测试，AI 建议有没有来源，改错后能不能回滚。
 
-1. PM/BD 的高频卡点发生在写作过程中，而不是只发生在文档完成之后。
-2. 飞书 Docs 已经是团队协作和需求沉淀的主场景，产品不应该强迫用户离开 Docs 去另一个独立工具里写需求。
-3. AI IDE 的过程补全、局部改写、可回滚 diff 和状态可视化，适合迁移到 PRD/MRD 写作场景。
+因此 doc-as-IDE 追求一个更高频、更可控的中间态：用户仍然自己写文档，AI 在字里行间做补齐、重写、提醒和评审，把半成品 file 重整成可以直接进入评审和交付的 working docs。
 
-因此，产品形态是“飞书 Docs + Birdhouse Work Buddy”，而不是“三栏 dashboard + chatbot”。桌宠 UI 负责陪伴、状态透出和轻量召唤；真正的 AI 能力发生在文档字里行间。
+## 当前 MVP 能力
 
-## 当前 MVP 展示什么
+- `Tab Completion`：根据当前文档、缺失章节、团队 PRD/MRD 样例和补齐设置生成 ghost suggestion，用户按 Tab 接受。
+- `Next Edit Suggestion`：像 AI IDE 一样同时预测“当前句该怎么重写”和“下一段该补什么”。
+- `Rephrase Diff`：对选区做局部改写，结果以 diff 形式出现，支持接受、拒绝和 rollback token 回滚。
+- `MBTI Style`：MBTI 只作为 AI 回复和改写语言风格控制器，不改变事实判断、证据来源和交付规则。
+- `Assistant / Reminder Mode`：Assistant 主动参与写作；Reminder 低打扰观察空白页、停留时间、缺失章节、评审风险和交付节点。
+- `Birdhouse Work Buddy`：右下角鸟屋桌宠状态层，用小尺寸自适应浮窗展示 idle、working、warning、celebrate 等 agent 状态。
+- `Writing Radar`：在写作时提示“这段缺用户证据”“指标缺当前值/目标值”“这条需求可拆成验收标准”等。
+- `Delivery Trace`：每条建议展示来源，说明命中了哪些历史 PRD/MRD 样式、术语、验收库或交付规则。
+- `Markdown Export`：导出带评审摘要、质量快照和交付建议的 working docs。
 
-当前 demo 是 deterministic offline MVP，不依赖模型 key，也不登录真实飞书账号。它重点展示最终产品的核心体验形态：
+## 补齐设置
 
-- **高保真飞书 Docs 风格页面**：首页不再是独立 PRD IDE dashboard，而是接近飞书 Docs 的文档页面、顶部栏、协作头像、左侧目录和中央文档纸张。
-- **Birdhouse Work Buddy**：右下角鸟舍/桌宠悬浮球作为入口和状态层，默认低打扰驻留。
-- **Reminder Mode**：鸟舍在不打断用户的情况下透出 agent 状态，例如 idle、scanning、warning、result ready。
-- **Assistant Mode**：当用户触发建议、停顿或运行指令时，小鸟从鸟舍飞出，靠近当前段落，表现为“在文档字里行间 working”。
-- **Tab Completion / Next Edit**：根据当前光标、缺失章节、团队风格和交付规则生成下一段 ghost suggestion，用户按 `Tab` 接受。
-- **Rephrase Diff + Rollback**：AI 不直接覆盖正文，而是生成可接受、可拒绝、可回滚的局部 diff。
-- **Writing Radar**：对当前文档段落做轻量扫描，提示“缺用户证据”“指标缺 baseline/target”“方案先于问题”“这条需求可拆成验收标准”等。
-- **Review Warning**：在 `@review` 或评审动作中指出 PRD 的缺口、风险和可验收性问题。
-- **Debug Drawer**：保留 Context Pack、Skills、Rules、Quality、Risk、Trace、Delivery Plan 等调试信息，但默认收起，不进入用户主视野。
+MVP 内置 `completion_settings`，用于说明 Tab 优先补什么。真实产品里这些设置可以成为团队级或个人级偏好。
 
-## 不做什么
+- `SECTION_FIRST_COMPLETION`：空白页或初稿阶段优先补背景、目标、范围、验收、指标、风险等核心章节。
+- `ACCEPTANCE_COMPLETION`：当功能需求已有但缺少可测试口径时，优先补 Given/When/Then 或检查项。
+- `STYLE_REPHRASE_DIFF`：根据当前 MBTI 回复语言风格重写选区，并以可回滚 diff 呈现。
+- `METRIC_AND_RISK_RADAR`：Reminder Mode 下低打扰提示指标、风险、用户证据和 owner 缺口。
+- `DELIVERY_TASK_PROJECTION`：核心章节基本齐备后，把文档投影为产品、设计、研发、测试检查点。
 
-为了避免产品叙事跑偏，当前 MVP 刻意不做以下内容：
+## MBTI 风格化回复语言
 
-- 不替代飞书 Docs，不做新的企业文档系统。
-- 不做整篇 PRD 自动生成器。
-- 不主打任务拆解、IM 群通知、Base/Sheets 写入或需求流转自动化。
-- 不接入真实飞书账号、企业权限和 OAuth。
-- 不在当前演示中调用 `larksuite/cli`。
+这里的 MBTI 不是人格测试，也不是让模型改变事实判断。它只影响 AI 回复、rephrase、review 的表达风格。内部 persona key 保持英文 canonical，UI 和输出可以是中文。
 
-这些能力可能是未来企业落地的一部分，但不是当前 MVP 的主演示目标。当前最重要的是证明：在飞书 Docs 的原生写作场景中，PM/BD 可以通过桌宠 UI 获得 IDE 式的过程增强。
+- `INTJ_ARCHITECT`：战略清晰、面向未来、逻辑锋利，适合边界、依赖和长期架构影响。
+- `ENTJ_COMMANDER`：目标明确、决策果断、强调优先级、owner 和结果，适合交付推进。
+- `INFJ_ADVOCATE`：有共情、有愿景、温和引导，适合用户价值和团队共识表达。
+- `ENFP_CAMPAIGNER`：有画面感、可能性导向、情绪能量更高，适合机会叙事和创意扩写。
 
-## 产品流程
+MBTI 原始风格约束来自 [docs/mbti_profiles.csv](docs/mbti_profiles.csv)，知识包会把 `mbti_do`、`mbti_avoid` 映射到 persona profile 中。
+
+## 产品形态
 
 ```mermaid
 flowchart LR
-    A["PM/BD 在飞书 Docs 写半成品需求"] --> B["Birdhouse Work Buddy 观察文档上下文"]
-    B --> C["Reminder Mode: 低打扰状态透出"]
-    B --> D["Assistant Mode: 小鸟飞到段落旁工作"]
-    D --> E["Tab Completion / Next Edit"]
-    D --> F["Rephrase Diff / Rollback"]
-    D --> G["Writing Radar / Review Warning"]
-    E --> H["用户按 Tab 接受或忽略"]
-    F --> H
-    G --> H
-    H --> I["Docs 中的 PRD/MRD 逐步变得更完整、更可评审"]
+    A["用户在协作文档中写半成品需求"] --> B["Birdhouse Work Buddy 观察上下文"]
+    B --> C["Tab Completion 补下一段"]
+    B --> D["Rephrase Diff 改当前句"]
+    B --> E["Writing Radar 低打扰提醒"]
+    C --> F["Accept / Reject / Rollback"]
+    D --> F
+    E --> G["Inline Review"]
+    F --> H["Working Docs + Delivery Plan"]
 ```
 
-## 交互模式
+当前页面是 Feishu-style shell，但真正要验证的是 SaaS-agnostic 的过程增强能力：只要能读到当前文档、选区、光标和团队知识资产，就能把主流协作 SaaS 的文档页增强成 doc-as-IDE。
 
-### Reminder Mode
+## 技术结构
 
-`Reminder Mode` 是默认状态。鸟舍停留在右下角，只在关键节点通过状态灯、轻微动效和气泡透出信息。
+```text
+.
+├── data/prd_knowledge_pack.json      # seeded PRD/MRD knowledge pack, personas, modes, settings
+├── docs/mbti_profiles.csv            # MBTI language style source definitions
+├── docs/ref/                         # logo and visual reference assets
+├── src/app.py                        # Flask single-page app and /workspace endpoint
+├── src/prd_engine.py                 # deterministic PRD delivery engine
+├── src/prd_skills.py                 # English canonical skill registry
+├── templates/dashboard.html          # Feishu-style doc-as-IDE demo UI
+└── tests/test_app.py                 # endpoint, UI smoke, regression tests
+```
 
-适合表达：
+内部 skill 和 schema 坚持英文 canonical，避免后续接入模型、工具、API 时出现语义漂移。当前主要 skill 包括：`StyleProfiler`、`RequirementCompleter`、`RewriteEditor`、`AcceptanceCriteriaBuilder`、`RiskReviewer`、`TaskPlanner`、`TraceExplainer`、`PersonaStylist`、`ReminderPlanner`、`RollbackManager`。
 
-- agent 正在读取当前文档结构；
-- 当前段落存在潜在缺口；
-- 文档停留时间较长，可能需要下一步建议；
-- review warning 已准备好；
-- 结果已生成，可以回到文档处理。
+## API
 
-### Assistant Mode
-
-`Assistant Mode` 是主动协作状态。小鸟会从鸟舍飞出，靠近当前段落或选区，给出局部建议。
-
-适合表达：
-
-- 光标处生成下一段 ghost suggestion；
-- 对选区生成 rephrase diff；
-- 在当前段落旁标记 Writing Radar；
-- 对风险和验收标准做 inline review；
-- 支持接受、拒绝和 rollback。
-
-## 系统能力
-
-核心能力由离线 deterministic engine 提供，便于比赛现场和 review 环境稳定演示。
-
-- `Tab Completion`：根据当前文本和缺失章节生成下一段建议。
-- `Next Edit Suggestion`：同一次建议返回补齐内容、改写建议、下一处 cursor target 和 evidence refs。
-- `Rephrase Diff`：把模糊需求改写成更接近团队 PRD 风格的表达。
-- `RollbackManager`：为 diff 生成 rollback token，避免 AI 直接破坏用户原文。
-- `WritingRadar`：扫描当前 working cell，提示结构缺口和可补齐动作。
-- `RiskReviewer`：检查验收标准、成功指标、范围边界和风险前置。
-- `PersonaStylist`：支持 `INTJ_ARCHITECT`、`ENTJ_COMMANDER`、`INFJ_ADVOCATE`、`ENFP_CAMPAIGNER` 等写作人格。
-- `TraceExplainer`：解释建议来自哪些团队风格、术语、模板或交付规则。
-
-## 未来飞书落地路径
-
-当前 MVP 不调用真实飞书能力，但保留后续接入方式。
-
-后续真实产品可通过飞书 Docs API 或 `larksuite/cli` 承接：
-
-- 文档读写：读取当前 Docs 内容，将补齐/改写结果写回文档。
-- 光标与选区：获取当前段落、选区、光标位置，作为 `current_text`、`selected_text`、`cursor_position` 的真实来源。
-- 评论/批注：把 Review Warning 或 Writing Radar 以评论、批注或侧边建议形式落在文档局部。
-- 权限认证：处理企业账号、文档权限、OAuth、Bot 权限和 workspace 安全边界。
-- 版本与回滚：把 rollback token 映射到真实文档变更记录或建议状态。
-
-`larksuite/cli` 在这里是未来真实落地的参考路径，不进入当前 MVP 主演示流。当前 demo 只展示“飞书 Docs 被桌宠 UI 增强为 IDE 式写作界面”的核心体验。
-
-## 代码结构
-
-- `src/prd_engine.py`：核心离线 deterministic engine，负责补全、改写、人格、评审、写作雷达、提醒、回滚、交付检查和导出。
-- `src/prd_skills.py`：英文 canonical skill registry，包括 `StyleProfiler`、`RequirementCompleter`、`RewriteEditor`、`AcceptanceCriteriaBuilder`、`RiskReviewer`、`TaskPlanner`、`TraceExplainer`、`PersonaStylist`、`ReminderPlanner`、`RollbackManager`。
-- `data/prd_knowledge_pack.json`：seeded PRD/MRD knowledge pack，包含市场分析、pet states、writing radar rules、persona profiles、section templates 和 delivery rules。
-- `templates/dashboard.html`：当前 MVP 主界面，呈现飞书 Docs 风格页面、桌宠悬浮球、字里行间建议、Debug Drawer 和现有 engine 能力。
-- `docs/ref/`：视觉参考资源，包括 `logo1.png`、`logo2.png`、`logo3.png`、`MBTI.png` 和需求 PDF。
-
-## API 设计
-
-`GET /` 渲染 MVP 单页应用。所有产品动作统一走 `POST /workspace`。
-
-核心 actions：
-
-- `refresh`
-- `load_prd_demo`
-- `inline_suggest`
-- `next_edit_suggest`
-- `rewrite_selection`
-- `review_prd`
-- `generate_delivery_plan`
-- `quality_snapshot`
-- `export_prd`
-
-Assistant / pet actions：
-
-- `switch_agent_mode`
-- `assistant_command`
-- `apply_persona_rewrite`
-- `inline_review`
-- `rollback_suggestion`
-- `reminder_snapshot`
-
-请求示例：
+所有能力保留在单入口 `POST /workspace`，方便前端和未来 SaaS adapter 复用。
 
 ```json
-{"action":"next_edit_suggest","persona":"ENTJ_COMMANDER","current_text":"# PRD\n\n## 背景\n我们希望提升 PRD 写作效率"}
+{"action":"load_prd_demo","demo_id":"doc_as_ide"}
 ```
 
 ```json
-{"action":"assistant_command","command":"@review 请检查验收标准","current_text":"# PRD\n\n## 背景\n..."}
+{"action":"next_edit_suggest","current_text":"# PRD...","persona":"ENTJ_COMMANDER"}
 ```
 
 ```json
-{"action":"reminder_snapshot","current_text":"# PRD\n\n## 背景\n系统需要支持自动联想和内容重整。","idle_seconds":120}
+{"action":"apply_persona_rewrite","persona":"ENFP_CAMPAIGNER","selected_text":"让新人更快写需求","current_text":"# PRD..."}
 ```
 
-重点响应字段：
+```json
+{"action":"inline_review","current_text":"# PRD..."}
+```
 
-- `ghost_text`
-- `replacement_text`
-- `inline_diff`
-- `rollback_token`
-- `evidence_refs`
-- `delivery_trace`
-- `quality_metrics`
-- `missing_sections`
-- `risk_flags`
-- `agent_mode`
-- `mascot_state`
-- `pet_state`
-- `pet_profile`
-- `pet_bubble`
-- `radar_cards`
-- `milestone_cards`
+```json
+{"action":"rollback_suggestion","rollback_token":"...","current_text":"# PRD..."}
+```
 
-## 本地启动
+```json
+{"action":"reminder_snapshot","current_text":"# PRD...","idle_seconds":90}
+```
+
+关键响应字段包括：`ghost_text`、`inline_diff`、`rollback_token`、`persona_profile`、`completion_settings`、`evidence_refs`、`delivery_trace`、`quality_metrics`、`missing_sections`、`risk_flags`、`reminder_cards`、`mascot_state`。
+
+## 本地运行
+
+建议使用虚拟环境运行。
 
 ```bash
 python3 -m venv .venv
@@ -197,83 +128,48 @@ pip install -r requirements.txt
 python -m src.app
 ```
 
-Windows PowerShell：
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m src.app
-```
-
-默认地址：
+打开浏览器访问：
 
 ```text
 http://127.0.0.1:5000
 ```
 
-也可以使用脚本：
+当前 MVP 是 deterministic offline fallback，不依赖模型 key，不依赖真实飞书、Notion 或 Google 账号。
+
+## 测试
 
 ```bash
-./start_server.sh
+python3 -m pytest -q
+pytest -q
 ```
 
-```powershell
-.\start_server.ps1
-```
+测试覆盖：
 
-## 配置
-
-```bash
-PRD_KNOWLEDGE_PACK_PATH=
-HOST=127.0.0.1
-PORT=5000
-```
-
-如果 `PRD_KNOWLEDGE_PACK_PATH` 为空，系统默认使用 `data/prd_knowledge_pack.json`。
-
-## 验证
-
-```bash
-python -m src.preprocess data/prd_knowledge_pack.json
-python -m pytest -q
-```
-
-当前 demo 是 deterministic offline fallback，不依赖模型 key，不依赖真实飞书账号。
+- 首页渲染 doc-as-IDE、鸟屋浮窗、补齐设置和 MBTI 风格化回复语言。
+- `/workspace` 的 demo loading、inline suggestion、rewrite、review、rollback、reminder、export。
+- 内部 skill、persona、mode、completion setting 保持英文 canonical。
+- UI 输出和报告输出保持中文。
+- 离线 fallback 在没有模型 key 时仍可稳定演示。
 
 ## 演示脚本
 
-1. 打开 `http://127.0.0.1:5000`，说明这是“飞书 Docs as IDE”的高保真 MVP，而不是独立 dashboard。
-2. 在文档正文中输入一句模糊需求，例如：`我们希望更好地帮助 PM 自动完善需求`。
-3. 观察右下角鸟舍在 `Reminder Mode` 下透出状态，提示当前段落存在结构缺口。
-4. 点击 `Next Edit 联想`，小鸟进入 `Assistant Mode`，在文档旁生成 ghost suggestion。
-5. 按 `Tab` 接受补齐内容，展示类似 IDE 的内容补全体验。
-6. 选中一句话后触发 `Rephrase 选区`，展示 inline diff、接受/拒绝/回滚。
-7. 输入或运行 `@review 请检查验收标准`，展示 Writing Radar 和 Review Warning。
-8. 打开 `Debug Drawer`，说明底层 evidence refs、quality、risk、trace 和 delivery check 仍然存在，但默认不打扰用户。
-9. 结尾强调：产品改变的是 PM/BD 在飞书 Docs 中交付需求的过程体验，而不是把需求写完后再做任务或 IM 流转。
+1. 打开首页，说明这是 `doc-as-IDE`：把协作文档写作过程变成类似 IDE 的工作流。
+2. 指出当前是 Feishu-style shell，不是最终只做飞书插件；未来可接入 Notion、飞书、钉钉、Teams、Google Docs 等。
+3. 在正文输入一句半成品需求，例如“我们希望提升 PRD 写作效率”。
+4. 点击 `Next Edit 联想`，展示当前句 rephrase diff 和下一段 ghost completion。
+5. 按 `Tab 接受`，说明这对应 VS Code/Cursor 式 Tab Completion。
+6. 在右侧切换 `ENTJ_COMMANDER` 或 `ENFP_CAMPAIGNER`，展示同一段内容的不同回复语言风格。
+7. 运行 `@review`，展示 inline review、风险提示和 rollback token。
+8. 切换 Reminder Mode，展示小鸟如何低打扰提示缺章节、缺验收、缺指标和交付风险。
+9. 点击 `交付检查` 或 `Export PRD`，展示 working docs 可以进入评审和交付。
 
-## 给仓库所有者的 Review 说明
+## 后续路线
 
-本次改动的核心是重新对齐产品叙事和 MVP 展示形态。
+- v1：强化 doc-as-IDE MVP 的写作过程魔法，重点是 Tab 补齐、MBTI 风格化回复、可回滚 diff 和鸟屋状态层。
+- v2：接入真实文档 adapter，优先验证 Feishu Docs / Notion / Google Docs 的当前文档、选区、评论和权限模型。
+- v3：接入企业知识库和任务系统，把 PRD/MRD、会议纪要、项目复盘和交付状态做跨页面检索。
+- v4：支持团队级补齐策略、风格画像、权限隔离、审计日志和交付数据回流。
 
-旧版本首页更像一个独立的三栏 PRD IDE dashboard：左侧 Context Pack，中间编辑器，右侧 AI Work Buddy。它能展示 engine 能力，但容易让评审者误解为“我们做了另一个文档工具”。
+## 边界
 
-这次改动把默认首页改成接近飞书 Docs 的写作界面：用户看到的主体仍然是 Docs，鸟舍桌宠只是入口和状态层，AI 能力贴着正文发生。这样更符合最终产品定义：通过桌宠 UI 把飞书 Docs 变成类似 IDE 的 PM/BD 需求写作界面。
-
-建议重点 review：
-
-- 首页是否足够像飞书 Docs 中的写作场景；
-- 桌宠是否清楚表达了 `Reminder Mode` 和 `Assistant Mode`；
-- `Next Edit`、`Tab Completion`、`Rephrase Diff`、`Writing Radar` 是否更像“字里行间”的能力，而不是 dashboard 控件；
-- `Debug Drawer` 是否足够保留原有 engine 可解释性，同时不干扰主演示；
-- README 是否清楚说明当前 MVP 不接入真实飞书、不做 Tasks/IM/Base 自动化，只保留后续飞书 Docs API / `larksuite/cli` 接入路径。
-
-当前保持 offline/mock 的部分：
-
-- 不登录真实飞书账号；
-- 不读取真实 Docs 选区和光标；
-- 不写回真实 Docs；
-- 不创建飞书任务、群消息或 Base 数据；
-- 不处理企业权限和 OAuth。
-
-这些是后续真实产品落地阶段要解决的问题，不是当前 MVP 的主验证目标。
+当前 MVP 不登录真实 SaaS 账号，不读取企业私有文档，不创建飞书任务、群消息或 Base 数据。它验证的是一个产品形态和过程体验：让 PM/BD/运营/交付在自己熟悉的协作文档里，像工程师使用 IDE 一样获得补齐、联想、重构、评审、回滚和交付追踪。

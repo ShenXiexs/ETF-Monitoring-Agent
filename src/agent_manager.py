@@ -8,9 +8,9 @@ except ImportError:
 
 MODULES = [
     {
-        "key": "prd_editor",
-        "label": "PRD Editor",
-        "summary": "Standalone PRD IDE surface for Tab completion, rewrite, review, and delivery planning.",
+        "key": "doc_as_ide_editor",
+        "label": "doc-as-IDE Editor",
+        "summary": "doc-as-IDE surface for Tab completion, style rephrase, review, reminder, and delivery planning.",
     }
 ]
 

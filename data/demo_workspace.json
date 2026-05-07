@@ -1,5 +1,5 @@
 {
   "deprecated": true,
   "replacement": "prd_knowledge_pack.json",
-  "note": "The active challenge demo is now PRD IDE. Use data/prd_knowledge_pack.json for seeded context."
+  "note": "The active challenge demo is now doc-as-IDE. Use data/prd_knowledge_pack.json for seeded context."
 }

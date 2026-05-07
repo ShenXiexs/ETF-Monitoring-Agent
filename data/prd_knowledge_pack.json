@@ -1,10 +1,10 @@
 {
   "workspace": {
-    "app_name": "Flash of Insights：PRD IDE 需求交付引擎",
-    "eyebrow": "AI Requirement Delivery Engine",
+    "app_name": "doc-as-IDE：AI 文档过程补全工作台",
+    "eyebrow": "doc-as-IDE",
     "slogan": "让PM跟工程师一样用上能够信息补全和自动联想的办公效率产品（跟用 IDE 一样）",
-    "tagline": "完整文档生成不是唯一答案；先把 PRD 写作过程做成像 IDE 一样的 Tab 联想、Next Edit 和 rephrase 工作流。",
-    "description": "面向 PM、BD 和交付团队，系统以跨页面 Work Buddy 的形态陪伴写作：基于团队 PRD/MRD 资产，在用户写作过程中实时补齐、重写、评审、提醒和回滚，把半成品文件整理成可评审 working docs。",
+    "tagline": "把 coding 的 Tab Completion、Next Edit、Rephrase Diff 和可回滚 Review 迁移到 PM/BD/运营/交付的文档工作流。",
+    "description": "面向 B 端企业协作场景，doc-as-IDE 不是重做一个文档工具，而是在飞书、Notion、钉钉、Teams、Google Docs 等主流办公效率 SaaS 的写作过程中叠加 AI 补齐、风格化改写、inline review、桌宠状态层和交付追踪。当前 MVP 以 Feishu Docs 风格壳模拟最终体验。",
     "shortcuts": [
       {
         "key": "Tab",
@@ -28,7 +28,7 @@
       },
       {
         "key": "@mbti",
-        "label": "切换写作人格"
+        "label": "切换回复语言风格"
       },
       {
         "key": "@review",
@@ -37,8 +37,8 @@
     ]
   },
   "challenge_story": {
-    "headline": "Flash of Insights：PRD Writing as an IDE",
-    "subheadline": "让 PM 写需求像工程师写代码一样：不是等 AI 生成整篇文档，而是在写作过程中持续获得 Tab 补全、Next Edit、rephrase、inline review、回滚和交付追踪。",
+    "headline": "doc-as-IDE：Document Writing as an IDE",
+    "subheadline": "让 PM/BD/运营/交付写工作文档时像工程师写代码一样：不是等 AI 生成整篇文档，而是在写作过程中持续获得 Tab 补齐、Next Edit、风格化 rephrase、inline review、回滚和交付追踪。",
     "market_gap": [
       "效率 SaaS 的 AI 强在问答、总结、整篇生成和工作流，但在 PRD 写作过程中的下一步联想、局部重写和可回滚 diff 上仍不充分。",
       "AI IDE 已经证明 Tab completion、next edit suggestion 和 context-aware diff 会改变创作流，但这些体验还没有迁移到 PM/BD 的需求文档工作。",
@@ -46,16 +46,16 @@
     ],
     "demo_flow": [
       "加载团队 PRD/MRD cross-page knowledge pack",
-      "用户写下一句半成品需求",
-      "系统同时给出 Tab ghost completion 和 rephrase diff",
+      "用户在主流协作文档里写下一句半成品需求",
+      "系统根据补齐设置给出 Tab ghost completion 和 rephrase diff",
       "用户按 Tab 接受下一段，或接受/拒绝/回滚 inline diff",
-      "用 @mbti 切换写作人格，用 @review 做 inline review",
-      "生成可提交的 working docs 和交付计划"
+      "用 @mbti 切换回复语言风格，用 @review 做 inline review",
+      "把半成品文档重整成可提交 working docs 和交付计划"
     ],
     "differentiators": [
-      "不是整篇文档生成器，而是写作过程中的 PRD IDE：每一段都可以被补齐、改写、评审和回滚。",
+      "不是整篇文档生成器，而是写作过程中的 doc-as-IDE：每一段都可以被补齐、改写、评审和回滚。",
       "不是单独聊天框，而是停留在文档旁边的 Assistant / Reminder 双模式鸟屋 Work Buddy。",
-      "不是通用润色，而是基于 PRD/MRD 资产、团队术语、MBTI 写作人格和交付规则做 context-aware next edit。"
+      "不是通用润色，而是基于团队文档资产、术语、补齐设置、MBTI 回复语言风格和交付规则做 context-aware next edit。"
     ]
   },
   "style_fingerprints": [
@@ -188,11 +188,11 @@
   },
   "demo_documents": [
     {
-      "id": "prd_ide",
-      "title": "PRD IDE：AI 需求写作工作台",
+      "id": "doc_as_ide",
+      "title": "doc-as-IDE：AI 文档过程补全工作台",
       "category": "核心 Demo",
-      "summary": "展示 Tab 联想、选区改写、AI 评审和交付计划生成。",
-      "seed_text": "# PRD IDE：AI 需求写作工作台\n\n## 背景\n团队沉淀了很多 PRD 和 MRD，但新人很难知道下一段该怎么写，也很难复用历史文档的表达风格。\n\n## 目标\n让产品经理在写 PRD 时像写代码一样获得联想、改写和诊断能力。\n\n## 用户故事\n作为新人产品经理，我希望系统能根据团队历史文档提示下一段内容，以便更快写出可评审的 PRD。\n\n## 范围\n本期提供独立 PRD 编辑器、知识包、Tab 联想、选区改写和评审摘要。"
+      "summary": "展示 Tab 补齐、MBTI 风格化改写、AI 评审、鸟屋提醒和交付计划生成。",
+      "seed_text": "# doc-as-IDE：AI 文档过程补全工作台\n\n## 背景\n主流办公效率 SaaS 已经具备知识库问答、总结和整篇生成能力，但 PM/BD 在写半成品需求时仍缺少像 IDE 一样的过程补齐、局部改写和可回滚评审。\n\n## 目标\n让 PM 在协作文档里写需求时，像工程师写代码一样获得 Tab 联想、Next Edit、风格化 rephrase 和 inline review。\n\n## 用户故事\n作为新人产品经理，我希望系统能根据团队历史文档提示下一段内容，以便更快写出可评审的 working docs。\n\n## 范围\n本期以 Feishu Docs 风格页面演示 doc-as-IDE 能力，覆盖鸟屋桌宠、补齐设置、MBTI 回复语言风格、可回滚 diff 和交付检查。"
     },
     {
       "id": "review_agent",
@@ -234,6 +234,53 @@
       "display_label": "转成交付任务"
     }
   ],
+  "completion_settings": [
+    {
+      "key": "SECTION_FIRST_COMPLETION",
+      "display_label": "章节优先补齐",
+      "description": "Tab 优先补背景、目标、范围、验收、指标、风险等缺失章节，适合空白页和初稿阶段。",
+      "default_enabled": true,
+      "priority": 1,
+      "shortcut": "Tab",
+      "trace_source": "section_templates"
+    },
+    {
+      "key": "ACCEPTANCE_COMPLETION",
+      "display_label": "验收标准补齐",
+      "description": "当需求描述已有功能但缺少可测试口径时，优先生成 Given/When/Then 或检查项。",
+      "default_enabled": true,
+      "priority": 2,
+      "shortcut": "Tab twice",
+      "trace_source": "acceptance_library"
+    },
+    {
+      "key": "STYLE_REPHRASE_DIFF",
+      "display_label": "风格化改写 diff",
+      "description": "根据当前 MBTI 回复语言风格重写选区，并以可接受、可拒绝、可回滚 diff 呈现。",
+      "default_enabled": true,
+      "priority": 3,
+      "shortcut": "Cmd/Ctrl+K",
+      "trace_source": "persona_profiles"
+    },
+    {
+      "key": "METRIC_AND_RISK_RADAR",
+      "display_label": "指标与风险雷达",
+      "description": "Reminder Mode 下低打扰提示缺当前值/目标值、风险边界、用户证据和交付 owner。",
+      "default_enabled": true,
+      "priority": 4,
+      "shortcut": "Reminder",
+      "trace_source": "writing_radar_rules"
+    },
+    {
+      "key": "DELIVERY_TASK_PROJECTION",
+      "display_label": "交付任务投影",
+      "description": "当核心章节基本齐备时，把文档内容投影为产品、设计、研发、测试检查点。",
+      "default_enabled": false,
+      "priority": 5,
+      "shortcut": "Cmd/Ctrl+Enter",
+      "trace_source": "delivery_rules"
+    }
+  ],
   "agent_modes": [
     {
       "key": "REMINDER",
@@ -263,9 +310,16 @@
       "rewrite_rules": [
         "先给结构，再给判断",
         "突出边界、依赖和长期架构影响",
-        "减少情绪化表达"
+        "减少情绪化表达和不确定措辞"
       ],
-      "sample_prompt": "用建筑师风格把这段需求改成更克制、更结构化、更有边界感的 PRD 表达。"
+      "sample_prompt": "用 INTJ 建筑师风格把这段需求改成更克制、更结构化、更有边界感的 PRD 表达。",
+      "mbti_type": "INTJ",
+      "style_guidance_cn": "战略清晰、面向未来、逻辑锋利，先给结构再给判断。",
+      "style_avoid_cn": "避免寒暄填充、情绪化长句和摇摆表达。",
+      "mbti_do": "deliver strategic clarity with future-oriented structure and sharp logic",
+      "mbti_avoid": "avoid small-talk filler, emotional rambling, or indecisive tone",
+      "source_profile": "docs/mbti_profiles.csv",
+      "description": "该 persona 只控制 AI 回复与改写语言风格，不改变事实判断、证据来源和交付规则。"
     },
     {
       "key": "ENTJ_COMMANDER",
@@ -275,9 +329,16 @@
       "rewrite_rules": [
         "强调目标、优先级和 owner",
         "把建议转成行动项",
-        "突出交付节奏和决策点"
+        "突出交付节奏、结果和决策点"
       ],
-      "sample_prompt": "用指挥官风格把这段需求改成目标明确、行动导向的交付表达。"
+      "sample_prompt": "用 ENTJ 指挥官风格把这段需求改成目标明确、行动导向的交付表达。",
+      "mbti_type": "ENTJ",
+      "style_guidance_cn": "目标明确、决策果断、强调优先级、owner 和结果。",
+      "style_avoid_cn": "避免过度道歉、犹豫表达和感伤化叙述。",
+      "mbti_do": "use strategic, decisive language that underscores ambition, structure, and outcomes",
+      "mbti_avoid": "avoid hedging, overly sentimental tone, or apologetic phrasing",
+      "source_profile": "docs/mbti_profiles.csv",
+      "description": "该 persona 只控制 AI 回复与改写语言风格，不改变事实判断、证据来源和交付规则。"
     },
     {
       "key": "INFJ_ADVOCATE",
@@ -286,10 +347,17 @@
       "risk_bias": "medium",
       "rewrite_rules": [
         "强调用户动机和长期价值",
-        "保留温和解释",
-        "兼顾团队协作感"
+        "保留温和解释和协作语气",
+        "把风险说成可共同处理的问题"
       ],
-      "sample_prompt": "用提倡者风格把这段需求改成更关注用户感受和协作价值的表达。"
+      "sample_prompt": "用 INFJ 提倡者风格把这段需求改成更关注用户感受和协作价值的表达。",
+      "mbti_type": "INFJ",
+      "style_guidance_cn": "有共情、有愿景、温和引导，解释用户动机和长期价值。",
+      "style_avoid_cn": "避免犬儒、直接否定和信息噪音。",
+      "mbti_do": "craft reflective, empathetic language with visionary imagery and gentle guidance",
+      "mbti_avoid": "avoid cynical remarks, blunt dismissiveness, or noisy clutter",
+      "source_profile": "docs/mbti_profiles.csv",
+      "description": "该 persona 只控制 AI 回复与改写语言风格，不改变事实判断、证据来源和交付规则。"
     },
     {
       "key": "ENFP_CAMPAIGNER",
@@ -299,9 +367,16 @@
       "rewrite_rules": [
         "增强想象力和场景感",
         "用更有感染力的语言描述机会",
-        "保留清晰验收条件"
+        "保留清晰验收条件和行动出口"
       ],
-      "sample_prompt": "用竞选者风格把这段需求改成更有画面感和推动力的表达。"
+      "sample_prompt": "用 ENFP 竞选者风格把这段需求改成更有画面感和推动力的表达。",
+      "mbti_type": "ENFP",
+      "style_guidance_cn": "有画面感、可能性导向、情绪能量更高，同时保留验收条件。",
+      "style_avoid_cn": "避免干巴巴事实罗列、僵硬结构和过度克制的企业黑话。",
+      "mbti_do": "embrace imaginative, emotionally vibrant storytelling that highlights possibilities",
+      "mbti_avoid": "avoid dry fact-only summaries, restrained corporate tone, or rigid structure",
+      "source_profile": "docs/mbti_profiles.csv",
+      "description": "该 persona 只控制 AI 回复与改写语言风格，不改变事实判断、证据来源和交付规则。"
     }
   ],
   "assistant_commands": [
@@ -313,7 +388,7 @@
     {
       "key": "mbti",
       "trigger": "@mbti",
-      "description": "按指定 MBTI persona 改写或扩写选区。"
+      "description": "按指定 MBTI 回复语言风格改写或扩写选区。"
     },
     {
       "key": "review",
@@ -369,10 +444,10 @@
     "description": "每次 inline review 或 persona rewrite 都返回 rollback_token；前端可用 token 恢复建议前文本。"
   },
   "flash_insight": {
-    "headline": "Flash of Insight：不是再造一个文档生成器，而是把 PRD 写作过程 IDE 化",
-    "problem": "主流办公效率 SaaS 已经在做知识库问答、总结和整篇文档生成，但 PRD/MRD 写作的关键卡点常发生在过程里：下一段该写什么、这句话怎么写成团队风格、哪些验收条件缺失。",
-    "middle_state": "我们追求的中间态是先不替用户完整代写，而是在 PM/BD 自己写作时提供像工程师 coding 一样的 Tab completion、next edit suggestion、inline rephrase 和可回滚 diff。",
-    "product_thesis": "完整文档生成是终局能力，过程补全才是高频入口。先让用户把自己写好的 file 重整成可交付 working docs，再逐步进入跨系统 agentic delivery。",
+    "headline": "Flash of Insight：doc-as-IDE 不是再造文档生成器，而是把办公写作过程 IDE 化",
+    "problem": "主流办公效率 SaaS 已经在做知识库问答、总结和整篇文档生成，但 PM/BD/交付文档的关键卡点常发生在过程里：下一段该写什么、这句话怎么写成团队风格、哪些验收条件缺失、当前建议是否可回滚。",
+    "middle_state": "我们追求的中间态是先不替用户完整代写，而是在用户自己写作时提供像工程师 coding 一样的 Tab completion、next edit suggestion、inline rephrase 和可回滚 diff。",
+    "product_thesis": "完整文档生成是终局能力，过程补全才是高频入口。doc-as-IDE 先让用户把自己写好的 file 重整成可交付 working docs，再逐步进入跨系统 agentic delivery。",
     "demo_sentence": "用户写下一句模糊需求后，小鸟 Work Buddy 同时给出下一段补齐、当前句 rephrase、来源解释和可回滚 diff。"
   },
   "market_landscape": [
@@ -389,7 +464,7 @@
         "Amazon Quick Suite"
       ],
       "what_they_do_well": "知识库问答、会议纪要、摘要、翻译、整篇生成、工作流和外部应用连接。",
-      "unserved_gap": "缺少 PRD 写作过程里的 next edit、局部 rephrase、验收补齐、diff 接受/拒绝/回滚。"
+      "unserved_gap": "缺少写作过程里的 next edit、局部 rephrase、验收补齐、风格化回复语言、diff 接受/拒绝/回滚。"
     },
     {
       "key": "ai_ide",
@@ -422,12 +497,12 @@
       "key": "our_wedge",
       "display_label": "我们的切入点",
       "players": [
+        "doc-as-IDE",
         "Cross-page Work Buddy",
-        "PRD IDE",
         "Birdhouse Assistant"
       ],
-      "what_they_do_well": "把效率 SaaS 的知识库、AI IDE 的 Tab/next edit、桌宠的陪伴感放到同一条 PRD delivery workflow。",
-      "unserved_gap": "先做高频中间态：PM 自己写，AI 在过程里补齐、改写、评审、回滚和重整。"
+      "what_they_do_well": "把效率 SaaS 的知识库、AI IDE 的 Tab/next edit、桌宠的陪伴感放到同一条文档交付 workflow。",
+      "unserved_gap": "先做高频中间态：用户自己写，AI 在过程里补齐、改写、评审、回滚和重整。"
     }
   ],
   "next_edit_patterns": [

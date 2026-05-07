@@ -105,6 +105,7 @@ class PRDDeliveryEngine:
             "knowledge_pack": self.knowledge_pack_summary(),
             "demo_documents": self.pack.get("demo_documents", []),
             "rewrite_modes": self.pack.get("rewrite_modes", []),
+            "completion_settings": self.pack.get("completion_settings", []),
             "agent_modes": self.pack.get("agent_modes", []),
             "agent_mode": "reminder",
             "mode_key": "REMINDER",
@@ -149,6 +150,7 @@ class PRDDeliveryEngine:
             "template_count": len(self.pack.get("section_templates", {})),
             "demo_count": len(self.pack.get("demo_documents", [])),
             "persona_count": len(self.pack.get("persona_profiles", [])),
+            "completion_setting_count": len(self.pack.get("completion_settings", [])),
             "reminder_rule_count": len(self.pack.get("reminder_rules", [])),
             "market_category_count": len(self.pack.get("market_landscape", [])),
             "asset_count": len(self.pack.get("cross_page_assets", [])),
@@ -168,7 +170,9 @@ class PRDDeliveryEngine:
 
     def load_prd_demo(self, demo_id: str | None = None) -> dict:
         demos = self.pack.get("demo_documents", [])
-        selected = next((item for item in demos if item.get("id") == demo_id), None) or self.default_demo_document()
+        demo_aliases = {"prd_ide": "doc_as_ide"}
+        normalized_demo_id = demo_aliases.get(demo_id or "", demo_id)
+        selected = next((item for item in demos if item.get("id") == normalized_demo_id), None) or self.default_demo_document()
         review = self.review_prd(selected["seed_text"])
         suggestion = self.inline_suggest(selected["seed_text"])
         reminder = self.reminder_snapshot(selected["seed_text"], idle_seconds=0)
@@ -303,9 +307,9 @@ class PRDDeliveryEngine:
             "pet_state": "NEXT_EDIT_WORKING",
             "active_journey_state": "NEXT_EDIT_WORKING",
             "pet_profile": self._pet_profile("NEXT_EDIT_WORKING"),
-            "pet_bubble": f"正在按 {profile['display_label']} 写作人格生成可回滚 diff。",
+            "pet_bubble": f"正在按 {profile['display_label']} 回复语言风格生成可回滚 diff。",
             "evidence_refs": evidence_refs,
-            "delivery_trace": self.delivery_trace("apply_persona_rewrite", "PersonaStylist", "人格风格", f"使用 {profile['key']} 写作人格调整选区语气、结构和风险偏好。", evidence_refs),
+            "delivery_trace": self.delivery_trace("apply_persona_rewrite", "PersonaStylist", "风格化回复", f"使用 {profile['key']} 回复语言风格调整选区语气、结构和风险偏好。", evidence_refs),
             "quality_metrics": self.quality_metrics(after_text),
             "missing_sections": self.missing_sections(after_text),
             "risk_flags": self.risk_flags(after_text),
@@ -321,7 +325,7 @@ class PRDDeliveryEngine:
         if "@mbti" in lowered:
             persona_key = self._extract_persona_key(command_text) or persona
             result = self.apply_persona_rewrite(persona_key, selected_text, current_text)
-            result["assistant_message"] = f"已按 {result['persona_profile']['display_label']} 写作人格改写。"
+            result["assistant_message"] = f"已按 {result['persona_profile']['display_label']} 回复语言风格改写。"
             return result
         if "@expand" in lowered:
             return self.rewrite_selection(selected_text or self._extract_last_paragraph(current_text), "add_acceptance_criteria", current_text)
@@ -529,7 +533,7 @@ class PRDDeliveryEngine:
         return next((item for item in profiles if item.get("key") == wanted), profiles[0] if profiles else {"key": "INTJ_ARCHITECT", "display_label": "INTJ 建筑师", "tone": "concise_strategic", "risk_bias": "high", "rewrite_rules": []})
 
     def delivery_trace(self, action: str, skill_name: str, display_label: str, detail: str, evidence_refs: List[dict]) -> List[dict]:
-        return [{"step": "ContextLoad", "skill_name": "StyleProfiler", "display_label": "风格画像", "detail": "读取 seeded PRD/MRD 样例、术语表、章节模板、MBTI persona 和交付规则。", "evidence_refs": [item["id"] for item in evidence_refs[:1]]}, {"step": action, "skill_name": skill_name, "display_label": display_label, "detail": detail, "evidence_refs": [item["id"] for item in evidence_refs]}, {"step": "Explain", "skill_name": "TraceExplainer", "display_label": "联想解释", "detail": "把建议和来源绑定，避免 AI 联想变成不可解释的黑盒。", "evidence_refs": [item["id"] for item in evidence_refs]}]
+        return [{"step": "ContextLoad", "skill_name": "StyleProfiler", "display_label": "风格画像", "detail": "读取 seeded PRD/MRD 样例、术语表、章节模板、MBTI 回复语言风格和交付规则。", "evidence_refs": [item["id"] for item in evidence_refs[:1]]}, {"step": action, "skill_name": skill_name, "display_label": display_label, "detail": detail, "evidence_refs": [item["id"] for item in evidence_refs]}, {"step": "Explain", "skill_name": "TraceExplainer", "display_label": "联想解释", "detail": "把建议和来源绑定，避免 AI 联想变成不可解释的黑盒。", "evidence_refs": [item["id"] for item in evidence_refs]}]
 
     def _next_edit_trace(self, action: str, suggestion_kind: str, has_rewrite: bool, evidence_refs: List[dict]) -> List[dict]:
         trace = [
@@ -564,7 +568,7 @@ class PRDDeliveryEngine:
         return (
             f"面向正在撰写 PRD/MRD 的 PM/BD，当用户输入“{compact}”这类半成品需求时，"
             f"系统需要基于团队历史 PRD、MRD 和交付规则，同时给出下一段补齐、当前句 rephrase、来源解释和可回滚 diff；"
-            f"本次默认采用 {persona_label} 写作人格，输出需包含对象、触发条件、边界和验收口径。"
+            f"本次默认采用 {persona_label} 回复语言风格，输出需包含对象、触发条件、边界和验收口径。"
         )
 
     def _replace_last_block(self, current_text: str, block: str, replacement: str) -> str:
@@ -630,13 +634,35 @@ class PRDDeliveryEngine:
     def _persona_rewrite_text(self, source: str, profile: dict) -> str:
         compact = self._single_line(source)
         key = profile.get("key", "INTJ_ARCHITECT")
+        guidance = profile.get("style_guidance_cn") or "保持清晰、可交付、可验收。"
+        avoid = profile.get("style_avoid_cn") or "避免泛泛而谈。"
         if key == "ENTJ_COMMANDER":
-            return f"目标：{compact}。\n行动项：明确 owner、优先级、验收口径和上线检查点，保证团队可以立即进入评审和排期。"
+            return (
+                f"目标：{compact}。\n"
+                f"回复语言风格：{guidance}\n"
+                "行动项：明确 owner、优先级、验收口径和上线检查点，保证团队可以立即进入评审和排期。\n"
+                f"避免：{avoid}"
+            )
         if key == "INFJ_ADVOCATE":
-            return f"用户价值：{compact}。\n为了让团队在评审中更容易形成共识，需要补充用户动机、协作边界和对一线使用者的实际帮助。"
+            return (
+                f"用户价值：{compact}。\n"
+                f"回复语言风格：{guidance}\n"
+                "协作建议：补充用户动机、团队边界和一线使用者的实际帮助，让评审更容易形成共识。\n"
+                f"避免：{avoid}"
+            )
         if key == "ENFP_CAMPAIGNER":
-            return f"机会点：{compact}。\n这不是单纯把文档写快，而是让 PM 在创作过程中获得一个会提醒、会补全、会陪跑的小鸟搭档，同时保留清晰验收条件。"
-        return f"结构化表述：{compact}。\n边界：需明确适用对象、触发条件、非目标、验收标准和潜在风险，避免需求在评审阶段继续扩散。"
+            return (
+                f"机会点：{compact}。\n"
+                f"回复语言风格：{guidance}\n"
+                "场景化表达：这不是单纯把文档写快，而是让 PM 在创作过程中获得一个会提醒、会补全、会陪跑的小鸟搭档。\n"
+                f"验收保留：仍需写清触发条件、成功指标和可回滚 diff。避免：{avoid}"
+            )
+        return (
+            f"结构化表述：{compact}。\n"
+            f"回复语言风格：{guidance}\n"
+            "边界：需明确适用对象、触发条件、非目标、验收标准和潜在风险，避免需求在评审阶段继续扩散。\n"
+            f"避免：{avoid}"
+        )
 
     def _review_summary(self, quality_metrics: List[dict], missing_sections: List[dict], risk_flags: List[dict]) -> str:
         avg = round(sum(item["score"] for item in quality_metrics) / len(quality_metrics)) if quality_metrics else 0

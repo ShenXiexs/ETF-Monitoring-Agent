@@ -166,7 +166,7 @@ def create_app(test_config: Dict | None = None) -> Flask:
                 io.BytesIO(markdown_bytes),
                 mimetype="text/markdown; charset=utf-8",
                 as_attachment=True,
-                download_name=f"prd-ide-export-{report_date}.md",
+                download_name=f"doc-as-ide-export-{report_date}.md",
             )
 
         return jsonify({"error": "Unsupported action"}), 400

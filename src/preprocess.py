@@ -17,6 +17,7 @@ REQUIRED_TOP_LEVEL_KEYS = [
     "section_templates",
     "demo_documents",
     "rewrite_modes",
+    "completion_settings",
     "next_edit_patterns",
     "cross_page_assets",
     "writing_journey_states",
@@ -84,7 +85,7 @@ def validate_knowledge_pack(path: Path) -> dict:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Validate a PRD IDE knowledge pack JSON file.")
+    parser = argparse.ArgumentParser(description="Validate a doc-as-IDE knowledge pack JSON file.")
     parser.add_argument("path", type=Path, help="Path to prd_knowledge_pack.json")
     args = parser.parse_args()
     print(json.dumps(validate_knowledge_pack(args.path), ensure_ascii=False, indent=2))

@@ -1,6 +1,6 @@
-# PRD IDE Example
+# doc-as-IDE Example
 
-This folder is reserved for generated PRD IDE exports.
+This folder is reserved for generated doc-as-IDE exports.
 
 Recommended manual demo path:
 

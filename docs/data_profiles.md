@@ -4,7 +4,7 @@
 
 ## When to Customize
 
-Use a custom pack when you want the Work Buddy + PRD IDE to imitate a different team style, domain, mascot behavior, persona set, or delivery process.
+Use a custom pack when you want the Work Buddy + doc-as-IDE to imitate a different team style, domain, mascot behavior, persona set, or delivery process.
 
 Common changes:
 

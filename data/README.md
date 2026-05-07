@@ -17,7 +17,7 @@ The pack contains:
 - market landscape and Flash insight
 - `AssistantMode` and `ReminderMode` definitions
 - birdhouse mascot asset mapping
-- MBTI persona profiles
+- MBTI response language style profiles
 - assistant command definitions
 - reminder rules
 - pet state catalog

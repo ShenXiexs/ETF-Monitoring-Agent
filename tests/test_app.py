@@ -22,10 +22,12 @@ def test_root_renders_prd_ide(client):
     response = client.get("/")
     body = response.get_data(as_text=True)
     assert response.status_code == 200
-    assert "Flash of Insights：PRD IDE 需求交付引擎" in body
-    assert "Feishu Docs" in body
-    assert "Docs as IDE" in body
-    assert "PM/BD 写作过程增强" in body
+    assert "doc-as-IDE：AI 文档过程补全工作台" in body
+    assert "Feishu-style shell" in body
+    assert "doc-as-IDE" in body
+    assert "PM/BD 文档过程增强" in body
+    assert "补齐设置 Completion Settings" in body
+    assert "风格化回复语言 MBTI Style" in body
     assert "floating-buddy" in body
     assert "Debug Drawer" in body
     assert "Integration Notes" in body
@@ -63,12 +65,15 @@ def test_refresh_payload_contains_challenge_fields(client):
     assert payload["workspace"]["slogan"] == "让PM跟工程师一样用上能够信息补全和自动联想的办公效率产品（跟用 IDE 一样）"
     assert payload["agent_mode"] == "reminder"
     assert payload["mascot_state"] == "peek"
+    assert payload["workspace"]["app_name"] == "doc-as-IDE：AI 文档过程补全工作台"
     assert len(payload["persona_profiles"]) == 4
-    assert payload["challenge_story"]["headline"] == "Flash of Insights：PRD Writing as an IDE"
+    assert len(payload["completion_settings"]) == 5
+    assert payload["challenge_story"]["headline"] == "doc-as-IDE：Document Writing as an IDE"
     assert payload["flash_insight"]["headline"].startswith("Flash of Insight")
     assert len(payload["market_landscape"]) == 4
     assert len(payload["cross_page_assets"]) >= 4
     assert payload["knowledge_pack"]["next_edit_pattern_count"] >= 4
+    assert payload["knowledge_pack"]["completion_setting_count"] >= 5
     assert payload["knowledge_pack"]["pet_state_count"] >= 8
     assert payload["knowledge_pack"]["radar_rule_count"] >= 6
     assert payload["pet_state"]
@@ -102,10 +107,17 @@ def test_persona_and_mode_keys_are_english_while_ui_copy_is_chinese(client):
     persona_keys = [item["key"] for item in payload["persona_profiles"]]
     persona_labels = [item["display_label"] for item in payload["persona_profiles"]]
     mode_keys = [item["key"] for item in payload["agent_modes"]]
+    completion_keys = [item["key"] for item in payload["completion_settings"]]
     assert persona_keys == ["INTJ_ARCHITECT", "ENTJ_COMMANDER", "INFJ_ADVOCATE", "ENFP_CAMPAIGNER"]
     assert mode_keys == ["REMINDER", "ASSISTANT"]
-    assert all(key.isascii() and key.upper() == key for key in persona_keys + mode_keys)
+    assert "SECTION_FIRST_COMPLETION" in completion_keys
+    assert "STYLE_REPHRASE_DIFF" in completion_keys
+    assert all(key.isascii() and key.upper() == key for key in persona_keys + mode_keys + completion_keys)
     assert any(not label.isascii() for label in persona_labels)
+    assert any(not item["display_label"].isascii() for item in payload["completion_settings"])
+    assert all(item["source_profile"] == "docs/mbti_profiles.csv" for item in payload["persona_profiles"])
+    assert all(item["mbti_do"].isascii() and item["mbti_avoid"].isascii() for item in payload["persona_profiles"])
+    assert any(not item["style_guidance_cn"].isascii() for item in payload["persona_profiles"])
     assert not payload["agent_modes"][0]["description"].isascii()
 
 
@@ -150,11 +162,11 @@ def test_old_api_routes_return_404(client):
 
 
 def test_load_prd_demo_returns_editor_artifacts(client):
-    response = client.post("/workspace", json={"action": "load_prd_demo", "demo_id": "prd_ide"})
+    response = client.post("/workspace", json={"action": "load_prd_demo", "demo_id": "doc_as_ide"})
     payload = response.get_json()
     assert response.status_code == 200
-    assert payload["active_document"]["id"] == "prd_ide"
-    assert "PRD IDE" in payload["document_text"]
+    assert payload["active_document"]["id"] == "doc_as_ide"
+    assert "doc-as-IDE" in payload["document_text"]
     assert payload["ghost_text"]
     assert payload["evidence_refs"]
     assert payload["style_match"]["score"] >= 50
@@ -282,6 +294,8 @@ def test_assistant_command_supports_review_and_mbti(client):
     ).get_json()
     assert mbti["persona_profile"]["key"] == "ENFP_CAMPAIGNER"
     assert "机会点" in mbti["replacement_text"]
+    assert "回复语言风格" in mbti["replacement_text"]
+    assert mbti["persona_profile"]["mbti_do"].isascii()
 
 
 def test_apply_persona_rewrite_differs_by_persona(client):
@@ -291,6 +305,8 @@ def test_apply_persona_rewrite_differs_by_persona(client):
     assert intj["persona_profile"]["key"] == "INTJ_ARCHITECT"
     assert enfp["persona_profile"]["key"] == "ENFP_CAMPAIGNER"
     assert intj["replacement_text"] != enfp["replacement_text"]
+    assert "战略清晰" in intj["replacement_text"]
+    assert "机会点" in enfp["replacement_text"]
     assert intj["inline_diff"]["can_rollback"] is True
 
 
@@ -349,7 +365,7 @@ def test_export_prd_markdown(client):
         "/workspace",
         json={
             "action": "export_prd",
-            "current_text": "# PRD IDE\n\n## 背景\n团队需要 Cursor 式 PRD 写作体验。",
+            "current_text": "# doc-as-IDE\n\n## 背景\n团队需要 Cursor 式文档写作体验。",
         },
     )
     body = response.get_data(as_text=True)

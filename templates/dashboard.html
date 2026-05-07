@@ -559,6 +559,41 @@
             line-height: 1.55;
         }
 
+        .card,
+        .setting-card {
+            border: 1px solid var(--line-soft);
+            border-radius: 12px;
+            padding: 11px 12px;
+            background: #fff;
+        }
+
+        .setting-card {
+            display: grid;
+            gap: 6px;
+        }
+
+        .setting-card.enabled {
+            border-color: #cce0ff;
+            background: #f7faff;
+        }
+
+        .persona-card {
+            transition: border-color 0.18s ease, transform 0.18s ease, background 0.18s ease;
+        }
+
+        .persona-card.active {
+            border-color: var(--primary);
+            background: #f4f8ff;
+            transform: translateY(-1px);
+        }
+
+        .card strong,
+        .setting-card strong {
+            display: block;
+            margin-bottom: 2px;
+            font-size: 12px;
+        }
+
         .pet-state-card {
             border-color: #d9e5ff;
             background: #f7faff;
@@ -595,12 +630,12 @@
         }
 
         .mini-actions {
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .command-row {
             align-items: stretch;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .command-row input,
@@ -640,23 +675,25 @@
         }
 
         .floating-buddy {
+            --buddy-work-x: clamp(-150px, -12vw, -84px);
+            --buddy-work-y: clamp(-116px, -11vh, -72px);
             position: fixed;
-            right: 24px;
-            bottom: 24px;
+            right: clamp(12px, 2vw, 22px);
+            bottom: clamp(12px, 2vw, 22px);
             z-index: 30;
-            width: 196px;
-            padding: 12px;
+            width: clamp(108px, 10vw, 148px);
+            padding: 8px;
             border: 1px solid var(--line-soft);
-            border-radius: 20px;
+            border-radius: 16px;
             background: rgba(255, 255, 255, 0.94);
-            box-shadow: var(--shadow);
+            box-shadow: var(--shadow-soft);
             backdrop-filter: blur(18px);
-            transition: transform 0.2s ease, border-color 0.2s ease;
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .floating-buddy.working,
         .floating-buddy.fly_out {
-            transform: translate(-210px, -132px) scale(0.82);
+            transform: translate(var(--buddy-work-x), var(--buddy-work-y)) scale(0.92);
             border-color: #c9dcff;
             animation: buddyWork 2s ease-in-out infinite;
         }
@@ -669,16 +706,16 @@
         .floating-buddy img {
             width: 100%;
             display: block;
-            border-radius: 16px;
+            border-radius: 13px;
             background: #fff;
         }
 
         .pet-signal {
             position: absolute;
-            right: 17px;
-            top: 17px;
-            width: 12px;
-            height: 12px;
+            right: 12px;
+            top: 12px;
+            width: 10px;
+            height: 10px;
             border: 2px solid #fff;
             border-radius: 50%;
             background: var(--green);
@@ -698,7 +735,7 @@
             position: absolute;
             right: 8px;
             bottom: calc(100% + 10px);
-            width: 280px;
+            width: clamp(220px, 28vw, 280px);
             padding: 12px 14px;
             border: 1px solid var(--line-soft);
             border-radius: 16px 16px 4px 16px;
@@ -722,9 +759,9 @@
         }
 
         .buddy-greeting {
-            margin-top: 9px;
+            margin-top: 7px;
             color: var(--muted);
-            font-size: 12px;
+            font-size: 11px;
             line-height: 1.45;
         }
 
@@ -733,7 +770,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 8px;
-            margin-top: 10px;
+            margin-top: 8px;
         }
 
         .debug-drawer {
@@ -860,8 +897,8 @@
         }
 
         @keyframes buddyWork {
-            0%, 100% { transform: translate(-210px, -132px) scale(0.82); }
-            50% { transform: translate(-210px, -142px) scale(0.82); }
+            0%, 100% { transform: translate(var(--buddy-work-x), var(--buddy-work-y)) scale(0.92); }
+            50% { transform: translate(var(--buddy-work-x), calc(var(--buddy-work-y) - 8px)) scale(0.92); }
         }
 
         @media (max-width: 1180px) {
@@ -908,18 +945,21 @@
             }
 
             .floating-buddy {
-                width: 160px;
-                right: 12px;
-                bottom: 12px;
+                --buddy-work-x: 0px;
+                --buddy-work-y: -126px;
+                width: 118px;
+                right: 10px;
+                bottom: 10px;
             }
 
             .floating-buddy.working,
             .floating-buddy.fly_out {
-                transform: translateY(-140px) scale(0.86);
+                transform: translate(var(--buddy-work-x), var(--buddy-work-y)) scale(0.9);
             }
 
             .pet-bubble {
-                width: 240px;
+                right: 0;
+                width: min(240px, calc(100vw - 28px));
             }
         }
     </style>
@@ -930,8 +970,8 @@
             <div class="doc-title-wrap">
                 <div class="doc-icon">D</div>
                 <div class="doc-title">
-                    <strong>PRD 自动补齐工作文档</strong>
-                    <span>Feishu Docs as IDE · PM/BD 写作过程增强</span>
+                    <strong>doc-as-IDE 自动补齐工作文档</strong>
+                    <span>Feishu-style shell · PM/BD 文档过程增强</span>
                 </div>
             </div>
             <div class="top-actions">
@@ -955,15 +995,15 @@
                 <div class="outline-item"><span class="outline-dot"></span>验收标准</div>
                 <div class="outline-item"><span class="outline-dot"></span>指标与风险</div>
                 <div class="ide-note">
-                    这个 MVP 不替代飞书 Docs，而是让原本的 Docs 具备类似 IDE 的 Tab Completion、Next Edit、Rephrase Diff 和 Review 能力。
+                    这个 MVP 不替代任何协作文档，而是证明主流 SaaS 文档都可以叠加类似 IDE 的 Tab Completion、Next Edit、Rephrase Diff 和 Review 能力。
                 </div>
             </aside>
 
             <main class="doc-main">
                 <div class="mode-tabs">
                     <div class="mode-label">
-                        <span class="status-pill"><span class="status-dot"></span>Docs as IDE</span>
-                        <span>在飞书 Docs 原有写作流里，桌宠负责状态透出与字里行间的 AI 操作层。</span>
+                        <span class="status-pill"><span class="status-dot"></span>doc-as-IDE</span>
+                        <span>当前用 Feishu Docs 风格壳演示，目标是适配 Notion、飞书、钉钉、Teams、Google Docs 等主流协作 SaaS。</span>
                     </div>
                     <div class="mini-actions">
                         <button class="btn" id="reminder-mode-btn" type="button">Reminder Mode</button>
@@ -974,7 +1014,7 @@
                 <section class="doc-stage">
                     <article class="doc-paper">
                         <div class="doc-heading">
-                            <span class="eyebrow">Feishu Docs · AI Requirement Delivery Engine</span>
+                            <span class="eyebrow">doc-as-IDE · AI Document Delivery Engine</span>
                             <h1 id="doc-title">PRD 草稿</h1>
                             <p id="review-summary">桌宠先在鸟舍里低打扰观察文档结构。开始写作后，它会在光标附近给出联想、改写、评审和回滚。</p>
                         </div>
@@ -1038,7 +1078,7 @@
 
                         <div class="rail-card">
                             <h3>Assistant Command</h3>
-                            <p>支持 @review、@mbti、/assistant。真实产品中这些动作会绑定飞书 Docs 当前选区与光标。</p>
+                            <p>支持 @review、@mbti、/assistant。@mbti 只控制回复和改写语言风格，真实产品中这些动作会绑定当前 SaaS 文档选区与光标。</p>
                             <div class="command-row">
                                 <input id="assistant-command" value="@review 请检查验收标准" aria-label="Assistant command">
                                 <button class="btn-primary" id="command-btn" type="button">运行</button>
@@ -1046,7 +1086,14 @@
                         </div>
 
                         <div class="rail-card">
-                            <h3>MBTI Persona</h3>
+                            <h3>补齐设置 Completion Settings</h3>
+                            <p>决定 Tab 先补什么：章节、验收、指标风险，还是交付任务投影。</p>
+                            <div class="list" id="completion-settings-list" style="margin-top:10px;"></div>
+                        </div>
+
+                        <div class="rail-card">
+                            <h3>风格化回复语言 MBTI Style</h3>
+                            <p>MBTI 在这里不是人格测试，而是 AI 回复、rephrase 和 review 的语言风格控制器。</p>
                             <select id="rewrite-mode"></select>
                             <div class="list" id="persona-grid" style="margin-top:10px;"></div>
                         </div>
@@ -1060,7 +1107,7 @@
         <div class="pet-signal" aria-hidden="true"></div>
         <div class="pet-bubble" id="pet-bubble">我先在鸟舍里待命，看到关键缺口再轻提醒。</div>
         <img id="buddy-image" src="/assets/ref/logo2.png" alt="Birdhouse Work Buddy">
-        <div class="buddy-greeting" id="buddy-greeting">Reminder Mode：低打扰观察文档，必要时把状态透出给 PM/BD。</div>
+        <div class="buddy-greeting" id="buddy-greeting">Reminder Mode：低打扰观察文档，必要时用小鸟状态提示补齐缺口。</div>
         <div class="buddy-status">
             <span class="tag" id="buddy-mode-tag">reminder</span>
             <span class="tag" id="buddy-emotion-tag">calm</span>
@@ -1080,10 +1127,10 @@
         <section class="debug-section">
             <h3>Integration Notes</h3>
             <div class="card">
-                <strong>Future Lark Integration</strong>
+                <strong>Future SaaS Integration</strong>
                 <p class="detail">
-                    当前 MVP 不调用 larksuite/cli。后续真实落地时，可把 document_text、selected_text、cursor_position、
-                    ghost_text、inline_diff 和 rollback_token 映射到飞书 Docs API 或 larksuite/cli 的文档读写、选区定位、
+                    当前 MVP 不调用真实 SaaS API。后续真实落地时，可把 document_text、selected_text、cursor_position、
+                    ghost_text、inline_diff 和 rollback_token 映射到飞书 Docs API、Notion API、Google Docs API 或 larksuite/cli 的文档读写、选区定位、
                     评论/批注与权限认证流程。
                 </p>
             </div>
@@ -1166,6 +1213,7 @@
         const reviewSummary = document.getElementById("review-summary");
         const deliveryPlan = document.getElementById("delivery-plan");
         const rewriteMode = document.getElementById("rewrite-mode");
+        const completionSettingsList = document.getElementById("completion-settings-list");
         const personaGrid = document.getElementById("persona-grid");
         const assistantCommand = document.getElementById("assistant-command");
         const reminderList = document.getElementById("reminder-list");
@@ -1266,10 +1314,23 @@
                 <option value="${escapeHtml(item.key)}">${escapeHtml(item.display_label)} · ${escapeHtml(item.label)}</option>
             `).join("");
 
+            completionSettingsList.innerHTML = (appState.completion_settings || []).map((item) => `
+                <div class="setting-card ${item.default_enabled ? "enabled" : ""}">
+                    <div class="tag-row" style="justify-content:space-between;">
+                        <strong>${escapeHtml(item.display_label)}</strong>
+                        <span class="tag ${item.default_enabled ? "strong" : ""}">${item.default_enabled ? "默认开启" : "按需开启"}</span>
+                    </div>
+                    <div class="detail">${escapeHtml(item.description)}</div>
+                    <div class="tag-row"><span class="tag">${escapeHtml(item.shortcut)}</span><span class="tag">${escapeHtml(item.trace_source)}</span></div>
+                </div>
+            `).join("");
+
             personaGrid.innerHTML = (appState.persona_profiles || []).map((item) => `
                 <div class="card persona-card" data-persona="${escapeHtml(item.key)}">
                     <strong>${escapeHtml(item.display_label)}</strong>
                     <div class="detail">${escapeHtml(item.tone)} · risk ${escapeHtml(item.risk_bias)}</div>
+                    <div class="detail">回复风格：${escapeHtml(item.style_guidance_cn || item.mbti_do)}</div>
+                    <div class="detail">避免：${escapeHtml(item.style_avoid_cn || item.mbti_avoid)}</div>
                 </div>
             `).join("");
             personaGrid.querySelectorAll("[data-persona]").forEach((card) => {
@@ -1288,6 +1349,9 @@
             const title = (appState.artifact_preview || {}).title || "PRD 草稿";
             docTitle.textContent = title;
             editorCount.textContent = `${wordCount(text)} tokens · ${text.length} chars`;
+            personaGrid.querySelectorAll("[data-persona]").forEach((card) => {
+                card.classList.toggle("active", card.getAttribute("data-persona") === selectedPersona);
+            });
 
             ghostCard.style.display = ghostText ? "block" : "none";
             nextEditMeta.innerHTML = `
@@ -1477,7 +1541,7 @@
             const url = URL.createObjectURL(blob);
             const anchor = document.createElement("a");
             anchor.href = url;
-            anchor.download = "prd-ide-export.md";
+            anchor.download = "doc-as-ide-export.md";
             anchor.click();
             URL.revokeObjectURL(url);
         }
